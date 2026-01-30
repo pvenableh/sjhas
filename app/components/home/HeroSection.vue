@@ -18,18 +18,18 @@ onMounted(() => {
     tl.fromTo(
       heroRef.value.querySelector('.hero-badge'),
       { opacity: 0, y: 20 },
-      { opacity: 1, y: 0, duration: 0.5, ease: 'power2.out' }
+      { opacity: 1, y: 0, duration: 0.6, ease: 'power2.out' }
     )
       .fromTo(
         heroRef.value.querySelector('.hero-title'),
         { opacity: 0, y: 40 },
-        { opacity: 1, y: 0, duration: 0.7, ease: 'power3.out' },
+        { opacity: 1, y: 0, duration: 0.8, ease: 'power3.out' },
         '-=0.2'
       )
       .fromTo(
         heroRef.value.querySelector('.hero-subtitle'),
         { opacity: 0, y: 30 },
-        { opacity: 1, y: 0, duration: 0.6, ease: 'power2.out' },
+        { opacity: 1, y: 0, duration: 0.7, ease: 'power2.out' },
         '-=0.4'
       )
       .fromTo(
@@ -40,8 +40,8 @@ onMounted(() => {
       )
       .fromTo(
         heroRef.value.querySelector('.hero-visual'),
-        { opacity: 0, scale: 0.95 },
-        { opacity: 1, scale: 1, duration: 0.8, ease: 'power2.out' },
+        { opacity: 0, scale: 0.97 },
+        { opacity: 1, scale: 1, duration: 0.9, ease: 'power2.out' },
         '-=0.5'
       )
   }
@@ -51,26 +51,28 @@ onMounted(() => {
 <template>
   <section
     ref="heroRef"
-    class="relative min-h-[90vh] flex items-center overflow-hidden t-section"
+    class="relative min-h-[92vh] flex items-center overflow-hidden t-section"
   >
-    <!-- Background pattern -->
-    <div class="absolute inset-0" style="background: linear-gradient(to bottom right, var(--theme-bg-secondary), var(--theme-bg-elevated), var(--theme-bg-secondary));" />
-    <div class="absolute inset-0 opacity-[0.03]" style="background-image: url(&quot;data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23000000' fill-opacity='1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E&quot;)" />
+    <!-- Subtle gradient background -->
+    <div class="absolute inset-0" style="background: linear-gradient(170deg, var(--theme-bg-secondary) 0%, var(--theme-bg-elevated) 40%, var(--theme-bg-secondary) 100%);" />
 
-    <div class="relative container-wide section-padding py-20 lg:py-32">
-      <div class="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
+    <!-- Refined decorative line -->
+    <div class="absolute top-0 left-0 right-0 h-px" style="background: linear-gradient(to right, transparent, var(--theme-border-primary), transparent);" />
+
+    <div class="relative container-wide section-padding py-24 lg:py-36">
+      <div class="grid lg:grid-cols-2 gap-16 lg:gap-20 items-center">
         <!-- Content -->
         <div class="max-w-xl">
-          <div class="hero-badge inline-flex items-center gap-2 px-4 py-2 rounded-full t-badge text-sm font-medium mb-6">
-            <Icon name="lucide:building-2" class="w-4 h-4" />
+          <div class="hero-badge inline-flex items-center gap-2.5 px-5 py-2.5 rounded-full t-badge text-xs font-medium tracking-widest uppercase mb-8">
+            <Icon name="lucide:building-2" class="w-3.5 h-3.5" />
             <span>Serving Central NY Since 2000</span>
           </div>
 
-          <h1 class="hero-title text-4xl sm:text-5xl lg:text-6xl t-heading t-text leading-tight mb-6">
+          <h1 class="hero-title text-4xl sm:text-5xl lg:text-[3.5rem] xl:text-[4rem] t-heading t-text leading-[1.1] tracking-tight mb-8">
             {{ title || 'It\'s not just about the numbers.' }}
           </h1>
 
-          <p class="hero-subtitle text-lg sm:text-xl t-text-secondary leading-relaxed mb-8">
+          <p class="hero-subtitle text-lg sm:text-xl t-text-secondary leading-relaxed mb-10 max-w-md">
             {{ subtitle || 'Personalized tax returns, accounting, and payroll services that make a difference for your business and personal finances.' }}
           </p>
 
@@ -80,16 +82,17 @@ onMounted(() => {
               :href="ctaLink || 'https://app.reclaim.ai/m/sjhas/quick-meeting'"
               target="_blank"
               size="lg"
-              class="group"
+              class="group tracking-wide"
             >
               {{ ctaText || 'Book a Consultation' }}
-              <Icon name="lucide:arrow-right" class="w-5 h-5 transition-transform group-hover:translate-x-1" />
+              <Icon name="lucide:arrow-right" class="w-4 h-4 transition-transform group-hover:translate-x-1" />
             </Button>
             <Button
               as="a"
               href="#services"
               variant="secondary"
               size="lg"
+              class="tracking-wide"
             >
               Our Services
             </Button>
@@ -99,37 +102,37 @@ onMounted(() => {
         <!-- Visual -->
         <div class="hero-visual relative">
           <div class="relative aspect-square max-w-lg mx-auto">
-            <!-- Decorative circles -->
-            <div class="absolute -top-4 -right-4 w-72 h-72 rounded-full blur-3xl" style="background-color: var(--theme-accent-primary); opacity: 0.15;" />
-            <div class="absolute -bottom-4 -left-4 w-64 h-64 rounded-full blur-3xl" style="background-color: var(--theme-accent-secondary); opacity: 0.15;" />
+            <!-- Subtle decorative glow -->
+            <div class="absolute -top-8 -right-8 w-80 h-80 rounded-full blur-[80px]" style="background-color: var(--theme-accent-primary); opacity: 0.08;" />
+            <div class="absolute -bottom-8 -left-8 w-72 h-72 rounded-full blur-[80px]" style="background-color: var(--theme-accent-secondary); opacity: 0.06;" />
 
             <!-- Main card -->
-            <div class="relative t-bg-elevated rounded-2xl t-shadow-lg border t-border p-8 transform rotate-2 hover:rotate-0 transition-transform duration-500">
-              <div class="flex items-center gap-4 mb-6">
+            <div class="relative t-bg-elevated rounded-2xl t-shadow-lg border t-border p-10 transform rotate-1 hover:rotate-0 transition-all duration-700 ease-out">
+              <div class="flex items-center gap-5 mb-8">
                 <div class="w-16 h-16 rounded-xl t-icon-box flex items-center justify-center">
                   <Icon name="lucide:calculator" class="w-8 h-8" />
                 </div>
                 <div>
-                  <h3 class="font-semibold t-text">Expert Tax Planning</h3>
-                  <p class="text-sm t-text-muted">Personalized strategies</p>
+                  <h3 class="font-medium t-text tracking-wide">Expert Tax Planning</h3>
+                  <p class="text-sm t-text-muted mt-0.5">Personalized strategies</p>
                 </div>
               </div>
 
-              <div class="space-y-4">
-                <div class="flex items-center gap-3">
-                  <div class="w-10 h-10 rounded-lg t-icon-box flex items-center justify-center">
+              <div class="space-y-5">
+                <div class="flex items-center gap-4">
+                  <div class="w-10 h-10 rounded-lg t-icon-box flex items-center justify-center flex-shrink-0">
                     <Icon name="lucide:check" class="w-5 h-5" />
                   </div>
                   <span class="t-text-secondary">Personal Tax Preparation</span>
                 </div>
-                <div class="flex items-center gap-3">
-                  <div class="w-10 h-10 rounded-lg t-icon-box flex items-center justify-center">
+                <div class="flex items-center gap-4">
+                  <div class="w-10 h-10 rounded-lg t-icon-box flex items-center justify-center flex-shrink-0">
                     <Icon name="lucide:check" class="w-5 h-5" />
                   </div>
                   <span class="t-text-secondary">Business Tax Strategy</span>
                 </div>
-                <div class="flex items-center gap-3">
-                  <div class="w-10 h-10 rounded-lg t-icon-box flex items-center justify-center">
+                <div class="flex items-center gap-4">
+                  <div class="w-10 h-10 rounded-lg t-icon-box flex items-center justify-center flex-shrink-0">
                     <Icon name="lucide:check" class="w-5 h-5" />
                   </div>
                   <span class="t-text-secondary">Payroll Processing</span>
@@ -138,14 +141,14 @@ onMounted(() => {
             </div>
 
             <!-- Floating badge -->
-            <div class="absolute -bottom-6 -left-6 t-bg-elevated rounded-xl t-shadow-lg border t-border p-4 transform -rotate-3">
-              <div class="flex items-center gap-3">
+            <div class="absolute -bottom-6 -left-6 t-bg-elevated rounded-xl t-shadow-lg border t-border p-5 transform -rotate-2">
+              <div class="flex items-center gap-4">
                 <div class="w-12 h-12 rounded-full t-icon-box flex items-center justify-center">
                   <Icon name="lucide:star" class="w-6 h-6" />
                 </div>
                 <div>
-                  <p class="text-2xl font-bold t-text">24+</p>
-                  <p class="text-sm t-text-muted">Years Experience</p>
+                  <p class="text-2xl font-light t-heading t-text">24+</p>
+                  <p class="text-xs t-text-muted tracking-wider uppercase">Years Experience</p>
                 </div>
               </div>
             </div>

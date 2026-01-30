@@ -9,21 +9,21 @@ const themes = [
   {
     id: 'classic',
     name: 'Classic',
-    description: 'Warm & elegant',
+    description: 'Timeless & warm',
     icon: 'lucide:crown',
     colors: {
-      light: { bg: '#FDFCFA', accent: '#C9A96E' },
-      dark: { bg: '#1C1915', accent: '#D4BA8A' }
+      light: { bg: '#FDFCFA', accent: '#B8976A' },
+      dark: { bg: '#161412', accent: '#C9A96E' }
     }
   },
   {
     id: 'modern',
     name: 'Modern',
-    description: 'Clean & minimal',
+    description: 'Refined & sophisticated',
     icon: 'lucide:sparkles',
     colors: {
-      light: { bg: '#FFFFFF', accent: '#1E3A5F' },
-      dark: { bg: '#0B1929', accent: '#00D4E8' }
+      light: { bg: '#FAF9F7', accent: '#8B6F47' },
+      dark: { bg: '#121110', accent: '#C4A87A' }
     }
   }
 ] as const

@@ -2,8 +2,8 @@
  * Theme Management Composable
  * 
  * Manages two design themes (Classic & Modern) with light/dark variants each.
- * - Classic: Warm cream background, gold accents, serif headings
- * - Modern: Clean white/grey with cyan highlights, sans-serif headings
+ * - Classic: Warm cream, gold accents, Bodoni serif headings
+ * - Modern: Sophisticated neutrals, bronze accents, elegant Bodoni + Avenir Next
  */
 
 export type ThemeStyle = 'classic' | 'modern'
@@ -20,7 +20,7 @@ export function useTheme() {
   const colorMode = useColorMode()
   
   // Theme style state (classic or modern)
-  const themeStyle = useState<ThemeStyle>('theme-style', () => 'classic')
+  const themeStyle = useState<ThemeStyle>('theme-style', () => 'modern')
   
   // Computed theme class for the HTML element
   const themeClass = computed(() => {

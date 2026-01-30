@@ -53,7 +53,7 @@ onMounted(() => {
     gsap.fromTo(
       headerRef.value,
       { y: -100, opacity: 0 },
-      { y: 0, opacity: 1, duration: 0.6, ease: 'power3.out' }
+      { y: 0, opacity: 1, duration: 0.7, ease: 'power3.out' }
     )
   }
 })
@@ -79,21 +79,21 @@ onMounted(() => {
             :alt="siteName"
             class="h-12 w-auto"
           />
-          <div v-else class="flex items-center gap-2">
+          <div v-else class="flex items-center gap-2.5">
             <div class="w-10 h-10 rounded-lg t-bg-accent flex items-center justify-center">
-              <span class="t-text-inverse font-bold text-lg">S</span>
+              <span class="t-text-inverse font-light text-lg t-heading">S</span>
             </div>
-            <span class="t-heading text-xl t-text">{{ siteName || 'SJHAS, Inc.' }}</span>
+            <span class="t-heading text-xl t-text tracking-wide">{{ siteName || 'SJHAS, Inc.' }}</span>
           </div>
         </NuxtLink>
 
         <!-- Desktop Navigation -->
-        <div class="hidden lg:flex items-center gap-1">
+        <div class="hidden lg:flex items-center gap-0.5">
           <NuxtLink
             v-for="link in navLinks"
             :key="link.href"
             :to="link.href"
-            class="px-4 py-2 text-sm font-medium t-text-secondary hover:t-text-accent transition-colors rounded-lg t-hover-bg"
+            class="px-4 py-2 text-sm tracking-wide t-text-secondary hover:t-text-accent transition-colors rounded-lg t-hover-bg"
           >
             {{ link.label }}
           </NuxtLink>
@@ -103,17 +103,17 @@ onMounted(() => {
             :href="link.href"
             target="_blank"
             rel="noopener noreferrer"
-            class="px-4 py-2 text-sm font-medium t-text-secondary hover:t-text-accent transition-colors rounded-lg t-hover-bg flex items-center gap-1"
+            class="px-4 py-2 text-sm tracking-wide t-text-secondary hover:t-text-accent transition-colors rounded-lg t-hover-bg flex items-center gap-1.5"
           >
             {{ link.label }}
-            <Icon name="lucide:external-link" class="w-3.5 h-3.5" />
+            <Icon name="lucide:external-link" class="w-3 h-3" />
           </a>
         </div>
 
         <!-- CTA Button & Theme Switcher (Desktop) -->
         <div class="hidden lg:flex items-center gap-3">
           <LayoutThemeSwitcher />
-          <Button as="a" href="https://app.reclaim.ai/m/sjhas/quick-meeting" target="_blank">
+          <Button as="a" href="https://app.reclaim.ai/m/sjhas/quick-meeting" target="_blank" class="tracking-wide">
             Book Appointment
           </Button>
         </div>
@@ -154,7 +154,7 @@ onMounted(() => {
             v-for="link in navLinks"
             :key="link.href"
             :to="link.href"
-            class="mobile-nav-link block px-4 py-3 text-base font-medium t-text-secondary hover:t-text-accent t-hover-bg rounded-lg transition-colors"
+            class="mobile-nav-link block px-4 py-3 text-base tracking-wide t-text-secondary hover:t-text-accent t-hover-bg rounded-lg transition-colors"
             @click="closeMobileMenu"
           >
             {{ link.label }}
@@ -165,23 +165,23 @@ onMounted(() => {
             :href="link.href"
             target="_blank"
             rel="noopener noreferrer"
-            class="mobile-nav-link flex items-center gap-2 px-4 py-3 text-base font-medium t-text-secondary hover:t-text-accent t-hover-bg rounded-lg transition-colors"
+            class="mobile-nav-link flex items-center gap-2 px-4 py-3 text-base tracking-wide t-text-secondary hover:t-text-accent t-hover-bg rounded-lg transition-colors"
           >
             {{ link.label }}
             <Icon name="lucide:external-link" class="w-4 h-4" />
           </a>
-          
+
           <!-- Mobile Theme Switcher -->
           <div class="pt-3 px-4 space-y-3">
             <div class="flex items-center justify-between">
-              <span class="text-sm t-text-muted">Theme</span>
+              <span class="text-sm t-text-muted tracking-wide">Theme</span>
               <LayoutThemeSwitcher />
             </div>
             <Button
               as="a"
               href="https://app.reclaim.ai/m/sjhas/quick-meeting"
               target="_blank"
-              class="w-full"
+              class="w-full tracking-wide"
             >
               Book Appointment
             </Button>
