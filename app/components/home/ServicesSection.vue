@@ -80,19 +80,19 @@ onMounted(() => {
   <section
     id="services"
     ref="sectionRef"
-    class="py-20 lg:py-28 bg-white"
+    class="py-20 lg:py-28 t-section"
   >
     <div class="container-wide section-padding">
       <!-- Section header -->
       <div class="section-header text-center max-w-2xl mx-auto mb-16">
-        <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary-100 text-primary-700 text-sm font-medium mb-4">
+        <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full t-badge text-sm font-medium mb-4">
           <Icon name="lucide:briefcase" class="w-4 h-4" />
           <span>What We Do</span>
         </div>
-        <h2 class="text-3xl sm:text-4xl font-serif text-slate-900 mb-4">
+        <h2 class="text-3xl sm:text-4xl t-heading t-text mb-4">
           {{ title || 'Our Services' }}
         </h2>
-        <p class="text-lg text-slate-600">
+        <p class="text-lg t-text-secondary">
           Comprehensive financial services tailored to your personal and business needs.
         </p>
       </div>
@@ -102,21 +102,21 @@ onMounted(() => {
         <div
           v-for="(service, index) in displayServices"
           :key="service.title"
-          class="service-card group relative bg-slate-50 rounded-2xl p-8 border border-slate-200 hover:border-primary-200 hover:bg-white hover:shadow-lg transition-all duration-300"
+          class="service-card group relative rounded-2xl p-8 border t-section-card t-section-card-hover hover:shadow-lg transition-all duration-300"
         >
           <!-- Icon -->
-          <div class="w-14 h-14 rounded-xl bg-primary-100 group-hover:bg-primary-600 flex items-center justify-center mb-6 transition-colors duration-300">
+          <div class="w-14 h-14 rounded-xl t-icon-box t-icon-box-group-hover flex items-center justify-center mb-6 transition-colors duration-300">
             <Icon
               :name="(service.icon as string) || 'lucide:file-text'"
-              class="w-7 h-7 text-primary-600 group-hover:text-white transition-colors duration-300"
+              class="w-7 h-7 t-icon-color-group-hover transition-colors duration-300"
             />
           </div>
 
           <!-- Content -->
-          <h3 class="text-xl font-semibold text-slate-900 mb-3">
+          <h3 class="text-xl font-semibold t-text mb-3">
             {{ service.title }}
           </h3>
-          <p class="text-slate-600 mb-6 leading-relaxed">
+          <p class="t-text-secondary mb-6 leading-relaxed">
             {{ service.short_description }}
           </p>
 
@@ -124,14 +124,14 @@ onMounted(() => {
           <NuxtLink
             v-if="service.cta_link"
             :to="service.cta_link"
-            class="inline-flex items-center gap-2 text-primary-600 font-medium hover:text-primary-700 transition-colors"
+            class="inline-flex items-center gap-2 t-text-accent font-medium t-link transition-colors"
           >
             {{ service.cta_text || 'Learn more' }}
             <Icon name="lucide:arrow-right" class="w-4 h-4 transition-transform group-hover:translate-x-1" />
           </NuxtLink>
 
           <!-- Decorative number -->
-          <div class="absolute top-6 right-6 text-6xl font-bold text-slate-100 group-hover:text-primary-100 transition-colors duration-300 select-none">
+          <div class="absolute top-6 right-6 text-6xl font-bold transition-colors duration-300 select-none" style="color: var(--theme-border-light);">
             {{ String(index + 1).padStart(2, '0') }}
           </div>
         </div>

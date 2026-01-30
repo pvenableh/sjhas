@@ -45,7 +45,7 @@ onMounted(() => {
   <section
     id="about"
     ref="sectionRef"
-    class="py-20 lg:py-28 bg-slate-50"
+    class="py-20 lg:py-28 t-section-alt"
   >
     <div class="container-wide section-padding">
       <div class="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
@@ -55,12 +55,12 @@ onMounted(() => {
             <!-- Placeholder if no image -->
             <div
               v-if="!image"
-              class="absolute inset-0 bg-gradient-to-br from-primary-600 to-primary-800"
+              class="absolute inset-0 t-hero"
             >
               <div class="absolute inset-0 flex items-center justify-center">
-                <div class="text-center text-white">
+                <div class="text-center t-hero-text">
                   <Icon name="lucide:building-2" class="w-20 h-20 mx-auto mb-4 opacity-50" />
-                  <p class="text-xl font-serif opacity-80">SJHAS, Inc.</p>
+                  <p class="text-xl t-heading opacity-80">SJHAS, Inc.</p>
                 </div>
               </div>
             </div>
@@ -72,20 +72,20 @@ onMounted(() => {
             />
 
             <!-- Decorative elements -->
-            <div class="absolute -bottom-6 -right-6 w-32 h-32 bg-accent-400 rounded-2xl -z-10" />
-            <div class="absolute -top-6 -left-6 w-24 h-24 bg-primary-200 rounded-2xl -z-10" />
+            <div class="absolute -bottom-6 -right-6 w-32 h-32 rounded-2xl -z-10" style="background-color: var(--theme-accent-primary); opacity: 0.6;" />
+            <div class="absolute -top-6 -left-6 w-24 h-24 rounded-2xl -z-10" style="background-color: var(--theme-accent-secondary); opacity: 0.4;" />
           </div>
 
           <!-- Stats card -->
-          <div class="absolute -bottom-8 left-8 right-8 lg:right-auto lg:w-64 bg-white rounded-xl shadow-lg p-6">
+          <div class="absolute -bottom-8 left-8 right-8 lg:right-auto lg:w-64 t-bg-elevated rounded-xl t-shadow-lg p-6">
             <div class="grid grid-cols-2 gap-4">
               <div class="text-center">
-                <p class="text-3xl font-bold text-primary-600">24+</p>
-                <p class="text-sm text-slate-500">Years Experience</p>
+                <p class="text-3xl font-bold t-text-accent">24+</p>
+                <p class="text-sm t-text-muted">Years Experience</p>
               </div>
               <div class="text-center">
-                <p class="text-3xl font-bold text-primary-600">100%</p>
-                <p class="text-sm text-slate-500">Client Focus</p>
+                <p class="text-3xl font-bold t-text-accent">100%</p>
+                <p class="text-sm t-text-muted">Client Focus</p>
               </div>
             </div>
           </div>
@@ -93,12 +93,12 @@ onMounted(() => {
 
         <!-- Content -->
         <div class="about-content lg:pl-8">
-          <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary-100 text-primary-700 text-sm font-medium mb-4">
+          <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full t-badge text-sm font-medium mb-4">
             <Icon name="lucide:info" class="w-4 h-4" />
             <span>About Us</span>
           </div>
 
-          <h2 class="text-3xl sm:text-4xl font-serif text-slate-900 mb-6">
+          <h2 class="text-3xl sm:text-4xl t-heading t-text mb-6">
             {{ title || 'SJHAS, Inc.' }}
           </h2>
 
@@ -106,7 +106,7 @@ onMounted(() => {
             <p
               v-for="(paragraph, i) in (content || defaultContent).split('\n\n')"
               :key="i"
-              class="text-slate-600 leading-relaxed"
+              class="t-text-secondary leading-relaxed"
             >
               {{ paragraph }}
             </p>
@@ -115,22 +115,22 @@ onMounted(() => {
           <!-- Features list -->
           <div class="space-y-3 mb-8">
             <div class="flex items-center gap-3">
-              <div class="w-8 h-8 rounded-lg bg-primary-100 flex items-center justify-center">
-                <Icon name="lucide:check" class="w-4 h-4 text-primary-600" />
+              <div class="w-8 h-8 rounded-lg t-icon-box flex items-center justify-center">
+                <Icon name="lucide:check" class="w-4 h-4" />
               </div>
-              <span class="text-slate-700">Personal & Business Tax Services</span>
+              <span class="t-text-secondary">Personal & Business Tax Services</span>
             </div>
             <div class="flex items-center gap-3">
-              <div class="w-8 h-8 rounded-lg bg-primary-100 flex items-center justify-center">
-                <Icon name="lucide:check" class="w-4 h-4 text-primary-600" />
+              <div class="w-8 h-8 rounded-lg t-icon-box flex items-center justify-center">
+                <Icon name="lucide:check" class="w-4 h-4" />
               </div>
-              <span class="text-slate-700">Comprehensive Payroll Processing</span>
+              <span class="t-text-secondary">Comprehensive Payroll Processing</span>
             </div>
             <div class="flex items-center gap-3">
-              <div class="w-8 h-8 rounded-lg bg-primary-100 flex items-center justify-center">
-                <Icon name="lucide:check" class="w-4 h-4 text-primary-600" />
+              <div class="w-8 h-8 rounded-lg t-icon-box flex items-center justify-center">
+                <Icon name="lucide:check" class="w-4 h-4" />
               </div>
-              <span class="text-slate-700">Financial Planning & Consulting</span>
+              <span class="t-text-secondary">Financial Planning & Consulting</span>
             </div>
           </div>
 

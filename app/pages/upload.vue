@@ -133,18 +133,18 @@ useSeoMeta({
 </script>
 
 <template>
-  <div class="min-h-screen bg-slate-50">
+  <div class="min-h-screen t-bg">
     <!-- Hero -->
-    <section class="bg-gradient-to-br from-primary-900 via-primary-800 to-primary-900 py-20 lg:py-28">
+    <section class="t-hero py-20 lg:py-28">
       <div class="container-wide section-padding text-center">
-        <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 text-white/90 text-sm font-medium mb-6">
+        <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full t-hero-badge text-sm font-medium mb-6">
           <Icon name="lucide:shield-check" class="w-4 h-4" />
           <span>Secure Document Upload</span>
         </div>
-        <h1 class="text-3xl sm:text-4xl lg:text-5xl font-serif text-white mb-4">
+        <h1 class="text-3xl sm:text-4xl lg:text-5xl t-heading t-hero-text mb-4">
           {{ displayForm.title }}
         </h1>
-        <p class="text-lg text-primary-200 max-w-2xl mx-auto">
+        <p class="text-lg t-hero-text-secondary max-w-2xl mx-auto">
           {{ displayForm.description }}
         </p>
       </div>
@@ -161,8 +161,8 @@ useSeoMeta({
         </Card>
 
         <!-- Security note -->
-        <div class="mt-8 flex items-start gap-3 text-sm text-slate-500">
-          <Icon name="lucide:lock" class="w-5 h-5 text-primary-600 flex-shrink-0 mt-0.5" />
+        <div class="mt-8 flex items-start gap-3 text-sm t-text-muted">
+          <Icon name="lucide:lock" class="w-5 h-5 t-text-accent flex-shrink-0 mt-0.5" />
           <p>
             Your documents are transmitted securely and stored in our protected system.
             We take your privacy seriously and will never share your information with third parties.

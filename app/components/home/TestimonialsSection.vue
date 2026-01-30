@@ -49,25 +49,25 @@ onMounted(() => {
 <template>
   <section
     ref="sectionRef"
-    class="py-20 lg:py-28 bg-gradient-to-br from-primary-900 via-primary-800 to-primary-900 relative overflow-hidden"
+    class="py-20 lg:py-28 t-hero relative overflow-hidden"
   >
     <!-- Background pattern -->
     <div class="absolute inset-0 opacity-10">
-      <div class="absolute top-0 left-1/4 w-96 h-96 bg-white rounded-full blur-3xl" />
-      <div class="absolute bottom-0 right-1/4 w-80 h-80 bg-accent-400 rounded-full blur-3xl" />
+      <div class="absolute top-0 left-1/4 w-96 h-96 rounded-full blur-3xl" style="background-color: var(--theme-hero-text); opacity: 0.3;" />
+      <div class="absolute bottom-0 right-1/4 w-80 h-80 rounded-full blur-3xl" style="background-color: var(--theme-accent-primary); opacity: 0.3;" />
     </div>
 
     <div class="relative container-wide section-padding">
       <!-- Section header -->
       <div class="text-center max-w-2xl mx-auto mb-16">
-        <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 text-white/90 text-sm font-medium mb-4">
+        <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full t-hero-badge text-sm font-medium mb-4">
           <Icon name="lucide:message-square-quote" class="w-4 h-4" />
           <span>Testimonials</span>
         </div>
-        <h2 class="text-3xl sm:text-4xl font-serif text-white mb-4">
+        <h2 class="text-3xl sm:text-4xl t-heading t-hero-text mb-4">
           {{ title || 'What Our Clients Say' }}
         </h2>
-        <p class="text-lg text-primary-200">
+        <p class="text-lg t-hero-text-secondary">
           Don't just take our word for it — hear from our valued clients.
         </p>
       </div>
@@ -77,15 +77,15 @@ onMounted(() => {
         <div
           v-for="testimonial in displayTestimonials"
           :key="testimonial.author_name"
-          class="testimonial-card relative bg-white rounded-2xl p-8 md:p-12 shadow-2xl"
+          class="testimonial-card relative t-bg-elevated rounded-2xl p-8 md:p-12 t-shadow-lg"
         >
           <!-- Quote icon -->
-          <div class="absolute -top-6 left-8 w-12 h-12 rounded-xl bg-accent-500 flex items-center justify-center shadow-lg">
-            <Icon name="lucide:quote" class="w-6 h-6 text-white" />
+          <div class="absolute -top-6 left-8 w-12 h-12 rounded-xl flex items-center justify-center shadow-lg" style="background-color: var(--theme-accent-primary);">
+            <Icon name="lucide:quote" class="w-6 h-6" style="color: var(--theme-text-inverse);" />
           </div>
 
           <!-- Quote -->
-          <blockquote class="text-lg md:text-xl text-slate-700 leading-relaxed mb-8 italic">
+          <blockquote class="text-lg md:text-xl t-text-secondary leading-relaxed mb-8 italic">
             "{{ testimonial.quote }}"
           </blockquote>
 
@@ -103,15 +103,15 @@ onMounted(() => {
             </div>
             <div
               v-else
-              class="w-14 h-14 rounded-full bg-primary-100 flex items-center justify-center"
+              class="w-14 h-14 rounded-full t-icon-box flex items-center justify-center"
             >
-              <span class="text-xl font-semibold text-primary-600">
+              <span class="text-xl font-semibold">
                 {{ testimonial.author_name?.charAt(0) }}
               </span>
             </div>
             <div>
-              <p class="font-semibold text-slate-900">{{ testimonial.author_name }}</p>
-              <p v-if="testimonial.author_title" class="text-sm text-slate-500">
+              <p class="font-semibold t-text">{{ testimonial.author_name }}</p>
+              <p v-if="testimonial.author_title" class="text-sm t-text-muted">
                 {{ testimonial.author_title }}
               </p>
             </div>
@@ -123,7 +123,8 @@ onMounted(() => {
               v-for="i in 5"
               :key="i"
               name="lucide:star"
-              class="w-5 h-5 text-accent-400 fill-accent-400"
+              class="w-5 h-5 t-text-accent"
+              style="fill: var(--theme-accent-primary);"
             />
           </div>
         </div>
