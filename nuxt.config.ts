@@ -47,18 +47,8 @@ export default defineNuxtConfig({
   },
 
   fonts: {
-    families: [
-      {
-        name: "DM Sans",
-        provider: "google",
-        weights: [400, 500, 600, 700],
-      },
-      {
-        name: "DM Serif Display",
-        provider: "google",
-        weights: [400],
-      },
-    ],
+    // Custom fonts loaded via @font-face in fonts.css — no external providers needed
+    families: [],
   },
 
   runtimeConfig: {

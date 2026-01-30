@@ -36,25 +36,28 @@ const quickLinks = [
 
 <template>
   <footer class="t-footer">
-    <div class="container-wide section-padding py-16">
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10 lg:gap-8">
+    <!-- Decorative top line -->
+    <div class="h-px" style="background: linear-gradient(to right, transparent, var(--theme-footer-border), transparent);" />
+
+    <div class="container-wide section-padding py-20">
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 lg:gap-10">
         <!-- Brand -->
         <div class="lg:col-span-1">
-          <div class="flex items-center gap-2 mb-4">
+          <div class="flex items-center gap-2.5 mb-5">
             <div class="w-10 h-10 rounded-lg t-bg-accent flex items-center justify-center">
-              <span class="t-text-inverse font-bold text-lg">S</span>
+              <span class="t-text-inverse font-light text-lg t-heading">S</span>
             </div>
-            <span class="t-heading text-xl t-footer-heading">SJHAS, Inc.</span>
+            <span class="t-heading text-xl t-footer-heading tracking-wide">SJHAS, Inc.</span>
           </div>
-          <p class="text-sm t-footer-text-secondary leading-relaxed">
+          <p class="text-sm t-footer-text-secondary leading-[1.8]">
             Providing personalized tax returns, accounting, and payroll services throughout Central New York since 2000.
           </p>
         </div>
 
         <!-- Quick Links -->
         <div>
-          <h4 class="t-footer-heading font-semibold mb-4">Quick Links</h4>
-          <ul class="space-y-2">
+          <h4 class="t-footer-heading font-medium mb-5 text-xs tracking-widest uppercase">Quick Links</h4>
+          <ul class="space-y-3">
             <li v-for="link in quickLinks" :key="link.href">
               <component
                 :is="link.external ? 'a' : 'NuxtLink'"
@@ -62,7 +65,7 @@ const quickLinks = [
                 :to="link.external ? undefined : link.href"
                 :target="link.external ? '_blank' : undefined"
                 :rel="link.external ? 'noopener noreferrer' : undefined"
-                class="text-sm t-footer-link inline-flex items-center gap-1"
+                class="text-sm t-footer-link inline-flex items-center gap-1.5 tracking-wide"
               >
                 {{ link.label }}
                 <Icon v-if="link.external" name="lucide:external-link" class="w-3 h-3" />
@@ -73,12 +76,12 @@ const quickLinks = [
 
         <!-- Contact -->
         <div>
-          <h4 class="t-footer-heading font-semibold mb-4">Contact</h4>
-          <ul class="space-y-3">
+          <h4 class="t-footer-heading font-medium mb-5 text-xs tracking-widest uppercase">Contact</h4>
+          <ul class="space-y-4">
             <li>
               <a
                 :href="`mailto:${contactInfo.email}`"
-                class="text-sm t-footer-link flex items-center gap-2"
+                class="text-sm t-footer-link flex items-center gap-2.5"
               >
                 <Icon name="lucide:mail" class="w-4 h-4 t-text-accent" />
                 {{ contactInfo.email }}
@@ -87,15 +90,15 @@ const quickLinks = [
             <li>
               <a
                 :href="`tel:${contactInfo.phone.replace(/[^0-9]/g, '')}`"
-                class="text-sm t-footer-link flex items-center gap-2"
+                class="text-sm t-footer-link flex items-center gap-2.5"
               >
                 <Icon name="lucide:phone" class="w-4 h-4 t-text-accent" />
                 {{ contactInfo.phone }}
               </a>
             </li>
-            <li class="flex items-start gap-2">
+            <li class="flex items-start gap-2.5">
               <Icon name="lucide:map-pin" class="w-4 h-4 t-text-accent mt-0.5" />
-              <div class="text-sm t-footer-text-secondary">
+              <div class="text-sm t-footer-text-secondary leading-relaxed">
                 <p v-for="line in contactInfo.address" :key="line">{{ line }}</p>
               </div>
             </li>
@@ -104,8 +107,8 @@ const quickLinks = [
 
         <!-- Hours -->
         <div>
-          <h4 class="t-footer-heading font-semibold mb-4">Office Hours</h4>
-          <ul class="space-y-1.5">
+          <h4 class="t-footer-heading font-medium mb-5 text-xs tracking-widest uppercase">Office Hours</h4>
+          <ul class="space-y-2.5">
             <li
               v-for="item in hours"
               :key="item.day"
@@ -123,11 +126,11 @@ const quickLinks = [
 
     <!-- Bottom bar -->
     <div class="border-t t-footer-border">
-      <div class="container-wide section-padding py-6 flex flex-col sm:flex-row items-center justify-between gap-4">
-        <p class="text-sm t-footer-text-muted">
+      <div class="container-wide section-padding py-7 flex flex-col sm:flex-row items-center justify-between gap-4">
+        <p class="text-xs t-footer-text-muted tracking-wider">
           &copy; {{ currentYear }} SJHAS, Inc. All rights reserved.
         </p>
-        <p class="text-sm t-footer-text-muted">
+        <p class="text-xs t-footer-text-muted tracking-wider">
           Website by <a href="https://huestudios.com" target="_blank" rel="noopener noreferrer" class="t-text-accent t-footer-link">Hue Studios</a>
         </p>
       </div>

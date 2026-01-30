@@ -48,7 +48,7 @@ onMounted(() => {
       {
         opacity: 1,
         y: 0,
-        duration: 0.6,
+        duration: 0.7,
         ease: 'power2.out',
         scrollTrigger: {
           trigger: sectionRef.value,
@@ -63,7 +63,7 @@ onMounted(() => {
       {
         opacity: 1,
         y: 0,
-        duration: 0.5,
+        duration: 0.6,
         stagger: 0.15,
         ease: 'power2.out',
         scrollTrigger: {
@@ -80,32 +80,32 @@ onMounted(() => {
   <section
     id="services"
     ref="sectionRef"
-    class="py-20 lg:py-28 t-section"
+    class="py-24 lg:py-32 t-section"
   >
     <div class="container-wide section-padding">
       <!-- Section header -->
-      <div class="section-header text-center max-w-2xl mx-auto mb-16">
-        <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full t-badge text-sm font-medium mb-4">
-          <Icon name="lucide:briefcase" class="w-4 h-4" />
+      <div class="section-header text-center max-w-2xl mx-auto mb-20">
+        <div class="inline-flex items-center gap-2.5 px-5 py-2.5 rounded-full t-badge text-xs font-medium tracking-widest uppercase mb-6">
+          <Icon name="lucide:briefcase" class="w-3.5 h-3.5" />
           <span>What We Do</span>
         </div>
-        <h2 class="text-3xl sm:text-4xl t-heading t-text mb-4">
+        <h2 class="text-3xl sm:text-4xl lg:text-[2.75rem] t-heading t-text mb-5 tracking-tight">
           {{ title || 'Our Services' }}
         </h2>
-        <p class="text-lg t-text-secondary">
+        <p class="text-lg t-text-secondary leading-relaxed">
           Comprehensive financial services tailored to your personal and business needs.
         </p>
       </div>
 
       <!-- Services grid -->
-      <div class="services-grid grid md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
+      <div class="services-grid grid md:grid-cols-2 lg:grid-cols-3 gap-8 lg:gap-10">
         <div
           v-for="(service, index) in displayServices"
           :key="service.title"
-          class="service-card group relative rounded-2xl p-8 border t-section-card t-section-card-hover hover:shadow-lg transition-all duration-300"
+          class="service-card group relative rounded-2xl p-10 border t-section-card t-section-card-hover hover:shadow-lg transition-all duration-500"
         >
           <!-- Icon -->
-          <div class="w-14 h-14 rounded-xl t-icon-box t-icon-box-group-hover flex items-center justify-center mb-6 transition-colors duration-300">
+          <div class="w-14 h-14 rounded-xl t-icon-box t-icon-box-group-hover flex items-center justify-center mb-8 transition-colors duration-300">
             <Icon
               :name="(service.icon as string) || 'lucide:file-text'"
               class="w-7 h-7 t-icon-color-group-hover transition-colors duration-300"
@@ -113,10 +113,10 @@ onMounted(() => {
           </div>
 
           <!-- Content -->
-          <h3 class="text-xl font-semibold t-text mb-3">
+          <h3 class="text-xl font-medium t-heading t-text mb-4 tracking-wide">
             {{ service.title }}
           </h3>
-          <p class="t-text-secondary mb-6 leading-relaxed">
+          <p class="t-text-secondary mb-8 leading-relaxed">
             {{ service.short_description }}
           </p>
 
@@ -124,24 +124,24 @@ onMounted(() => {
           <NuxtLink
             v-if="service.cta_link"
             :to="service.cta_link"
-            class="inline-flex items-center gap-2 t-text-accent font-medium t-link transition-colors"
+            class="inline-flex items-center gap-2 t-text-accent font-medium text-sm tracking-wide t-link transition-colors"
           >
             {{ service.cta_text || 'Learn more' }}
             <Icon name="lucide:arrow-right" class="w-4 h-4 transition-transform group-hover:translate-x-1" />
           </NuxtLink>
 
           <!-- Decorative number -->
-          <div class="absolute top-6 right-6 text-6xl font-bold transition-colors duration-300 select-none" style="color: var(--theme-border-light);">
+          <div class="absolute top-8 right-8 text-6xl font-light t-heading transition-colors duration-300 select-none" style="color: var(--theme-border-light);">
             {{ String(index + 1).padStart(2, '0') }}
           </div>
         </div>
       </div>
 
       <!-- Bottom CTA -->
-      <div class="mt-12 text-center">
-        <Button as="a" href="https://app.reclaim.ai/m/sjhas/quick-meeting" target="_blank" size="lg">
+      <div class="mt-16 text-center">
+        <Button as="a" href="https://app.reclaim.ai/m/sjhas/quick-meeting" target="_blank" size="lg" class="tracking-wide">
           Book an Appointment
-          <Icon name="lucide:calendar" class="w-5 h-5" />
+          <Icon name="lucide:calendar" class="w-4 h-4" />
         </Button>
       </div>
     </div>

@@ -21,17 +21,17 @@
   --breakpoint-medium: 768px;
   --breakpoint-large: 1024px;
   --breakpoint-xlarge: 1280px;
-  --font-bold: 'AvenirNextLTW01', 'Helvetica Neue', Helvetica, Arial,
+  --font-bold: 'Avenir Next', 'Proxima Nova', 'Helvetica Neue', Helvetica, Arial,
     sans-serif;
-  --font-body: 'AvenirNextLTW01', 'Helvetica Neue', Helvetica,
+  --font-body: 'Avenir Next', 'Proxima Nova', 'Helvetica Neue', Helvetica,
     Arial, sans-serif;
-  --font-light: 'AvenirNextLTW01', 'Helvetica Neue', Helvetica,
+  --font-light: 'Avenir Next', 'Proxima Nova', 'Helvetica Neue', Helvetica,
     Arial, sans-serif;
-  --font-display: 'AvenirNextLTW01', 'Helvetica Neue', Helvetica,
+  --font-display: 'Avenir Next', 'Proxima Nova', 'Helvetica Neue', Helvetica,
     Arial, sans-serif;
-  --font-sans: 'AvenirNextLTW01', 'Helvetica Neue', Helvetica,
+  --font-sans: 'Avenir Next', 'Proxima Nova', 'Helvetica Neue', Helvetica,
     Arial, sans-serif;
-  --font-serif: 'Bauer Bodoni W01 Roman', 'Times New Roman', Times, serif;
+  --font-serif: 'Bauer Bodoni', 'Times New Roman', Times, serif;
 
   --font-signature: 'Gaegu', cursive;
   --bounce: cubic-bezier(0.205, 0.47, 0.36, 1.385);
