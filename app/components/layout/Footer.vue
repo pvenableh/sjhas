@@ -35,16 +35,16 @@ const quickLinks = [
 </script>
 
 <template>
-  <footer class="bg-slate-900 text-slate-300">
+  <footer class="t-footer text-slate-300">
     <div class="container-wide section-padding py-16">
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10 lg:gap-8">
         <!-- Brand -->
         <div class="lg:col-span-1">
           <div class="flex items-center gap-2 mb-4">
-            <div class="w-10 h-10 rounded-lg bg-primary-600 flex items-center justify-center">
-              <span class="text-white font-bold text-lg">S</span>
+            <div class="w-10 h-10 rounded-lg t-bg-accent flex items-center justify-center">
+              <span class="t-text-inverse font-bold text-lg">S</span>
             </div>
-            <span class="font-serif text-xl text-white">SJHAS, Inc.</span>
+            <span class="t-heading text-xl text-white">SJHAS, Inc.</span>
           </div>
           <p class="text-sm text-slate-400 leading-relaxed">
             Providing personalized tax returns, accounting, and payroll services throughout Central New York since 2000.
@@ -80,7 +80,7 @@ const quickLinks = [
                 :href="`mailto:${contactInfo.email}`"
                 class="text-sm text-slate-400 hover:text-white transition-colors flex items-center gap-2"
               >
-                <Icon name="lucide:mail" class="w-4 h-4 text-primary-400" />
+                <Icon name="lucide:mail" class="w-4 h-4 t-text-accent" />
                 {{ contactInfo.email }}
               </a>
             </li>
@@ -89,12 +89,12 @@ const quickLinks = [
                 :href="`tel:${contactInfo.phone.replace(/[^0-9]/g, '')}`"
                 class="text-sm text-slate-400 hover:text-white transition-colors flex items-center gap-2"
               >
-                <Icon name="lucide:phone" class="w-4 h-4 text-primary-400" />
+                <Icon name="lucide:phone" class="w-4 h-4 t-text-accent" />
                 {{ contactInfo.phone }}
               </a>
             </li>
             <li class="flex items-start gap-2">
-              <Icon name="lucide:map-pin" class="w-4 h-4 text-primary-400 mt-0.5" />
+              <Icon name="lucide:map-pin" class="w-4 h-4 t-text-accent mt-0.5" />
               <div class="text-sm text-slate-400">
                 <p v-for="line in contactInfo.address" :key="line">{{ line }}</p>
               </div>
@@ -122,13 +122,13 @@ const quickLinks = [
     </div>
 
     <!-- Bottom bar -->
-    <div class="border-t border-slate-800">
+    <div class="border-t border-slate-800/50">
       <div class="container-wide section-padding py-6 flex flex-col sm:flex-row items-center justify-between gap-4">
         <p class="text-sm text-slate-500">
           © {{ currentYear }} SJHAS, Inc. All rights reserved.
         </p>
         <p class="text-sm text-slate-600">
-          Website by <a href="https://huestudios.com" target="_blank" rel="noopener noreferrer" class="text-primary-400 hover:text-primary-300 transition-colors">Hue Studios</a>
+          Website by <a href="https://huestudios.com" target="_blank" rel="noopener noreferrer" class="t-text-accent hover:text-white transition-colors">Hue Studios</a>
         </p>
       </div>
     </div>

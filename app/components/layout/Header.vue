@@ -2,7 +2,7 @@
 import { ref, computed, onMounted, watch } from 'vue'
 import { useWindowScroll } from '@vueuse/core'
 import { gsap } from 'gsap'
-import { cn } from '~/utils/cn'
+import { cn } from '~/lib/utils'
 
 const props = defineProps<{
   logo?: string
@@ -65,8 +65,8 @@ onMounted(() => {
     :class="cn(
       'fixed top-0 left-0 right-0 z-50 transition-all duration-300',
       isScrolled
-        ? 'bg-white/95 backdrop-blur-md shadow-sm border-b border-slate-100'
-        : 'bg-transparent'
+        ? 't-header-scrolled shadow-sm border-b t-border'
+        : 't-header'
     )"
   >
     <div class="container-wide section-padding">
@@ -80,10 +80,10 @@ onMounted(() => {
             class="h-12 w-auto"
           />
           <div v-else class="flex items-center gap-2">
-            <div class="w-10 h-10 rounded-lg bg-primary-600 flex items-center justify-center">
-              <span class="text-white font-bold text-lg">S</span>
+            <div class="w-10 h-10 rounded-lg t-bg-accent flex items-center justify-center">
+              <span class="t-text-inverse font-bold text-lg">S</span>
             </div>
-            <span class="font-serif text-xl text-slate-900">{{ siteName || 'SJHAS, Inc.' }}</span>
+            <span class="t-heading text-xl t-text">{{ siteName || 'SJHAS, Inc.' }}</span>
           </div>
         </NuxtLink>
 
@@ -93,7 +93,7 @@ onMounted(() => {
             v-for="link in navLinks"
             :key="link.href"
             :to="link.href"
-            class="px-4 py-2 text-sm font-medium text-slate-600 hover:text-primary-600 transition-colors rounded-lg hover:bg-slate-100"
+            class="px-4 py-2 text-sm font-medium t-text-secondary hover:t-text-accent transition-colors rounded-lg t-hover-bg"
           >
             {{ link.label }}
           </NuxtLink>
@@ -103,32 +103,36 @@ onMounted(() => {
             :href="link.href"
             target="_blank"
             rel="noopener noreferrer"
-            class="px-4 py-2 text-sm font-medium text-slate-600 hover:text-primary-600 transition-colors rounded-lg hover:bg-slate-100 flex items-center gap-1"
+            class="px-4 py-2 text-sm font-medium t-text-secondary hover:t-text-accent transition-colors rounded-lg t-hover-bg flex items-center gap-1"
           >
             {{ link.label }}
             <Icon name="lucide:external-link" class="w-3.5 h-3.5" />
           </a>
         </div>
 
-        <!-- CTA Button (Desktop) -->
-        <div class="hidden lg:block">
+        <!-- CTA Button & Theme Switcher (Desktop) -->
+        <div class="hidden lg:flex items-center gap-3">
+          <LayoutThemeSwitcher />
           <Button as="a" href="https://app.reclaim.ai/m/sjhas/quick-meeting" target="_blank">
             Book Appointment
           </Button>
         </div>
 
-        <!-- Mobile Menu Button -->
-        <button
-          class="lg:hidden p-2 rounded-lg hover:bg-slate-100 transition-colors"
-          :aria-expanded="isMobileMenuOpen"
-          aria-label="Toggle menu"
-          @click="toggleMobileMenu"
-        >
-          <Icon
-            :name="isMobileMenuOpen ? 'lucide:x' : 'lucide:menu'"
-            class="w-6 h-6 text-slate-700"
-          />
-        </button>
+        <!-- Mobile: Theme & Menu Button -->
+        <div class="lg:hidden flex items-center gap-1">
+          <LayoutDarkModeToggle />
+          <button
+            class="p-2 rounded-lg t-hover-bg transition-colors"
+            :aria-expanded="isMobileMenuOpen"
+            aria-label="Toggle menu"
+            @click="toggleMobileMenu"
+          >
+            <Icon
+              :name="isMobileMenuOpen ? 'lucide:x' : 'lucide:menu'"
+              class="w-6 h-6 t-text-secondary"
+            />
+          </button>
+        </div>
       </nav>
     </div>
 
@@ -143,14 +147,14 @@ onMounted(() => {
     >
       <div
         v-if="isMobileMenuOpen"
-        class="lg:hidden absolute top-full left-0 right-0 bg-white border-b border-slate-200 shadow-lg"
+        class="lg:hidden absolute top-full left-0 right-0 t-bg-elevated border-b t-border t-shadow-lg"
       >
         <div class="section-padding py-4 space-y-1">
           <NuxtLink
             v-for="link in navLinks"
             :key="link.href"
             :to="link.href"
-            class="mobile-nav-link block px-4 py-3 text-base font-medium text-slate-700 hover:text-primary-600 hover:bg-slate-50 rounded-lg transition-colors"
+            class="mobile-nav-link block px-4 py-3 text-base font-medium t-text-secondary hover:t-text-accent t-hover-bg rounded-lg transition-colors"
             @click="closeMobileMenu"
           >
             {{ link.label }}
@@ -161,12 +165,18 @@ onMounted(() => {
             :href="link.href"
             target="_blank"
             rel="noopener noreferrer"
-            class="mobile-nav-link flex items-center gap-2 px-4 py-3 text-base font-medium text-slate-700 hover:text-primary-600 hover:bg-slate-50 rounded-lg transition-colors"
+            class="mobile-nav-link flex items-center gap-2 px-4 py-3 text-base font-medium t-text-secondary hover:t-text-accent t-hover-bg rounded-lg transition-colors"
           >
             {{ link.label }}
             <Icon name="lucide:external-link" class="w-4 h-4" />
           </a>
-          <div class="pt-3 px-4">
+          
+          <!-- Mobile Theme Switcher -->
+          <div class="pt-3 px-4 space-y-3">
+            <div class="flex items-center justify-between">
+              <span class="text-sm t-text-muted">Theme</span>
+              <LayoutThemeSwitcher />
+            </div>
             <Button
               as="a"
               href="https://app.reclaim.ai/m/sjhas/quick-meeting"

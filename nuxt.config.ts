@@ -11,6 +11,7 @@ export default defineNuxtConfig({
     "@nuxt/fonts",
     "@nuxt/icon",
     "@nuxt/image",
+    "@nuxtjs/color-mode",
     "@nuxtjs/seo",
     "@vee-validate/nuxt",
     "@vueuse/nuxt",
@@ -22,6 +23,14 @@ export default defineNuxtConfig({
 
   vite: {
     plugins: [tailwindcss()],
+  },
+
+  // Color mode configuration
+  colorMode: {
+    classSuffix: '', // Uses 'dark' class instead of 'dark-mode'
+    preference: 'system', // Default value of $colorMode.preference
+    fallback: 'light', // Fallback value if no system preference found
+    storageKey: 'sjh-color-mode',
   },
 
   shadcn: {

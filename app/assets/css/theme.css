@@ -1,0 +1,530 @@
+/* =============================================================================
+   THEME SYSTEM
+   Two design themes with light/dark variants:
+   - Classic: Cream background, gold accents, serif headings
+   - Modern: White/grey with cyan highlights, sans-serif headings
+   ============================================================================= */
+
+/* =============================================================================
+   CLASSIC THEME - LIGHT MODE
+   Warm cream background, gold accents, serif typography
+   ============================================================================= */
+:root,
+.theme-classic-light {
+  /* Background colors */
+  --theme-bg-primary: #FDFCFA;
+  --theme-bg-secondary: #F5F3EF;
+  --theme-bg-tertiary: #EDE9E3;
+  --theme-bg-elevated: #FFFFFF;
+  --theme-bg-overlay: rgba(253, 252, 250, 0.95);
+
+  /* Text colors */
+  --theme-text-primary: #454545;
+  --theme-text-secondary: #6c6c6c;
+  --theme-text-tertiary: #8B7355;
+  --theme-text-muted: #9a9a9a;
+  --theme-text-inverse: #FFFFFF;
+
+  /* Accent colors - Gold */
+  --theme-accent-primary: #C9A96E;
+  --theme-accent-secondary: #D4BA8A;
+  --theme-accent-tertiary: #8B7355;
+  --theme-accent-hover: #B89A5F;
+  --theme-accent-active: #A68B50;
+
+  /* Border colors */
+  --theme-border-primary: #E5E0D8;
+  --theme-border-secondary: #D4CFC7;
+  --theme-border-light: #F0EBE3;
+
+  /* Component-specific */
+  --theme-header-bg: rgba(245, 243, 239, 0.95);
+  --theme-header-bg-scrolled: rgba(253, 252, 250, 0.98);
+  --theme-footer-bg: #2C2824;
+  --theme-card-bg: #FFFFFF;
+  --theme-nav-bg: rgba(255, 255, 255, 0.85);
+
+  /* Typography */
+  --theme-heading-font: 'DM Serif Display', 'Times New Roman', Times, serif;
+  --theme-body-font: 'DM Sans', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+
+  /* Shadows */
+  --theme-shadow-sm: 0 1px 2px rgba(139, 115, 85, 0.05);
+  --theme-shadow-md: 0 4px 6px rgba(139, 115, 85, 0.07);
+  --theme-shadow-lg: 0 10px 15px rgba(139, 115, 85, 0.1);
+
+  /* Interactive */
+  --theme-link-color: #8B7355;
+  --theme-link-hover: #C9A96E;
+  --theme-button-bg: #C9A96E;
+  --theme-button-text: #FFFFFF;
+  --theme-button-hover-bg: #B89A5F;
+
+  /* Focus */
+  --theme-focus-ring: rgba(201, 169, 110, 0.5);
+
+  /* Dividers */
+  --theme-divider: #E5E0D8;
+  --theme-divider-light: #F0EBE3;
+
+  /* Input */
+  --theme-input-bg: #FFFFFF;
+  --theme-input-border: #D4CFC7;
+  --theme-input-focus-border: #C9A96E;
+}
+
+/* =============================================================================
+   CLASSIC THEME - DARK MODE
+   Warm dark tones with gold accents, serif typography
+   ============================================================================= */
+.theme-classic-dark,
+.dark.theme-classic-light,
+.dark:root {
+  /* Background colors - warm dark palette */
+  --theme-bg-primary: #1C1915;
+  --theme-bg-secondary: #252219;
+  --theme-bg-tertiary: #302B22;
+  --theme-bg-elevated: #2A2620;
+  --theme-bg-overlay: rgba(28, 25, 21, 0.95);
+
+  /* Text colors */
+  --theme-text-primary: #F5F3EF;
+  --theme-text-secondary: #C9C4BA;
+  --theme-text-tertiary: #D4BA8A;
+  --theme-text-muted: #8A857A;
+  --theme-text-inverse: #1C1915;
+
+  /* Accent colors - gold tones (brighter for dark mode) */
+  --theme-accent-primary: #D4BA8A;
+  --theme-accent-secondary: #C9A96E;
+  --theme-accent-tertiary: #E5D4B3;
+  --theme-accent-hover: #E5D4B3;
+  --theme-accent-active: #F0E5CC;
+
+  /* Border colors */
+  --theme-border-primary: #3D372E;
+  --theme-border-secondary: #4A433A;
+  --theme-border-light: #2F2A23;
+
+  /* Component-specific */
+  --theme-header-bg: rgba(37, 34, 25, 0.95);
+  --theme-header-bg-scrolled: rgba(28, 25, 21, 0.98);
+  --theme-footer-bg: #131210;
+  --theme-card-bg: #2A2620;
+  --theme-nav-bg: rgba(37, 34, 25, 0.92);
+
+  /* Typography */
+  --theme-heading-font: 'DM Serif Display', 'Times New Roman', Times, serif;
+  --theme-body-font: 'DM Sans', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+
+  /* Shadows */
+  --theme-shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.2);
+  --theme-shadow-md: 0 4px 6px rgba(0, 0, 0, 0.3);
+  --theme-shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.4);
+
+  /* Interactive */
+  --theme-link-color: #D4BA8A;
+  --theme-link-hover: #E5D4B3;
+  --theme-button-bg: #C9A96E;
+  --theme-button-text: #1C1915;
+  --theme-button-hover-bg: #D4BA8A;
+
+  /* Focus */
+  --theme-focus-ring: rgba(212, 186, 138, 0.5);
+
+  /* Dividers */
+  --theme-divider: #3D372E;
+  --theme-divider-light: #2F2A23;
+
+  /* Input */
+  --theme-input-bg: #2A2620;
+  --theme-input-border: #4A433A;
+  --theme-input-focus-border: #D4BA8A;
+}
+
+/* =============================================================================
+   MODERN THEME - LIGHT MODE
+   Clean white background with navy accents, sans-serif typography
+   ============================================================================= */
+.theme-modern-light {
+  /* Background colors */
+  --theme-bg-primary: #FFFFFF;
+  --theme-bg-secondary: #F8FAFC;
+  --theme-bg-tertiary: #F1F5F9;
+  --theme-bg-elevated: #FFFFFF;
+  --theme-bg-overlay: rgba(255, 255, 255, 0.95);
+
+  /* Text colors */
+  --theme-text-primary: #0F172A;
+  --theme-text-secondary: #334155;
+  --theme-text-tertiary: #64748B;
+  --theme-text-muted: #94A3B8;
+  --theme-text-inverse: #FFFFFF;
+
+  /* Accent colors - Navy */
+  --theme-accent-primary: #1E3A5F;
+  --theme-accent-secondary: #2D4A6F;
+  --theme-accent-tertiary: #0F2744;
+  --theme-accent-hover: #162D4D;
+  --theme-accent-active: #0F2744;
+
+  /* Border colors */
+  --theme-border-primary: #E2E8F0;
+  --theme-border-secondary: #CBD5E1;
+  --theme-border-light: #F1F5F9;
+
+  /* Component-specific */
+  --theme-header-bg: rgba(255, 255, 255, 0.95);
+  --theme-header-bg-scrolled: rgba(255, 255, 255, 0.98);
+  --theme-footer-bg: #0F172A;
+  --theme-card-bg: #FFFFFF;
+  --theme-nav-bg: rgba(255, 255, 255, 0.92);
+
+  /* Typography - sans-serif for headings */
+  --theme-heading-font: 'DM Sans', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  --theme-body-font: 'DM Sans', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+
+  /* Shadows */
+  --theme-shadow-sm: 0 1px 2px rgba(15, 23, 42, 0.04);
+  --theme-shadow-md: 0 4px 6px rgba(15, 23, 42, 0.06);
+  --theme-shadow-lg: 0 10px 15px rgba(15, 23, 42, 0.08);
+
+  /* Interactive */
+  --theme-link-color: #1E3A5F;
+  --theme-link-hover: #0F2744;
+  --theme-button-bg: #1E3A5F;
+  --theme-button-text: #FFFFFF;
+  --theme-button-hover-bg: #162D4D;
+
+  /* Focus */
+  --theme-focus-ring: rgba(30, 58, 95, 0.4);
+
+  /* Dividers */
+  --theme-divider: #E2E8F0;
+  --theme-divider-light: #F1F5F9;
+
+  /* Input */
+  --theme-input-bg: #FFFFFF;
+  --theme-input-border: #CBD5E1;
+  --theme-input-focus-border: #1E3A5F;
+}
+
+/* =============================================================================
+   MODERN THEME - DARK MODE
+   Navy background with cyan accents, sans-serif typography
+   ============================================================================= */
+.theme-modern-dark,
+.dark.theme-modern-light {
+  /* Background colors - Navy palette */
+  --theme-bg-primary: #0B1929;
+  --theme-bg-secondary: #0F2744;
+  --theme-bg-tertiary: #162D4D;
+  --theme-bg-elevated: #132337;
+  --theme-bg-overlay: rgba(11, 25, 41, 0.95);
+
+  /* Text colors */
+  --theme-text-primary: #F1F5F9;
+  --theme-text-secondary: #CBD5E1;
+  --theme-text-tertiary: #94A3B8;
+  --theme-text-muted: #64748B;
+  --theme-text-inverse: #0B1929;
+
+  /* Accent colors - Cyan */
+  --theme-accent-primary: #00D4E8;
+  --theme-accent-secondary: #00E5FA;
+  --theme-accent-tertiary: #00BFD8;
+  --theme-accent-hover: #00E5FA;
+  --theme-accent-active: #33EBFF;
+
+  /* Border colors */
+  --theme-border-primary: #1E3A5F;
+  --theme-border-secondary: #2D4A6F;
+  --theme-border-light: #162D4D;
+
+  /* Component-specific */
+  --theme-header-bg: rgba(15, 39, 68, 0.95);
+  --theme-header-bg-scrolled: rgba(11, 25, 41, 0.98);
+  --theme-footer-bg: #060D16;
+  --theme-card-bg: #132337;
+  --theme-nav-bg: rgba(15, 39, 68, 0.95);
+
+  /* Typography - sans-serif for headings */
+  --theme-heading-font: 'DM Sans', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  --theme-body-font: 'DM Sans', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+
+  /* Shadows */
+  --theme-shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
+  --theme-shadow-md: 0 4px 6px rgba(0, 0, 0, 0.4);
+  --theme-shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.5);
+
+  /* Interactive */
+  --theme-link-color: #00D4E8;
+  --theme-link-hover: #00E5FA;
+  --theme-button-bg: #00D4E8;
+  --theme-button-text: #0B1929;
+  --theme-button-hover-bg: #00E5FA;
+
+  /* Focus */
+  --theme-focus-ring: rgba(0, 212, 232, 0.5);
+
+  /* Dividers */
+  --theme-divider: #1E3A5F;
+  --theme-divider-light: #162D4D;
+
+  /* Input */
+  --theme-input-bg: #132337;
+  --theme-input-border: #2D4A6F;
+  --theme-input-focus-border: #00D4E8;
+}
+
+/* =============================================================================
+   GLOBAL THEME APPLICATION
+   These styles apply the theme variables to the actual elements
+   ============================================================================= */
+
+/* Base HTML/Body styling */
+html {
+  background-color: var(--theme-bg-primary);
+  color: var(--theme-text-primary);
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+body {
+  font-family: var(--theme-body-font);
+  background-color: var(--theme-bg-primary);
+  color: var(--theme-text-primary);
+}
+
+/* Heading typography */
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--theme-heading-font);
+  color: var(--theme-text-primary);
+}
+
+/* =============================================================================
+   THEME UTILITY CLASSES
+   Use these classes throughout your components
+   ============================================================================= */
+
+/* Background utilities */
+.t-bg {
+  background-color: var(--theme-bg-primary);
+}
+
+.t-bg-alt {
+  background-color: var(--theme-bg-secondary);
+}
+
+.t-bg-subtle {
+  background-color: var(--theme-bg-tertiary);
+}
+
+.t-bg-elevated {
+  background-color: var(--theme-bg-elevated);
+}
+
+.t-bg-card {
+  background-color: var(--theme-card-bg);
+}
+
+.t-bg-overlay {
+  background-color: var(--theme-bg-overlay);
+}
+
+/* Text color utilities */
+.t-text {
+  color: var(--theme-text-primary);
+}
+
+.t-text-secondary {
+  color: var(--theme-text-secondary);
+}
+
+.t-text-tertiary {
+  color: var(--theme-text-tertiary);
+}
+
+.t-text-muted {
+  color: var(--theme-text-muted);
+}
+
+.t-text-accent {
+  color: var(--theme-accent-primary);
+}
+
+.t-text-accent-secondary {
+  color: var(--theme-accent-secondary);
+}
+
+.t-text-accent-tertiary {
+  color: var(--theme-accent-tertiary);
+}
+
+.t-text-inverse {
+  color: var(--theme-text-inverse);
+}
+
+/* Accent background utilities */
+.t-bg-accent {
+  background-color: var(--theme-accent-primary);
+}
+
+.t-bg-accent-secondary {
+  background-color: var(--theme-accent-secondary);
+}
+
+/* Border utilities */
+.t-border {
+  border-color: var(--theme-border-primary);
+}
+
+.t-border-secondary {
+  border-color: var(--theme-border-secondary);
+}
+
+.t-border-light {
+  border-color: var(--theme-border-light);
+}
+
+.t-border-divider {
+  border-color: var(--theme-divider);
+}
+
+.t-border-accent {
+  border-color: var(--theme-accent-primary);
+}
+
+/* Divider utilities */
+.t-divider {
+  border-color: var(--theme-divider);
+}
+
+.t-divider-bg {
+  background-color: var(--theme-divider);
+}
+
+/* Typography utilities */
+.t-heading {
+  font-family: var(--theme-heading-font);
+}
+
+.t-body {
+  font-family: var(--theme-body-font);
+}
+
+/* Section backgrounds */
+.t-section {
+  background-color: var(--theme-bg-primary);
+  color: var(--theme-text-primary);
+}
+
+.t-section-alt {
+  background-color: var(--theme-bg-secondary);
+  color: var(--theme-text-primary);
+}
+
+/* Card component */
+.t-card {
+  background-color: var(--theme-card-bg);
+  border: 1px solid var(--theme-border-primary);
+  box-shadow: var(--theme-shadow-md);
+}
+
+/* Link styling */
+.t-link {
+  color: var(--theme-link-color);
+  transition: color 0.2s ease;
+}
+
+.t-link:hover {
+  color: var(--theme-link-hover);
+}
+
+/* Button variants */
+.t-btn {
+  background-color: var(--theme-button-bg);
+  color: var(--theme-button-text);
+  transition: background-color 0.2s ease;
+}
+
+.t-btn:hover {
+  background-color: var(--theme-button-hover-bg);
+}
+
+.t-btn-outline {
+  background-color: transparent;
+  border: 1px solid var(--theme-accent-primary);
+  color: var(--theme-accent-primary);
+}
+
+.t-btn-outline:hover {
+  background-color: var(--theme-accent-primary);
+  color: var(--theme-text-inverse);
+}
+
+/* Input styling */
+.t-input {
+  background-color: var(--theme-input-bg);
+  border: 1px solid var(--theme-input-border);
+  color: var(--theme-text-primary);
+}
+
+.t-input:focus {
+  border-color: var(--theme-input-focus-border);
+  box-shadow: 0 0 0 3px var(--theme-focus-ring);
+  outline: none;
+}
+
+.t-input::placeholder {
+  color: var(--theme-text-muted);
+}
+
+/* Shadow utilities */
+.t-shadow-sm {
+  box-shadow: var(--theme-shadow-sm);
+}
+
+.t-shadow-md {
+  box-shadow: var(--theme-shadow-md);
+}
+
+.t-shadow-lg {
+  box-shadow: var(--theme-shadow-lg);
+}
+
+/* Interactive states */
+.t-hover-bg:hover {
+  background-color: var(--theme-bg-secondary);
+}
+
+.t-hover-accent:hover {
+  color: var(--theme-accent-primary);
+}
+
+/* Header/Nav specific */
+.t-header {
+  background-color: var(--theme-header-bg);
+  backdrop-filter: blur(10px);
+}
+
+.t-header-scrolled {
+  background-color: var(--theme-header-bg-scrolled);
+  backdrop-filter: blur(10px);
+}
+
+/* Footer specific */
+.t-footer {
+  background-color: var(--theme-footer-bg);
+}
+
+/* Focus ring */
+.t-focus:focus-visible {
+  outline: 2px solid var(--theme-focus-ring);
+  outline-offset: 2px;
+}
+
+/* Selection styling */
+::selection {
+  background-color: var(--theme-accent-secondary);
+  color: var(--theme-text-inverse);
+}
