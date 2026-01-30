@@ -10,7 +10,6 @@
    CLASSIC THEME - LIGHT MODE
    Warm cream, gold accents, serif typography (Bauer Bodoni)
    ============================================================================= */
-:root,
 .theme-classic-light {
   /* Background colors */
   --theme-bg-primary: #FDFCFA;
@@ -110,8 +109,7 @@
    Warm dark tones with gold accents, serif typography
    ============================================================================= */
 .theme-classic-dark,
-.dark.theme-classic-light,
-.dark:root {
+.dark.theme-classic-light {
   /* Background colors - warm dark palette */
   --theme-bg-primary: #161412;
   --theme-bg-secondary: #1E1B18;
@@ -210,6 +208,7 @@
    Sophisticated warm neutrals, bronze/brass accents
    Inspired by Restoration Hardware, Hermès — understated luxury
    ============================================================================= */
+:root,
 .theme-modern-light {
   /* Background colors - warm sophisticated whites */
   --theme-bg-primary: #FAF9F7;
@@ -309,7 +308,8 @@
    Deep warm dark, bronze/brass accents
    ============================================================================= */
 .theme-modern-dark,
-.dark.theme-modern-light {
+.dark.theme-modern-light,
+.dark:root {
   /* Background colors - Deep warm charcoal */
   --theme-bg-primary: #121110;
   --theme-bg-secondary: #1A1816;
