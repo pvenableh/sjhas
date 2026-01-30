@@ -5,15 +5,15 @@ import { cva, type VariantProps } from 'class-variance-authority'
 import { cn } from '~/utils/cn'
 
 const buttonVariants = cva(
-  'inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-lg text-sm font-semibold transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0',
+  'inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-lg text-sm font-medium tracking-wide transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0',
   {
     variants: {
       variant: {
-        default: 'bg-primary-600 text-white shadow-sm hover:bg-primary-700',
-        secondary: 'bg-white text-slate-700 border border-slate-300 shadow-sm hover:bg-slate-50',
+        default: 't-btn shadow-sm',
+        secondary: 'bg-secondary-50 text-secondary-800 border border-secondary-200 shadow-sm hover:bg-secondary-100',
         destructive: 'bg-red-600 text-white shadow-sm hover:bg-red-700',
-        outline: 'border border-slate-300 bg-transparent hover:bg-slate-100',
-        ghost: 'hover:bg-slate-100',
+        outline: 'border border-secondary-300 bg-transparent hover:bg-secondary-100 text-secondary-700',
+        ghost: 'hover:bg-secondary-100 text-secondary-700',
         link: 'text-primary-600 underline-offset-4 hover:underline',
       },
       size: {
