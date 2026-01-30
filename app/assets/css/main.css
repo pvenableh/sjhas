@@ -1,0 +1,170 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+@theme {
+  /* Color Palette - Professional Accounting Theme */
+  --color-primary-50: #f0f7f4;
+  --color-primary-100: #dbede3;
+  --color-primary-200: #badbc9;
+  --color-primary-300: #8cc2a8;
+  --color-primary-400: #5ba483;
+  --color-primary-500: #3a8767;
+  --color-primary-600: #2a6c51;
+  --color-primary-700: #235643;
+  --color-primary-800: #1f4537;
+  --color-primary-900: #1b3a2f;
+  --color-primary-950: #0e201a;
+
+  --color-secondary-50: #f5f7fa;
+  --color-secondary-100: #eaeef4;
+  --color-secondary-200: #d0dae7;
+  --color-secondary-300: #a8bcd2;
+  --color-secondary-400: #7a98b8;
+  --color-secondary-500: #597ba0;
+  --color-secondary-600: #466385;
+  --color-secondary-700: #3a516c;
+  --color-secondary-800: #33455b;
+  --color-secondary-900: #2e3c4d;
+  --color-secondary-950: #1f2733;
+
+  --color-accent-50: #fef9ec;
+  --color-accent-100: #fcefc9;
+  --color-accent-200: #f9dc8e;
+  --color-accent-300: #f5c354;
+  --color-accent-400: #f2ac2c;
+  --color-accent-500: #eb8b14;
+  --color-accent-600: #d0660e;
+  --color-accent-700: #ad4610;
+  --color-accent-800: #8d3714;
+  --color-accent-900: #742e14;
+  --color-accent-950: #431506;
+
+  /* Neutral colors */
+  --color-slate-50: #f8fafc;
+  --color-slate-100: #f1f5f9;
+  --color-slate-200: #e2e8f0;
+  --color-slate-300: #cbd5e1;
+  --color-slate-400: #94a3b8;
+  --color-slate-500: #64748b;
+  --color-slate-600: #475569;
+  --color-slate-700: #334155;
+  --color-slate-800: #1e293b;
+  --color-slate-900: #0f172a;
+  --color-slate-950: #020617;
+
+  /* Typography */
+  --font-family-sans: 'DM Sans', ui-sans-serif, system-ui, sans-serif;
+  --font-family-serif: 'DM Serif Display', ui-serif, Georgia, serif;
+
+  /* Border radius */
+  --radius-sm: 0.375rem;
+  --radius: 0.5rem;
+  --radius-md: 0.625rem;
+  --radius-lg: 0.75rem;
+  --radius-xl: 1rem;
+  --radius-2xl: 1.5rem;
+}
+
+/* Base styles */
+@layer base {
+  * {
+    @apply border-slate-200;
+  }
+
+  body {
+    @apply bg-slate-50 text-slate-900 antialiased font-sans;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-serif text-slate-900;
+  }
+}
+
+/* Component styles */
+@layer components {
+  .section-padding {
+    @apply px-4 sm:px-6 lg:px-8;
+  }
+
+  .container-narrow {
+    @apply max-w-4xl mx-auto;
+  }
+
+  .container-wide {
+    @apply max-w-7xl mx-auto;
+  }
+
+  .prose-accounting {
+    @apply text-slate-700 leading-relaxed;
+  }
+
+  .btn-primary {
+    @apply inline-flex items-center justify-center gap-2 rounded-lg bg-primary-600 px-6 py-3 text-sm font-semibold text-white shadow-sm transition-all duration-200 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+
+  .btn-secondary {
+    @apply inline-flex items-center justify-center gap-2 rounded-lg border border-slate-300 bg-white px-6 py-3 text-sm font-semibold text-slate-700 shadow-sm transition-all duration-200 hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+
+  .input-base {
+    @apply w-full rounded-lg border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 placeholder:text-slate-400 transition-colors duration-200 focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-500/20 disabled:bg-slate-100 disabled:cursor-not-allowed;
+  }
+
+  .label-base {
+    @apply block text-sm font-medium text-slate-700 mb-1.5;
+  }
+
+  .card {
+    @apply bg-white rounded-xl border border-slate-200 shadow-sm;
+  }
+
+  .card-hover {
+    @apply bg-white rounded-xl border border-slate-200 shadow-sm transition-all duration-300 hover:shadow-md hover:border-slate-300;
+  }
+}
+
+/* Animation utilities */
+@layer utilities {
+  .animate-fade-in {
+    animation: fade-in 0.5s ease-out forwards;
+  }
+
+  .animate-slide-up {
+    animation: slide-up 0.5s ease-out forwards;
+  }
+
+  .animate-scale-in {
+    animation: scale-in 0.3s ease-out forwards;
+  }
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slide-up {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes scale-in {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
