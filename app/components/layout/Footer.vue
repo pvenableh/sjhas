@@ -35,7 +35,7 @@ const quickLinks = [
 </script>
 
 <template>
-  <footer class="t-footer text-slate-300">
+  <footer class="t-footer">
     <div class="container-wide section-padding py-16">
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10 lg:gap-8">
         <!-- Brand -->
@@ -44,16 +44,16 @@ const quickLinks = [
             <div class="w-10 h-10 rounded-lg t-bg-accent flex items-center justify-center">
               <span class="t-text-inverse font-bold text-lg">S</span>
             </div>
-            <span class="t-heading text-xl text-white">SJHAS, Inc.</span>
+            <span class="t-heading text-xl t-footer-heading">SJHAS, Inc.</span>
           </div>
-          <p class="text-sm text-slate-400 leading-relaxed">
+          <p class="text-sm t-footer-text-secondary leading-relaxed">
             Providing personalized tax returns, accounting, and payroll services throughout Central New York since 2000.
           </p>
         </div>
 
         <!-- Quick Links -->
         <div>
-          <h4 class="text-white font-semibold mb-4">Quick Links</h4>
+          <h4 class="t-footer-heading font-semibold mb-4">Quick Links</h4>
           <ul class="space-y-2">
             <li v-for="link in quickLinks" :key="link.href">
               <component
@@ -62,7 +62,7 @@ const quickLinks = [
                 :to="link.external ? undefined : link.href"
                 :target="link.external ? '_blank' : undefined"
                 :rel="link.external ? 'noopener noreferrer' : undefined"
-                class="text-sm text-slate-400 hover:text-white transition-colors inline-flex items-center gap-1"
+                class="text-sm t-footer-link inline-flex items-center gap-1"
               >
                 {{ link.label }}
                 <Icon v-if="link.external" name="lucide:external-link" class="w-3 h-3" />
@@ -73,12 +73,12 @@ const quickLinks = [
 
         <!-- Contact -->
         <div>
-          <h4 class="text-white font-semibold mb-4">Contact</h4>
+          <h4 class="t-footer-heading font-semibold mb-4">Contact</h4>
           <ul class="space-y-3">
             <li>
               <a
                 :href="`mailto:${contactInfo.email}`"
-                class="text-sm text-slate-400 hover:text-white transition-colors flex items-center gap-2"
+                class="text-sm t-footer-link flex items-center gap-2"
               >
                 <Icon name="lucide:mail" class="w-4 h-4 t-text-accent" />
                 {{ contactInfo.email }}
@@ -87,7 +87,7 @@ const quickLinks = [
             <li>
               <a
                 :href="`tel:${contactInfo.phone.replace(/[^0-9]/g, '')}`"
-                class="text-sm text-slate-400 hover:text-white transition-colors flex items-center gap-2"
+                class="text-sm t-footer-link flex items-center gap-2"
               >
                 <Icon name="lucide:phone" class="w-4 h-4 t-text-accent" />
                 {{ contactInfo.phone }}
@@ -95,7 +95,7 @@ const quickLinks = [
             </li>
             <li class="flex items-start gap-2">
               <Icon name="lucide:map-pin" class="w-4 h-4 t-text-accent mt-0.5" />
-              <div class="text-sm text-slate-400">
+              <div class="text-sm t-footer-text-secondary">
                 <p v-for="line in contactInfo.address" :key="line">{{ line }}</p>
               </div>
             </li>
@@ -104,15 +104,15 @@ const quickLinks = [
 
         <!-- Hours -->
         <div>
-          <h4 class="text-white font-semibold mb-4">Office Hours</h4>
+          <h4 class="t-footer-heading font-semibold mb-4">Office Hours</h4>
           <ul class="space-y-1.5">
             <li
               v-for="item in hours"
               :key="item.day"
               class="text-sm flex justify-between gap-4"
             >
-              <span class="text-slate-400">{{ item.day }}</span>
-              <span :class="item.hours === 'Closed' ? 'text-slate-500' : 'text-slate-300'">
+              <span class="t-footer-text-secondary">{{ item.day }}</span>
+              <span :class="item.hours === 'Closed' ? 't-footer-text-muted' : 't-footer-text'">
                 {{ item.hours }}
               </span>
             </li>
@@ -122,13 +122,13 @@ const quickLinks = [
     </div>
 
     <!-- Bottom bar -->
-    <div class="border-t border-slate-800/50">
+    <div class="border-t t-footer-border">
       <div class="container-wide section-padding py-6 flex flex-col sm:flex-row items-center justify-between gap-4">
-        <p class="text-sm text-slate-500">
-          © {{ currentYear }} SJHAS, Inc. All rights reserved.
+        <p class="text-sm t-footer-text-muted">
+          &copy; {{ currentYear }} SJHAS, Inc. All rights reserved.
         </p>
-        <p class="text-sm text-slate-600">
-          Website by <a href="https://huestudios.com" target="_blank" rel="noopener noreferrer" class="t-text-accent hover:text-white transition-colors">Hue Studios</a>
+        <p class="text-sm t-footer-text-muted">
+          Website by <a href="https://huestudios.com" target="_blank" rel="noopener noreferrer" class="t-text-accent t-footer-link">Hue Studios</a>
         </p>
       </div>
     </div>

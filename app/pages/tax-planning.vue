@@ -390,39 +390,39 @@ useSeoMeta({
 </script>
 
 <template>
-  <div class="min-h-screen bg-slate-50">
+  <div class="min-h-screen t-bg">
     <!-- Hero -->
-    <section class="bg-gradient-to-br from-primary-900 via-primary-800 to-primary-900 py-20 lg:py-28">
+    <section class="t-hero py-20 lg:py-28">
       <div class="container-wide section-padding text-center">
-        <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 text-white/90 text-sm font-medium mb-6">
+        <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full t-hero-badge text-sm font-medium mb-6">
           <Icon name="lucide:clipboard-list" class="w-4 h-4" />
           <span>Tax Planning</span>
         </div>
-        <h1 class="text-3xl sm:text-4xl lg:text-5xl font-serif text-white mb-4">
+        <h1 class="text-3xl sm:text-4xl lg:text-5xl t-heading t-hero-text mb-4">
           {{ displayForm.title }}
         </h1>
-        <p class="text-lg text-primary-200 max-w-2xl mx-auto">
+        <p class="text-lg t-hero-text-secondary max-w-2xl mx-auto">
           {{ displayForm.description }}
         </p>
       </div>
     </section>
 
     <!-- Progress indicator -->
-    <section class="bg-white border-b border-slate-200 py-4">
+    <section class="t-bg-elevated border-b t-border py-4">
       <div class="container-wide section-padding">
         <div class="flex items-center justify-center gap-8 text-sm">
-          <div class="flex items-center gap-2 text-primary-600">
-            <div class="w-6 h-6 rounded-full bg-primary-600 text-white flex items-center justify-center text-xs font-medium">1</div>
+          <div class="flex items-center gap-2 t-text-accent">
+            <div class="w-6 h-6 rounded-full t-btn flex items-center justify-center text-xs font-medium">1</div>
             <span class="hidden sm:inline font-medium">Personal Info</span>
           </div>
-          <div class="w-8 h-px bg-slate-300" />
-          <div class="flex items-center gap-2 text-slate-400">
-            <div class="w-6 h-6 rounded-full bg-slate-200 flex items-center justify-center text-xs font-medium">2</div>
+          <div class="w-8 h-px" style="background-color: var(--theme-border-secondary);" />
+          <div class="flex items-center gap-2 t-text-muted">
+            <div class="w-6 h-6 rounded-full t-bg-alt flex items-center justify-center text-xs font-medium">2</div>
             <span class="hidden sm:inline">Income</span>
           </div>
-          <div class="w-8 h-px bg-slate-300" />
-          <div class="flex items-center gap-2 text-slate-400">
-            <div class="w-6 h-6 rounded-full bg-slate-200 flex items-center justify-center text-xs font-medium">3</div>
+          <div class="w-8 h-px" style="background-color: var(--theme-border-secondary);" />
+          <div class="flex items-center gap-2 t-text-muted">
+            <div class="w-6 h-6 rounded-full t-bg-alt flex items-center justify-center text-xs font-medium">3</div>
             <span class="hidden sm:inline">Documents</span>
           </div>
         </div>
@@ -440,27 +440,27 @@ useSeoMeta({
         </Card>
 
         <!-- Help text -->
-        <div class="mt-8 bg-primary-50 rounded-xl p-6 border border-primary-100">
+        <div class="mt-8 t-section-card rounded-xl p-6 border">
           <div class="flex items-start gap-4">
-            <div class="w-10 h-10 rounded-lg bg-primary-100 flex items-center justify-center flex-shrink-0">
-              <Icon name="lucide:help-circle" class="w-5 h-5 text-primary-600" />
+            <div class="w-10 h-10 rounded-lg t-icon-box flex items-center justify-center flex-shrink-0">
+              <Icon name="lucide:help-circle" class="w-5 h-5" />
             </div>
             <div>
-              <h3 class="font-semibold text-slate-900 mb-1">Need Help?</h3>
-              <p class="text-sm text-slate-600 mb-3">
+              <h3 class="font-semibold t-text mb-1">Need Help?</h3>
+              <p class="text-sm t-text-secondary mb-3">
                 If you have questions about this questionnaire or need assistance, we're here to help.
               </p>
               <div class="flex flex-wrap gap-4">
                 <a
                   href="mailto:sjh@sjhas.com"
-                  class="inline-flex items-center gap-2 text-sm text-primary-600 font-medium hover:text-primary-700"
+                  class="inline-flex items-center gap-2 text-sm t-text-accent font-medium t-link"
                 >
                   <Icon name="lucide:mail" class="w-4 h-4" />
                   sjh@sjhas.com
                 </a>
                 <a
                   href="tel:6072168033"
-                  class="inline-flex items-center gap-2 text-sm text-primary-600 font-medium hover:text-primary-700"
+                  class="inline-flex items-center gap-2 text-sm t-text-accent font-medium t-link"
                 >
                   <Icon name="lucide:phone" class="w-4 h-4" />
                   (607) 216-8033

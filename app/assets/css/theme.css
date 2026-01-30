@@ -41,8 +41,39 @@
   --theme-header-bg: rgba(245, 243, 239, 0.95);
   --theme-header-bg-scrolled: rgba(253, 252, 250, 0.98);
   --theme-footer-bg: #2C2824;
+  --theme-footer-text: #D4CFC7;
+  --theme-footer-text-secondary: #A09888;
+  --theme-footer-text-muted: #7A7060;
+  --theme-footer-heading: #F5F3EF;
+  --theme-footer-border: rgba(139, 115, 85, 0.2);
+  --theme-footer-link-hover: #F5F3EF;
   --theme-card-bg: #FFFFFF;
   --theme-nav-bg: rgba(255, 255, 255, 0.85);
+
+  /* Hero / accent sections */
+  --theme-hero-gradient-from: #5C4A2E;
+  --theme-hero-gradient-via: #6B5835;
+  --theme-hero-gradient-to: #5C4A2E;
+  --theme-hero-text: #FFFFFF;
+  --theme-hero-text-secondary: #E5D4B3;
+  --theme-hero-badge-bg: rgba(255, 255, 255, 0.1);
+  --theme-hero-badge-text: rgba(255, 255, 255, 0.9);
+
+  /* Badge / pill */
+  --theme-badge-bg: #F0EBE3;
+  --theme-badge-text: #8B7355;
+
+  /* Section alternate backgrounds */
+  --theme-section-card-bg: #F5F3EF;
+  --theme-section-card-border: #E5E0D8;
+  --theme-section-card-hover-border: #D4BA8A;
+  --theme-section-card-hover-bg: #FFFFFF;
+
+  /* Icon containers */
+  --theme-icon-bg: #F0EBE3;
+  --theme-icon-color: #8B7355;
+  --theme-icon-hover-bg: #C9A96E;
+  --theme-icon-hover-color: #FFFFFF;
 
   /* Typography */
   --theme-heading-font: 'DM Serif Display', 'Times New Roman', Times, serif;
@@ -110,8 +141,39 @@
   --theme-header-bg: rgba(37, 34, 25, 0.95);
   --theme-header-bg-scrolled: rgba(28, 25, 21, 0.98);
   --theme-footer-bg: #131210;
+  --theme-footer-text: #C9C4BA;
+  --theme-footer-text-secondary: #8A857A;
+  --theme-footer-text-muted: #5E5A52;
+  --theme-footer-heading: #F5F3EF;
+  --theme-footer-border: rgba(212, 186, 138, 0.15);
+  --theme-footer-link-hover: #E5D4B3;
   --theme-card-bg: #2A2620;
   --theme-nav-bg: rgba(37, 34, 25, 0.92);
+
+  /* Hero / accent sections */
+  --theme-hero-gradient-from: #302B22;
+  --theme-hero-gradient-via: #3D372E;
+  --theme-hero-gradient-to: #302B22;
+  --theme-hero-text: #F5F3EF;
+  --theme-hero-text-secondary: #D4BA8A;
+  --theme-hero-badge-bg: rgba(212, 186, 138, 0.15);
+  --theme-hero-badge-text: #D4BA8A;
+
+  /* Badge / pill */
+  --theme-badge-bg: #302B22;
+  --theme-badge-text: #D4BA8A;
+
+  /* Section alternate backgrounds */
+  --theme-section-card-bg: #252219;
+  --theme-section-card-border: #3D372E;
+  --theme-section-card-hover-border: #D4BA8A;
+  --theme-section-card-hover-bg: #2A2620;
+
+  /* Icon containers */
+  --theme-icon-bg: #302B22;
+  --theme-icon-color: #D4BA8A;
+  --theme-icon-hover-bg: #C9A96E;
+  --theme-icon-hover-color: #1C1915;
 
   /* Typography */
   --theme-heading-font: 'DM Serif Display', 'Times New Roman', Times, serif;
@@ -177,8 +239,39 @@
   --theme-header-bg: rgba(255, 255, 255, 0.95);
   --theme-header-bg-scrolled: rgba(255, 255, 255, 0.98);
   --theme-footer-bg: #0F172A;
+  --theme-footer-text: #CBD5E1;
+  --theme-footer-text-secondary: #94A3B8;
+  --theme-footer-text-muted: #64748B;
+  --theme-footer-heading: #F1F5F9;
+  --theme-footer-border: rgba(30, 58, 95, 0.3);
+  --theme-footer-link-hover: #FFFFFF;
   --theme-card-bg: #FFFFFF;
   --theme-nav-bg: rgba(255, 255, 255, 0.92);
+
+  /* Hero / accent sections */
+  --theme-hero-gradient-from: #0F2744;
+  --theme-hero-gradient-via: #1E3A5F;
+  --theme-hero-gradient-to: #0F2744;
+  --theme-hero-text: #FFFFFF;
+  --theme-hero-text-secondary: #CBD5E1;
+  --theme-hero-badge-bg: rgba(255, 255, 255, 0.1);
+  --theme-hero-badge-text: rgba(255, 255, 255, 0.9);
+
+  /* Badge / pill */
+  --theme-badge-bg: #EFF6FF;
+  --theme-badge-text: #1E3A5F;
+
+  /* Section alternate backgrounds */
+  --theme-section-card-bg: #F8FAFC;
+  --theme-section-card-border: #E2E8F0;
+  --theme-section-card-hover-border: #1E3A5F;
+  --theme-section-card-hover-bg: #FFFFFF;
+
+  /* Icon containers */
+  --theme-icon-bg: #EFF6FF;
+  --theme-icon-color: #1E3A5F;
+  --theme-icon-hover-bg: #1E3A5F;
+  --theme-icon-hover-color: #FFFFFF;
 
   /* Typography - sans-serif for headings */
   --theme-heading-font: 'DM Sans', 'Helvetica Neue', Helvetica, Arial, sans-serif;
@@ -245,8 +338,39 @@
   --theme-header-bg: rgba(15, 39, 68, 0.95);
   --theme-header-bg-scrolled: rgba(11, 25, 41, 0.98);
   --theme-footer-bg: #060D16;
+  --theme-footer-text: #94A3B8;
+  --theme-footer-text-secondary: #64748B;
+  --theme-footer-text-muted: #475569;
+  --theme-footer-heading: #F1F5F9;
+  --theme-footer-border: rgba(0, 212, 232, 0.15);
+  --theme-footer-link-hover: #00E5FA;
   --theme-card-bg: #132337;
   --theme-nav-bg: rgba(15, 39, 68, 0.95);
+
+  /* Hero / accent sections */
+  --theme-hero-gradient-from: #0F2744;
+  --theme-hero-gradient-via: #162D4D;
+  --theme-hero-gradient-to: #0F2744;
+  --theme-hero-text: #F1F5F9;
+  --theme-hero-text-secondary: #00D4E8;
+  --theme-hero-badge-bg: rgba(0, 212, 232, 0.15);
+  --theme-hero-badge-text: #00D4E8;
+
+  /* Badge / pill */
+  --theme-badge-bg: rgba(0, 212, 232, 0.1);
+  --theme-badge-text: #00D4E8;
+
+  /* Section alternate backgrounds */
+  --theme-section-card-bg: #0F2744;
+  --theme-section-card-border: #1E3A5F;
+  --theme-section-card-hover-border: #00D4E8;
+  --theme-section-card-hover-bg: #132337;
+
+  /* Icon containers */
+  --theme-icon-bg: rgba(0, 212, 232, 0.1);
+  --theme-icon-color: #00D4E8;
+  --theme-icon-hover-bg: #00D4E8;
+  --theme-icon-hover-color: #0B1929;
 
   /* Typography - sans-serif for headings */
   --theme-heading-font: 'DM Sans', 'Helvetica Neue', Helvetica, Arial, sans-serif;
@@ -515,6 +639,92 @@ h1, h2, h3, h4, h5, h6 {
 /* Footer specific */
 .t-footer {
   background-color: var(--theme-footer-bg);
+  color: var(--theme-footer-text);
+}
+
+.t-footer-heading {
+  color: var(--theme-footer-heading);
+}
+
+.t-footer-text {
+  color: var(--theme-footer-text);
+}
+
+.t-footer-text-secondary {
+  color: var(--theme-footer-text-secondary);
+}
+
+.t-footer-text-muted {
+  color: var(--theme-footer-text-muted);
+}
+
+.t-footer-border {
+  border-color: var(--theme-footer-border);
+}
+
+.t-footer-link {
+  color: var(--theme-footer-text-secondary);
+  transition: color 0.2s ease;
+}
+
+.t-footer-link:hover {
+  color: var(--theme-footer-link-hover);
+}
+
+/* Hero / accent sections */
+.t-hero {
+  background: linear-gradient(to bottom right, var(--theme-hero-gradient-from), var(--theme-hero-gradient-via), var(--theme-hero-gradient-to));
+}
+
+.t-hero-text {
+  color: var(--theme-hero-text);
+}
+
+.t-hero-text-secondary {
+  color: var(--theme-hero-text-secondary);
+}
+
+.t-hero-badge {
+  background-color: var(--theme-hero-badge-bg);
+  color: var(--theme-hero-badge-text);
+}
+
+/* Badge / pill */
+.t-badge {
+  background-color: var(--theme-badge-bg);
+  color: var(--theme-badge-text);
+}
+
+/* Section card (for card-like elements within sections) */
+.t-section-card {
+  background-color: var(--theme-section-card-bg);
+  border-color: var(--theme-section-card-border);
+}
+
+.t-section-card-hover:hover {
+  border-color: var(--theme-section-card-hover-border);
+  background-color: var(--theme-section-card-hover-bg);
+}
+
+/* Icon containers */
+.t-icon-box {
+  background-color: var(--theme-icon-bg);
+  color: var(--theme-icon-color);
+}
+
+.t-icon-box-hover:hover {
+  background-color: var(--theme-icon-hover-bg);
+  color: var(--theme-icon-hover-color);
+}
+
+/* Group hover variants for icon boxes */
+.group:hover .t-icon-box-group-hover {
+  background-color: var(--theme-icon-hover-bg);
+  color: var(--theme-icon-hover-color);
+}
+
+.group:hover .t-icon-color-group-hover {
+  color: var(--theme-icon-hover-color);
 }
 
 /* Focus ring */

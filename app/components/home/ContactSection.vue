@@ -56,19 +56,19 @@ onMounted(() => {
   <section
     id="contact"
     ref="sectionRef"
-    class="py-20 lg:py-28 bg-white"
+    class="py-20 lg:py-28 t-section"
   >
     <div class="container-wide section-padding">
       <!-- Section header -->
       <div class="text-center max-w-2xl mx-auto mb-16">
-        <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary-100 text-primary-700 text-sm font-medium mb-4">
+        <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full t-badge text-sm font-medium mb-4">
           <Icon name="lucide:phone" class="w-4 h-4" />
           <span>Get in Touch</span>
         </div>
-        <h2 class="text-3xl sm:text-4xl font-serif text-slate-900 mb-4">
+        <h2 class="text-3xl sm:text-4xl t-heading t-text mb-4">
           {{ title || 'Contact Us' }}
         </h2>
-        <p class="text-lg text-slate-600">
+        <p class="text-lg t-text-secondary">
           Ready to get started? We'd love to hear from you.
         </p>
       </div>
@@ -78,34 +78,34 @@ onMounted(() => {
         <!-- Email -->
         <a
           :href="`mailto:${contactInfo.email}`"
-          class="contact-card group bg-slate-50 rounded-2xl p-8 border border-slate-200 hover:border-primary-200 hover:bg-white hover:shadow-lg transition-all duration-300 text-center"
+          class="contact-card group rounded-2xl p-8 border t-section-card t-section-card-hover hover:shadow-lg transition-all duration-300 text-center"
         >
-          <div class="w-16 h-16 rounded-2xl bg-primary-100 group-hover:bg-primary-600 flex items-center justify-center mx-auto mb-6 transition-colors duration-300">
-            <Icon name="lucide:mail" class="w-8 h-8 text-primary-600 group-hover:text-white transition-colors duration-300" />
+          <div class="w-16 h-16 rounded-2xl t-icon-box t-icon-box-group-hover flex items-center justify-center mx-auto mb-6 transition-colors duration-300">
+            <Icon name="lucide:mail" class="w-8 h-8 t-icon-color-group-hover transition-colors duration-300" />
           </div>
-          <h3 class="font-semibold text-slate-900 mb-2">Email</h3>
-          <p class="text-primary-600 font-medium">{{ contactInfo.email }}</p>
+          <h3 class="font-semibold t-text mb-2">Email</h3>
+          <p class="t-text-accent font-medium">{{ contactInfo.email }}</p>
         </a>
 
         <!-- Phone -->
         <a
           :href="`tel:${contactInfo.phone.replace(/[^0-9]/g, '')}`"
-          class="contact-card group bg-slate-50 rounded-2xl p-8 border border-slate-200 hover:border-primary-200 hover:bg-white hover:shadow-lg transition-all duration-300 text-center"
+          class="contact-card group rounded-2xl p-8 border t-section-card t-section-card-hover hover:shadow-lg transition-all duration-300 text-center"
         >
-          <div class="w-16 h-16 rounded-2xl bg-primary-100 group-hover:bg-primary-600 flex items-center justify-center mx-auto mb-6 transition-colors duration-300">
-            <Icon name="lucide:phone" class="w-8 h-8 text-primary-600 group-hover:text-white transition-colors duration-300" />
+          <div class="w-16 h-16 rounded-2xl t-icon-box t-icon-box-group-hover flex items-center justify-center mx-auto mb-6 transition-colors duration-300">
+            <Icon name="lucide:phone" class="w-8 h-8 t-icon-color-group-hover transition-colors duration-300" />
           </div>
-          <h3 class="font-semibold text-slate-900 mb-2">Phone / Text</h3>
-          <p class="text-primary-600 font-medium">{{ contactInfo.phone }}</p>
+          <h3 class="font-semibold t-text mb-2">Phone / Text</h3>
+          <p class="t-text-accent font-medium">{{ contactInfo.phone }}</p>
         </a>
 
         <!-- Location -->
-        <div class="contact-card bg-slate-50 rounded-2xl p-8 border border-slate-200 text-center">
-          <div class="w-16 h-16 rounded-2xl bg-primary-100 flex items-center justify-center mx-auto mb-6">
-            <Icon name="lucide:map-pin" class="w-8 h-8 text-primary-600" />
+        <div class="contact-card rounded-2xl p-8 border t-section-card text-center">
+          <div class="w-16 h-16 rounded-2xl t-icon-box flex items-center justify-center mx-auto mb-6">
+            <Icon name="lucide:map-pin" class="w-8 h-8" />
           </div>
-          <h3 class="font-semibold text-slate-900 mb-2">Location</h3>
-          <p class="text-slate-600">
+          <h3 class="font-semibold t-text mb-2">Location</h3>
+          <p class="t-text-secondary">
             <span v-for="(line, i) in contactInfo.address" :key="i" class="block">
               {{ line }}
             </span>
@@ -116,22 +116,22 @@ onMounted(() => {
       <!-- Hours & CTA -->
       <div class="mt-16 grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
         <!-- Hours -->
-        <div class="contact-card bg-slate-50 rounded-2xl p-8 border border-slate-200">
-          <h3 class="font-semibold text-slate-900 mb-6 flex items-center gap-2">
-            <Icon name="lucide:clock" class="w-5 h-5 text-primary-600" />
+        <div class="contact-card rounded-2xl p-8 border t-section-card">
+          <h3 class="font-semibold t-text mb-6 flex items-center gap-2">
+            <Icon name="lucide:clock" class="w-5 h-5 t-text-accent" />
             Office Hours
           </h3>
           <div class="space-y-3">
             <div
               v-for="item in hours"
               :key="item.day"
-              class="flex justify-between items-center py-2 border-b border-slate-200 last:border-0"
+              class="flex justify-between items-center py-2 border-b t-border last:border-0"
             >
-              <span class="text-slate-600">{{ item.day }}</span>
+              <span class="t-text-secondary">{{ item.day }}</span>
               <span
                 :class="item.hours === 'Closed'
-                  ? 'text-slate-400'
-                  : 'text-slate-900 font-medium'
+                  ? 't-text-muted'
+                  : 't-text font-medium'
                 "
               >
                 {{ item.hours }}
@@ -141,9 +141,9 @@ onMounted(() => {
         </div>
 
         <!-- Quick actions -->
-        <div class="contact-card bg-gradient-to-br from-primary-600 to-primary-700 rounded-2xl p-8 text-white">
-          <h3 class="font-semibold mb-4 text-lg">Ready to Get Started?</h3>
-          <p class="text-primary-100 mb-6">
+        <div class="contact-card t-hero rounded-2xl p-8">
+          <h3 class="font-semibold mb-4 text-lg t-hero-text">Ready to Get Started?</h3>
+          <p class="t-hero-text-secondary mb-6">
             Book an appointment or upload your documents to get started with our services.
           </p>
           <div class="space-y-3">
@@ -160,7 +160,8 @@ onMounted(() => {
             <Button
               as="NuxtLink"
               to="/upload"
-              class="w-full justify-center bg-white/10 hover:bg-white/20 text-white border-white/20"
+              class="w-full justify-center"
+              style="background-color: rgba(255, 255, 255, 0.1); color: var(--theme-hero-text); border-color: rgba(255, 255, 255, 0.2);"
             >
               <Icon name="lucide:upload" class="w-4 h-4" />
               Upload Documents
