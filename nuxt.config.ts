@@ -27,10 +27,10 @@ export default defineNuxtConfig({
 
   // Color mode configuration
   colorMode: {
-    classSuffix: '', // Uses 'dark' class instead of 'dark-mode'
-    preference: 'system', // Default value of $colorMode.preference
-    fallback: 'light', // Fallback value if no system preference found
-    storageKey: 'sjh-color-mode',
+    classSuffix: "", // Uses 'dark' class instead of 'dark-mode'
+    preference: "system", // Default value of $colorMode.preference
+    fallback: "light", // Fallback value if no system preference found
+    storageKey: "sjh-color-mode",
   },
 
   shadcn: {
@@ -90,7 +90,7 @@ export default defineNuxtConfig({
   },
 
   nitro: {
-    preset: "node-server",
+    preset: "vercel",
   },
 
   app: {
