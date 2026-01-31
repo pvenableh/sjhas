@@ -2,8 +2,9 @@
 /**
  * ChatWidget - Floating chat widget for visitor engagement
  *
- * When Stephen is online: Real-time messaging via Directus
- * When offline: Captures visitor name, email, phone + initial message
+ * When Stephen is online: Real-time messaging via Nitro WebSocket (relays Directus)
+ * When offline: Captures visitor name, email, phone + stores message
+ * Supports typing indicators in both directions.
  */
 
 const isOpen = ref(false)
@@ -26,17 +27,30 @@ const formSubmitted = ref(false)
 
 // Chat session
 const sessionId = ref<number | null>(null)
-const messages = ref<Array<{
-  id: number
-  sender: 'visitor' | 'admin'
-  message: string
-  date_created: string
-  read: boolean
-}>>([])
 const newMessage = ref('')
 const sendingMessage = ref(false)
 const messagesContainer = ref<HTMLElement | null>(null)
-let pollInterval: ReturnType<typeof setInterval> | null = null
+const hasUnread = ref(false)
+
+// WebSocket composable for real-time messaging
+const {
+  connect: wsConnect,
+  disconnect: wsDisconnect,
+  sendMessage: wsSendMessage,
+  sendTyping,
+  messages,
+  adminTyping,
+  isConnected,
+  onNewMessage,
+} = useChatWebSocket()
+
+// Scroll + unread dot on new messages
+onNewMessage(() => {
+  scrollToBottom()
+  if (!isOpen.value) {
+    hasUnread.value = true
+  }
+})
 
 // Fetch chat status on mount
 onMounted(async () => {
@@ -54,9 +68,8 @@ onMounted(async () => {
   }
 })
 
-// Cleanup polling on unmount
 onUnmounted(() => {
-  if (pollInterval) clearInterval(pollInterval)
+  wsDisconnect()
 })
 
 function toggleChat() {
@@ -66,6 +79,7 @@ function toggleChat() {
   } else {
     isOpen.value = true
     isMinimized.value = false
+    hasUnread.value = false
   }
 }
 
@@ -89,7 +103,6 @@ async function submitVisitorInfo() {
     return
   }
 
-  // Basic email check
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
   if (!emailRegex.test(visitorEmail.value)) {
     formError.value = 'Please enter a valid email address'
@@ -112,18 +125,8 @@ async function submitVisitorInfo() {
     sessionId.value = result.sessionId
 
     if (adminOnline.value) {
-      // Start live chat - add the initial message to local state
-      if (initialMessage.value.trim()) {
-        messages.value.push({
-          id: Date.now(),
-          sender: 'visitor',
-          message: initialMessage.value.trim(),
-          date_created: new Date().toISOString(),
-          read: false,
-        })
-      }
-      // Start polling for admin replies
-      startPolling()
+      // Connect to WebSocket for live chat
+      wsConnect(result.sessionId)
     } else {
       formSubmitted.value = true
     }
@@ -135,69 +138,34 @@ async function submitVisitorInfo() {
 }
 
 /**
- * Send a chat message (live mode)
+ * Send a chat message via WebSocket
  */
-async function sendMessage() {
+function sendMessage() {
   if (!newMessage.value.trim() || !sessionId.value || sendingMessage.value) return
 
   const messageText = newMessage.value.trim()
   newMessage.value = ''
   sendingMessage.value = true
 
-  // Optimistically add to local state
-  messages.value.push({
-    id: Date.now(),
-    sender: 'visitor',
-    message: messageText,
-    date_created: new Date().toISOString(),
-    read: false,
-  })
+  wsSendMessage(messageText)
+  sendTyping(false)
+
+  setTimeout(() => {
+    sendingMessage.value = false
+  }, 200)
 
   scrollToBottom()
-
-  try {
-    await $fetch('/api/chat/messages', {
-      method: 'POST',
-      body: {
-        sessionId: sessionId.value,
-        message: messageText,
-        operation: 'send',
-      },
-    })
-  } catch {
-    // Message failed - could add retry logic
-    console.error('Failed to send message')
-  } finally {
-    sendingMessage.value = false
-  }
 }
 
 /**
- * Poll for new messages from admin
+ * Handle input for typing indicator
  */
-function startPolling() {
-  if (pollInterval) return
-
-  pollInterval = setInterval(async () => {
-    if (!sessionId.value) return
-
-    try {
-      const serverMessages = await $fetch('/api/chat/messages', {
-        method: 'POST',
-        body: {
-          sessionId: sessionId.value,
-          operation: 'list',
-        },
-      })
-
-      if (Array.isArray(serverMessages) && serverMessages.length > messages.value.length) {
-        messages.value = serverMessages
-        scrollToBottom()
-      }
-    } catch {
-      // Silently fail polling
-    }
-  }, 3000) // Poll every 3 seconds
+function handleInput() {
+  if (newMessage.value.trim()) {
+    sendTyping(true)
+  } else {
+    sendTyping(false)
+  }
 }
 
 function scrollToBottom() {
@@ -245,10 +213,10 @@ const isLiveChat = computed(() => sessionId.value !== null && adminOnline.value)
       <path stroke-linecap="round" stroke-linejoin="round" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
     </svg>
 
-    <!-- Notification dot when minimized with unread -->
+    <!-- Notification dot for unread messages -->
     <span
-      v-if="!isOpen && isMinimized"
-      class="absolute -top-1 -right-1 h-4 w-4 rounded-full bg-red-500 border-2 border-white"
+      v-if="!isOpen && hasUnread"
+      class="absolute -top-1 -right-1 h-4 w-4 rounded-full bg-red-500 border-2 border-white animate-pulse"
     />
   </button>
 
@@ -281,18 +249,29 @@ const isLiveChat = computed(() => sessionId.value !== null && adminOnline.value)
               class="inline-block h-2 w-2 rounded-full"
               :class="adminOnline ? 'bg-green-400' : 'bg-gray-300'"
             />
-            <span class="text-xs opacity-90">{{ adminOnline ? 'Online' : 'Offline' }}</span>
+            <span class="text-xs opacity-90">
+              {{ adminTyping ? 'Typing...' : adminOnline ? 'Online' : 'Offline' }}
+            </span>
           </div>
         </div>
-        <button
-          class="rounded-lg p-1.5 transition-colors hover:bg-white/20 focus:outline-none"
-          aria-label="Minimize chat"
-          @click="minimizeChat"
-        >
-          <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
-          </svg>
-        </button>
+        <div class="flex items-center gap-1">
+          <!-- Connection indicator (live chat only) -->
+          <span
+            v-if="isLiveChat"
+            class="mr-1 inline-block h-2 w-2 rounded-full"
+            :class="isConnected ? 'bg-green-400' : 'bg-yellow-400 animate-pulse'"
+            :title="isConnected ? 'Connected' : 'Reconnecting...'"
+          />
+          <button
+            class="rounded-lg p-1.5 transition-colors hover:bg-white/20 focus:outline-none"
+            aria-label="Minimize chat"
+            @click="minimizeChat"
+          >
+            <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
+            </svg>
+          </button>
+        </div>
       </div>
 
       <!-- Body -->
@@ -448,6 +427,18 @@ const isLiveChat = computed(() => sessionId.value !== null && adminOnline.value)
                 </p>
               </div>
             </div>
+
+            <!-- Admin typing indicator (bouncing dots) -->
+            <div v-if="adminTyping" class="flex justify-start">
+              <div
+                class="flex items-center gap-1.5 rounded-2xl rounded-bl-md px-4 py-3"
+                style="background: var(--theme-bg-secondary);"
+              >
+                <span class="inline-block h-2 w-2 animate-bounce rounded-full opacity-60 [animation-delay:0ms]" style="background: var(--theme-text-muted);" />
+                <span class="inline-block h-2 w-2 animate-bounce rounded-full opacity-60 [animation-delay:150ms]" style="background: var(--theme-text-muted);" />
+                <span class="inline-block h-2 w-2 animate-bounce rounded-full opacity-60 [animation-delay:300ms]" style="background: var(--theme-text-muted);" />
+              </div>
+            </div>
           </div>
 
           <!-- Message Input -->
@@ -462,6 +453,7 @@ const isLiveChat = computed(() => sessionId.value !== null && adminOnline.value)
                 rows="1"
                 class="t-input flex-1 resize-none rounded-xl px-3 py-2.5 text-sm"
                 @keydown="handleKeydown"
+                @input="handleInput"
               />
               <button
                 :disabled="!newMessage.trim() || sendingMessage"
