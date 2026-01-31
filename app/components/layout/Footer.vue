@@ -30,7 +30,8 @@ const quickLinks = [
   { label: 'Services', href: '/#services' },
   { label: 'Upload Documents', href: '/upload' },
   { label: 'Tax Planning', href: '/tax-planning' },
-  { label: 'Client Portal', href: 'https://sjhas.clientportal.com/', external: true },
+  { label: 'Client Portal', href: '/portal/login' },
+  { label: 'Admin', href: '/admin/chat' },
 ]
 </script>
 
@@ -59,17 +60,12 @@ const quickLinks = [
           <h4 class="t-footer-heading font-medium mb-5 text-xs tracking-widest uppercase">Quick Links</h4>
           <ul class="space-y-3">
             <li v-for="link in quickLinks" :key="link.href">
-              <component
-                :is="link.external ? 'a' : 'NuxtLink'"
-                :href="link.external ? link.href : undefined"
-                :to="link.external ? undefined : link.href"
-                :target="link.external ? '_blank' : undefined"
-                :rel="link.external ? 'noopener noreferrer' : undefined"
+              <NuxtLink
+                :to="link.href"
                 class="text-sm t-footer-link inline-flex items-center gap-1.5 tracking-wide"
               >
                 {{ link.label }}
-                <Icon v-if="link.external" name="lucide:external-link" class="w-3 h-3" />
-              </component>
+              </NuxtLink>
             </li>
           </ul>
         </div>

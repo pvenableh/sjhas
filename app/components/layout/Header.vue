@@ -21,10 +21,8 @@ const navLinks = [
   { label: 'Upload', href: '/upload' },
   { label: 'Tax Planning', href: '/tax-planning' },
   { label: 'Contact', href: '/#contact' },
-]
-
-const externalLinks = [
-  { label: 'Client Portal', href: 'https://sjhas.clientportal.com/', external: true },
+  { label: 'Client Portal', href: '/portal/login' },
+  { label: 'Admin', href: '/admin/chat' },
 ]
 
 const toggleMobileMenu = () => {
@@ -97,17 +95,6 @@ onMounted(() => {
           >
             {{ link.label }}
           </NuxtLink>
-          <a
-            v-for="link in externalLinks"
-            :key="link.href"
-            :href="link.href"
-            target="_blank"
-            rel="noopener noreferrer"
-            class="px-4 py-2 text-sm tracking-wide t-text-secondary hover:t-text-accent transition-colors rounded-lg t-hover-bg flex items-center gap-1.5"
-          >
-            {{ link.label }}
-            <Icon name="lucide:external-link" class="w-3 h-3" />
-          </a>
         </div>
 
         <!-- CTA Button & Theme Switcher (Desktop) -->
@@ -159,18 +146,6 @@ onMounted(() => {
           >
             {{ link.label }}
           </NuxtLink>
-          <a
-            v-for="link in externalLinks"
-            :key="link.href"
-            :href="link.href"
-            target="_blank"
-            rel="noopener noreferrer"
-            class="mobile-nav-link flex items-center gap-2 px-4 py-3 text-base tracking-wide t-text-secondary hover:t-text-accent t-hover-bg rounded-lg transition-colors"
-          >
-            {{ link.label }}
-            <Icon name="lucide:external-link" class="w-4 h-4" />
-          </a>
-
           <!-- Mobile Theme Switcher -->
           <div class="pt-3 px-4 space-y-3">
             <div class="flex items-center justify-between">
