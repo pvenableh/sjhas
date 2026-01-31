@@ -33,3 +33,6 @@ logs
 
 # Testing
 coverage
+
+# Node compile cache
+node-compile-cache

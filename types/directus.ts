@@ -184,6 +184,36 @@ export interface Page {
   content: string | null
 }
 
+// Chat Collections
+
+export interface ChatSession {
+  id: number
+  date_created: string
+  date_updated: string | null
+  visitor_name: string
+  visitor_email: string
+  visitor_phone: string | null
+  status: 'active' | 'closed' | 'archived'
+  admin_online: boolean
+  last_message_at: string | null
+}
+
+export interface ChatMessage {
+  id: number
+  date_created: string
+  session: number | ChatSession
+  sender: 'visitor' | 'admin'
+  message: string
+  read: boolean
+}
+
+export interface ChatSettings {
+  id: number
+  admin_online: boolean
+  offline_message: string | null
+  welcome_message: string | null
+}
+
 // Collections Map for SDK
 export interface Collections {
   directus_users: DirectusUser
@@ -196,4 +226,7 @@ export interface Collections {
   form_submissions: FormSubmission[]
   submission_files: SubmissionFile[]
   pages: Page[]
+  chat_sessions: ChatSession[]
+  chat_messages: ChatMessage[]
+  chat_settings: ChatSettings
 }
