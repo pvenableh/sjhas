@@ -12,7 +12,10 @@ export default defineNuxtRouteMiddleware((to, from) => {
   const { loggedIn } = useUserSession();
 
   if (loggedIn.value) {
-    // Redirect to dashboard or home
-    return navigateTo("/dashboard");
+    // Redirect to the appropriate dashboard based on route context
+    const dashboardPath = to.fullPath.startsWith("/admin")
+      ? "/admin/chat"
+      : "/portal";
+    return navigateTo(dashboardPath);
   }
 });
