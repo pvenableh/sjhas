@@ -10,6 +10,7 @@ const isProfileMenuOpen = ref(false)
 const navigation = [
   { name: 'Dashboard', href: '/admin', icon: 'lucide:layout-dashboard' },
   { name: 'Form Builder', href: '/admin/forms', icon: 'lucide:file-text' },
+  { name: 'Chat', href: '/admin/chat', icon: 'lucide:message-circle' },
   { name: 'Submissions', href: '/admin/submissions', icon: 'lucide:inbox' },
   { name: 'Clients', href: '/admin/clients', icon: 'lucide:users' },
   { name: 'Files', href: '/admin/files', icon: 'lucide:folder' },
