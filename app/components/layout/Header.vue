@@ -28,8 +28,8 @@ const toggleMobileMenu = () => {
   if (isMobileMenuOpen.value) {
     gsap.fromTo(
       '.mobile-nav-link',
-      { opacity: 0, x: -20 },
-      { opacity: 1, x: 0, duration: 0.3, stagger: 0.05, ease: 'power2.out' }
+      { opacity: 0, x: -12 },
+      { opacity: 1, x: 0, duration: 0.35, stagger: 0.04, delay: 0.1, ease: 'power2.out' }
     )
   }
 }
@@ -130,18 +130,34 @@ onMounted(() => {
       </nav>
     </div>
 
-    <!-- Mobile Menu -->
+    <!-- Mobile backdrop -->
     <Transition
-      enter-active-class="transition duration-200 ease-out"
-      enter-from-class="opacity-0 -translate-y-2"
-      enter-to-class="opacity-100 translate-y-0"
-      leave-active-class="transition duration-150 ease-in"
-      leave-from-class="opacity-100 translate-y-0"
-      leave-to-class="opacity-0 -translate-y-2"
+      enter-active-class="transition-opacity duration-300 ease-out"
+      enter-from-class="opacity-0"
+      enter-to-class="opacity-100"
+      leave-active-class="transition-opacity duration-200 ease-in"
+      leave-from-class="opacity-100"
+      leave-to-class="opacity-0"
     >
       <div
         v-if="isMobileMenuOpen"
-        class="lg:hidden absolute top-full left-0 right-0 t-bg-elevated border-b t-border t-shadow-lg"
+        class="lg:hidden fixed inset-0 top-[4.5rem] z-40 bg-black/40 backdrop-blur-sm"
+        @click="closeMobileMenu"
+      />
+    </Transition>
+
+    <!-- Mobile Menu -->
+    <Transition
+      enter-active-class="transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)]"
+      enter-from-class="opacity-0 -translate-y-4"
+      enter-to-class="opacity-100 translate-y-0"
+      leave-active-class="transition-all duration-200 ease-in"
+      leave-from-class="opacity-100 translate-y-0"
+      leave-to-class="opacity-0 -translate-y-4"
+    >
+      <div
+        v-if="isMobileMenuOpen"
+        class="lg:hidden absolute top-full left-0 right-0 z-50 t-bg-elevated border-b t-border t-shadow-lg"
       >
         <div class="section-padding py-5 space-y-1">
           <template v-for="link in navLinks" :key="link.href">
