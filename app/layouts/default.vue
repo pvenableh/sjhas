@@ -36,7 +36,7 @@ const logoUrl = computed(() => {
 
     <!-- Chat Widget -->
     <ClientOnly>
-      <ChatChatWidget />
+      <ChatWidget />
     </ClientOnly>
   </div>
 </template>
