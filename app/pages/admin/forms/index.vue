@@ -90,6 +90,48 @@ const deleteForm = async (id: number) => {
     toast.error('Failed to delete form')
   }
 }
+
+// Send to client
+const showSendDialog = ref(false)
+const sendFormTarget = ref<Form | null>(null)
+const sendEmail = ref('')
+const sendName = ref('')
+const sendMessage = ref('')
+const isSending = ref(false)
+
+const openSendDialog = (form: Form) => {
+  sendFormTarget.value = form
+  sendEmail.value = ''
+  sendName.value = ''
+  sendMessage.value = ''
+  showSendDialog.value = true
+}
+
+const handleSendForm = async () => {
+  if (!sendEmail.value || !sendFormTarget.value) {
+    toast.error('Please enter a recipient email')
+    return
+  }
+
+  isSending.value = true
+  try {
+    await $fetch('/api/forms/send', {
+      method: 'POST',
+      body: {
+        formId: sendFormTarget.value.id,
+        recipientEmail: sendEmail.value,
+        recipientName: sendName.value,
+        message: sendMessage.value,
+      },
+    })
+    toast.success(`Form sent to ${sendEmail.value}`)
+    showSendDialog.value = false
+  } catch (error: any) {
+    toast.error(error.data?.message || 'Failed to send email')
+  } finally {
+    isSending.value = false
+  }
+}
 </script>
 
 <template>
@@ -193,13 +235,21 @@ const deleteForm = async (id: number) => {
                   Edit Form
                 </NuxtLink>
                 <a
-                  :href="`/${form.slug}`"
+                  :href="`/f/${form.slug}`"
                   target="_blank"
                   class="flex items-center gap-2 px-4 py-2 text-sm text-slate-700 hover:bg-slate-100"
                 >
                   <Icon name="lucide:external-link" class="w-4 h-4" />
                   View Form
                 </a>
+                <button
+                  v-if="form.status === 'published'"
+                  class="flex items-center gap-2 w-full px-4 py-2 text-sm text-slate-700 hover:bg-slate-100"
+                  @click="openSendDialog(form)"
+                >
+                  <Icon name="lucide:send" class="w-4 h-4" />
+                  Send to Client
+                </button>
                 <button
                   class="flex items-center gap-2 w-full px-4 py-2 text-sm text-slate-700 hover:bg-slate-100"
                   @click="duplicateForm(form)"
@@ -221,6 +271,61 @@ const deleteForm = async (id: number) => {
         </div>
       </div>
     </Card>
+
+    <!-- Send to Client Dialog -->
+    <Teleport to="body">
+      <Transition
+        enter-active-class="transition duration-200 ease-out"
+        enter-from-class="opacity-0"
+        enter-to-class="opacity-100"
+        leave-active-class="transition duration-150 ease-in"
+        leave-from-class="opacity-100"
+        leave-to-class="opacity-0"
+      >
+        <div
+          v-if="showSendDialog"
+          class="fixed inset-0 z-50 flex items-center justify-center p-4"
+        >
+          <div class="absolute inset-0 bg-black/50" @click="showSendDialog = false" />
+          <div class="relative bg-white rounded-2xl shadow-xl w-full max-w-md p-6 space-y-5">
+            <div class="flex items-center justify-between">
+              <h3 class="text-lg font-semibold text-slate-900">Send Form to Client</h3>
+              <button class="p-1 rounded-lg hover:bg-slate-100" @click="showSendDialog = false">
+                <Icon name="lucide:x" class="w-5 h-5 text-slate-400" />
+              </button>
+            </div>
+
+            <p class="text-sm text-slate-500">
+              Send <span class="font-medium text-slate-700">{{ sendFormTarget?.title }}</span> to a client via email.
+            </p>
+
+            <div class="space-y-4">
+              <div>
+                <Label class="mb-1.5">Recipient Email *</Label>
+                <Input v-model="sendEmail" type="email" placeholder="client@example.com" />
+              </div>
+              <div>
+                <Label class="mb-1.5">Recipient Name</Label>
+                <Input v-model="sendName" placeholder="John Doe" />
+              </div>
+              <div>
+                <Label class="mb-1.5">Personal Message (optional)</Label>
+                <Textarea v-model="sendMessage" placeholder="Hi, please complete this form at your earliest convenience..." rows="3" />
+              </div>
+            </div>
+
+            <div class="flex justify-end gap-3 pt-2">
+              <Button variant="secondary" @click="showSendDialog = false">Cancel</Button>
+              <Button :disabled="isSending || !sendEmail" @click="handleSendForm">
+                <Icon v-if="isSending" name="lucide:loader-2" class="w-4 h-4 animate-spin" />
+                <Icon v-else name="lucide:send" class="w-4 h-4" />
+                {{ isSending ? 'Sending...' : 'Send Email' }}
+              </Button>
+            </div>
+          </div>
+        </div>
+      </Transition>
+    </Teleport>
 
     <!-- Form Templates -->
     <Card class="p-6">

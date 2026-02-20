@@ -15,7 +15,7 @@ export default defineNuxtRouteMiddleware((to, from) => {
     // Redirect to the appropriate dashboard based on route context
     const dashboardPath = to.fullPath.startsWith("/admin")
       ? "/admin/chat"
-      : "/portal";
+      : "/forms";
     return navigateTo(dashboardPath);
   }
 });
