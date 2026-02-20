@@ -52,7 +52,7 @@ const handleRegister = () => {
           <div class="w-12 h-12 rounded-lg bg-primary-600 flex items-center justify-center">
             <span class="text-white font-bold text-xl">S</span>
           </div>
-          <span class="font-serif text-2xl text-slate-900">SJHAS, Inc.</span>
+          <span class="font-sans text-2xl text-slate-900">SJHAS, Inc.</span>
         </NuxtLink>
         <p class="mt-2 text-slate-600">Sign in to your forms</p>
       </div>

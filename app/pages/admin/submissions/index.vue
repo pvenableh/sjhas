@@ -128,7 +128,7 @@ const getDisplayableData = (data: Record<string, unknown>) => {
     <!-- Header -->
     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
       <div>
-        <h1 class="text-2xl font-serif text-slate-900">Submissions</h1>
+        <h1 class="text-2xl font-semibold text-slate-900">Submissions</h1>
         <p class="text-slate-600 mt-1">View and manage form responses</p>
       </div>
       <Button variant="secondary" @click="fetchData">

@@ -117,7 +117,7 @@ const previewForm = () => {
           <Icon name="lucide:arrow-left" class="w-5 h-5 text-slate-600" />
         </NuxtLink>
         <div>
-          <h1 class="text-2xl font-serif text-slate-900">
+          <h1 class="text-2xl font-semibold text-slate-900">
             {{ isNew ? 'Create Form' : formData.title || 'Edit Form' }}
           </h1>
           <p v-if="!isNew && formData.slug" class="text-slate-500 text-sm">
@@ -301,7 +301,7 @@ const previewForm = () => {
       <div v-show="activeTab === 'preview'" class="max-w-2xl mx-auto">
         <Card class="p-6">
           <div class="mb-6">
-            <h2 class="text-2xl font-serif text-slate-900">{{ formData.title || 'Untitled Form' }}</h2>
+            <h2 class="text-2xl font-semibold text-slate-900">{{ formData.title || 'Untitled Form' }}</h2>
             <p v-if="formData.description" class="text-slate-600 mt-2">
               {{ formData.description }}
             </p>

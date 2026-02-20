@@ -77,7 +77,7 @@ export const useGsap = () => {
         ease: 'power2.out',
         scrollTrigger: {
           trigger: element,
-          start: 'top 80%',
+          start: 'top 90%',
           toggleActions: 'play none none reverse',
         },
         ...options,
@@ -111,7 +111,7 @@ export const useGsap = () => {
         ease: 'power2.out',
         scrollTrigger: {
           trigger: parent,
-          start: 'top 75%',
+          start: 'top 90%',
           toggleActions: 'play none none reverse',
         },
         ...options,
@@ -148,7 +148,7 @@ export const useGsap = () => {
       },
       scrollTrigger: {
         trigger: element,
-        start: 'top 80%',
+        start: 'top 90%',
         toggleActions: 'play none none reverse',
       },
     })

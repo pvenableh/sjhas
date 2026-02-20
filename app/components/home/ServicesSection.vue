@@ -52,7 +52,7 @@ onMounted(() => {
         ease: 'power2.out',
         scrollTrigger: {
           trigger: sectionRef.value,
-          start: 'top 80%',
+          start: 'top 90%',
         },
       }
     )
@@ -68,7 +68,7 @@ onMounted(() => {
         ease: 'power2.out',
         scrollTrigger: {
           trigger: sectionRef.value.querySelector('.services-grid'),
-          start: 'top 80%',
+          start: 'top 90%',
         },
       }
     )

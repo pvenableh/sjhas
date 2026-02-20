@@ -44,7 +44,7 @@ onMounted(() => {
         ease: 'power2.out',
         scrollTrigger: {
           trigger: sectionRef.value,
-          start: 'top 70%',
+          start: 'top 90%',
         },
       }
     )
@@ -159,13 +159,14 @@ onMounted(() => {
               Book an Appointment
             </Button>
             <Button
-              as="NuxtLink"
-              to="/upload"
+              as-child
               class="w-full justify-center tracking-wide"
               style="background-color: rgba(255, 255, 255, 0.08); color: var(--theme-hero-text); border-color: rgba(255, 255, 255, 0.15);"
             >
-              <Icon name="lucide:upload" class="w-4 h-4" />
-              Upload Documents
+              <NuxtLink to="/upload">
+                <Icon name="lucide:upload" class="w-4 h-4" />
+                Upload Documents
+              </NuxtLink>
             </Button>
           </div>
         </div>
