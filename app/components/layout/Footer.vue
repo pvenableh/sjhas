@@ -26,12 +26,11 @@ const hours = computed(() => [
 ])
 
 const quickLinks = [
-  { label: 'Home', href: '/' },
-  { label: 'Services', href: '/#services' },
-  { label: 'Upload Documents', href: '/upload' },
-  { label: 'Tax Planning', href: '/tax-planning' },
-  { label: 'Client Portal', href: '/portal/login' },
-  { label: 'Admin', href: '/admin/chat' },
+  { label: 'Home', href: '/', external: false },
+  { label: 'Services', href: '/#services', external: false },
+  { label: 'About', href: '/#about', external: false },
+  { label: 'Contact', href: '/#contact', external: false },
+  { label: 'Client Portal', href: 'https://sjhas.clientportal.com/#/login', external: true },
 ]
 </script>
 
@@ -60,7 +59,17 @@ const quickLinks = [
           <h4 class="t-footer-heading font-medium mb-5 text-xs tracking-widest uppercase">Quick Links</h4>
           <ul class="space-y-3">
             <li v-for="link in quickLinks" :key="link.href">
+              <a
+                v-if="link.external"
+                :href="link.href"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="text-sm t-footer-link inline-flex items-center gap-1.5 tracking-wide"
+              >
+                {{ link.label }}
+              </a>
               <NuxtLink
+                v-else
                 :to="link.href"
                 class="text-sm t-footer-link inline-flex items-center gap-1.5 tracking-wide"
               >

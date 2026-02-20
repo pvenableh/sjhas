@@ -12,21 +12,21 @@ const props = defineProps<{
 // Default services if none provided from CMS
 const defaultServices: Partial<Service>[] = [
   {
-    title: 'Personal Tax Preparation',
-    short_description: 'We offer one on one help to make sure you have a Personal Tax Strategy and are prepared for the tax year.',
+    title: 'Personal Tax',
+    short_description: 'Stephen offers one-on-one help to make sure you have a Personal Tax Strategy and are prepared for the tax year.',
     icon: 'lucide:user',
     cta_text: 'Contact us for a quote',
     cta_link: '#contact',
   },
   {
-    title: 'Business Tax Preparation',
-    short_description: 'We offer Business Tax Strategy & Preparation (C-Corp, S-Corp, Partnership) and support for Legal Incorporation & Organization Services.',
+    title: 'Business Tax',
+    short_description: 'We offer Business Tax Strategy & Preparation (C-Corp, S-Corp, Partnership) and support for Legal Incorporation & Organization Services (INC, LLC, PC, PLLC).',
     icon: 'lucide:building-2',
     cta_text: 'Contact us for a quote',
     cta_link: '#contact',
   },
   {
-    title: 'Payroll Services',
+    title: 'Payroll',
     short_description: 'Have payroll processing needs? Let us take care of them, freeing up your time for more important matters.',
     icon: 'lucide:wallet',
     cta_text: 'Contact us for a quote',

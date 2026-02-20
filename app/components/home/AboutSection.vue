@@ -11,9 +11,9 @@ const props = defineProps<{
 
 const sectionRef = ref<HTMLElement | null>(null)
 
-const defaultContent = `SJHAS Inc. has been providing clients personalized tax returns, accounting, and payroll services throughout Ithaca, Elmira, and the Central New York area since 2000.
+const defaultContent = `Stephen J. Hoffman has been providing clients personalized tax returns, accounting, and payroll services throughout Ithaca, Elmira, and the Central New York area since 2000.
 
-With years of expansive financial knowledge, we are equipped to handle all of your accounting needs, no matter how complex. Whether you require assistance at the corporate or personal level, Stephen is ready to serve as your business consultant, financial and tax planner, payroll processor, and accounting advisor.`
+With years of expansive financial knowledge, he is equipped to handle all of your accounting needs, no matter how complex. Whether you require assistance at the corporate or personal level, Stephen is ready to serve as your business consultant, financial and tax planner, payroll processor, and accounting advisor.`
 
 onMounted(() => {
   if (import.meta.client && sectionRef.value) {
@@ -80,7 +80,7 @@ onMounted(() => {
           <div class="absolute -bottom-8 left-8 right-8 lg:right-auto lg:w-64 t-bg-elevated rounded-xl t-shadow-lg p-7">
             <div class="grid grid-cols-2 gap-4">
               <div class="text-center">
-                <p class="text-3xl font-light t-heading t-text-accent">24+</p>
+                <p class="text-3xl font-light t-heading t-text-accent">26+</p>
                 <p class="text-xs t-text-muted tracking-wider uppercase mt-1">Years Experience</p>
               </div>
               <div class="text-center">

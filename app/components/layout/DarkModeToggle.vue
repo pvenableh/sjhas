@@ -1,7 +1,7 @@
 <script setup lang="ts">
 /**
- * Simple dark mode toggle button
- * Use ThemeSwitcher for full theme controls (Classic/Modern + light/dark)
+ * Dark mode toggle button
+ * Toggles between light and dark mode
  */
 
 export interface DarkModeToggleProps {

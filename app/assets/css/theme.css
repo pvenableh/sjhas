@@ -1,378 +1,177 @@
 /* =============================================================================
    THEME SYSTEM
-   Two design themes with light/dark variants:
-   - Classic: Warm cream, gold accents, Bodoni serif headings
-   - Modern: Sophisticated neutrals, bronze accents, elegant sans-serif
-   Inspired by Hermès, Restoration Hardware — understated luxury
+   Modern theme with light/dark variants using a professional blue palette.
    ============================================================================= */
-
-/* =============================================================================
-   CLASSIC THEME - LIGHT MODE
-   Warm cream, gold accents, serif typography (Bauer Bodoni)
-   ============================================================================= */
-.theme-classic-light {
-  /* Background colors */
-  --theme-bg-primary: #FDFCFA;
-  --theme-bg-secondary: #F7F5F0;
-  --theme-bg-tertiary: #EFECE5;
-  --theme-bg-elevated: #FFFFFF;
-  --theme-bg-overlay: rgba(253, 252, 250, 0.96);
-
-  /* Text colors */
-  --theme-text-primary: #2C2825;
-  --theme-text-secondary: #6B6560;
-  --theme-text-tertiary: #8B7355;
-  --theme-text-muted: #A09888;
-  --theme-text-inverse: #FFFFFF;
-
-  /* Accent colors - Warm Gold */
-  --theme-accent-primary: #B8976A;
-  --theme-accent-secondary: #C9A96E;
-  --theme-accent-tertiary: #8B7355;
-  --theme-accent-hover: #A6864F;
-  --theme-accent-active: #96773E;
-
-  /* Border colors */
-  --theme-border-primary: #E8E3DB;
-  --theme-border-secondary: #D8D1C6;
-  --theme-border-light: #F0EBE3;
-
-  /* Component-specific */
-  --theme-header-bg: rgba(253, 252, 250, 0.92);
-  --theme-header-bg-scrolled: rgba(253, 252, 250, 0.98);
-  --theme-footer-bg: #1E1B18;
-  --theme-footer-text: #C9C4BA;
-  --theme-footer-text-secondary: #A09888;
-  --theme-footer-text-muted: #6B6560;
-  --theme-footer-heading: #F5F3EF;
-  --theme-footer-border: rgba(184, 151, 106, 0.15);
-  --theme-footer-link-hover: #F5F3EF;
-  --theme-card-bg: #FFFFFF;
-  --theme-nav-bg: rgba(253, 252, 250, 0.9);
-
-  /* Hero / accent sections */
-  --theme-hero-gradient-from: #3D3328;
-  --theme-hero-gradient-via: #4A3E30;
-  --theme-hero-gradient-to: #2C2520;
-  --theme-hero-text: #FFFFFF;
-  --theme-hero-text-secondary: #D4C8B5;
-  --theme-hero-badge-bg: rgba(255, 255, 255, 0.1);
-  --theme-hero-badge-text: rgba(255, 255, 255, 0.85);
-
-  /* Badge / pill */
-  --theme-badge-bg: #F0EBE3;
-  --theme-badge-text: #8B7355;
-
-  /* Section alternate backgrounds */
-  --theme-section-card-bg: #F7F5F0;
-  --theme-section-card-border: #E8E3DB;
-  --theme-section-card-hover-border: #B8976A;
-  --theme-section-card-hover-bg: #FFFFFF;
-
-  /* Icon containers */
-  --theme-icon-bg: #F0EBE3;
-  --theme-icon-color: #8B7355;
-  --theme-icon-hover-bg: #B8976A;
-  --theme-icon-hover-color: #FFFFFF;
-
-  /* Typography - Bauer Bodoni for headings, Proxima Nova for body */
-  --theme-heading-font: 'Bauer Bodoni', 'Times New Roman', Times, serif;
-  --theme-body-font: 'Proxima Nova', 'Avenir Next', 'Helvetica Neue', Helvetica, Arial, sans-serif;
-
-  /* Shadows - subtle, warm */
-  --theme-shadow-sm: 0 1px 3px rgba(44, 40, 37, 0.04);
-  --theme-shadow-md: 0 4px 12px rgba(44, 40, 37, 0.06);
-  --theme-shadow-lg: 0 12px 32px rgba(44, 40, 37, 0.08);
-
-  /* Interactive */
-  --theme-link-color: #8B7355;
-  --theme-link-hover: #B8976A;
-  --theme-button-bg: #2C2825;
-  --theme-button-text: #FFFFFF;
-  --theme-button-hover-bg: #3D3328;
-
-  /* Focus */
-  --theme-focus-ring: rgba(184, 151, 106, 0.4);
-
-  /* Dividers */
-  --theme-divider: #E8E3DB;
-  --theme-divider-light: #F0EBE3;
-
-  /* Input */
-  --theme-input-bg: #FFFFFF;
-  --theme-input-border: #D8D1C6;
-  --theme-input-focus-border: #B8976A;
-}
-
-/* =============================================================================
-   CLASSIC THEME - DARK MODE
-   Warm dark tones with gold accents, serif typography
-   ============================================================================= */
-.theme-classic-dark,
-.dark.theme-classic-light {
-  /* Background colors - warm dark palette */
-  --theme-bg-primary: #161412;
-  --theme-bg-secondary: #1E1B18;
-  --theme-bg-tertiary: #28231E;
-  --theme-bg-elevated: #211E1A;
-  --theme-bg-overlay: rgba(22, 20, 18, 0.96);
-
-  /* Text colors */
-  --theme-text-primary: #F0EDE8;
-  --theme-text-secondary: #BDB5AA;
-  --theme-text-tertiary: #C9A96E;
-  --theme-text-muted: #7A7268;
-  --theme-text-inverse: #161412;
-
-  /* Accent colors - Warm gold (softer for dark) */
-  --theme-accent-primary: #C9A96E;
-  --theme-accent-secondary: #B8976A;
-  --theme-accent-tertiary: #D4C8B5;
-  --theme-accent-hover: #D4BA8A;
-  --theme-accent-active: #E5D4B3;
-
-  /* Border colors */
-  --theme-border-primary: #302B24;
-  --theme-border-secondary: #3D362D;
-  --theme-border-light: #252119;
-
-  /* Component-specific */
-  --theme-header-bg: rgba(30, 27, 24, 0.94);
-  --theme-header-bg-scrolled: rgba(22, 20, 18, 0.98);
-  --theme-footer-bg: #0D0C0A;
-  --theme-footer-text: #BDB5AA;
-  --theme-footer-text-secondary: #7A7268;
-  --theme-footer-text-muted: #524C44;
-  --theme-footer-heading: #F0EDE8;
-  --theme-footer-border: rgba(201, 169, 110, 0.12);
-  --theme-footer-link-hover: #D4BA8A;
-  --theme-card-bg: #211E1A;
-  --theme-nav-bg: rgba(30, 27, 24, 0.92);
-
-  /* Hero / accent sections */
-  --theme-hero-gradient-from: #28231E;
-  --theme-hero-gradient-via: #302B24;
-  --theme-hero-gradient-to: #1E1B18;
-  --theme-hero-text: #F0EDE8;
-  --theme-hero-text-secondary: #C9A96E;
-  --theme-hero-badge-bg: rgba(201, 169, 110, 0.12);
-  --theme-hero-badge-text: #C9A96E;
-
-  /* Badge / pill */
-  --theme-badge-bg: rgba(201, 169, 110, 0.1);
-  --theme-badge-text: #C9A96E;
-
-  /* Section alternate backgrounds */
-  --theme-section-card-bg: #1E1B18;
-  --theme-section-card-border: #302B24;
-  --theme-section-card-hover-border: #C9A96E;
-  --theme-section-card-hover-bg: #211E1A;
-
-  /* Icon containers */
-  --theme-icon-bg: rgba(201, 169, 110, 0.1);
-  --theme-icon-color: #C9A96E;
-  --theme-icon-hover-bg: #B8976A;
-  --theme-icon-hover-color: #161412;
-
-  /* Typography */
-  --theme-heading-font: 'Bauer Bodoni', 'Times New Roman', Times, serif;
-  --theme-body-font: 'Proxima Nova', 'Avenir Next', 'Helvetica Neue', Helvetica, Arial, sans-serif;
-
-  /* Shadows */
-  --theme-shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.2);
-  --theme-shadow-md: 0 4px 12px rgba(0, 0, 0, 0.25);
-  --theme-shadow-lg: 0 12px 32px rgba(0, 0, 0, 0.35);
-
-  /* Interactive */
-  --theme-link-color: #C9A96E;
-  --theme-link-hover: #D4BA8A;
-  --theme-button-bg: #C9A96E;
-  --theme-button-text: #161412;
-  --theme-button-hover-bg: #D4BA8A;
-
-  /* Focus */
-  --theme-focus-ring: rgba(201, 169, 110, 0.4);
-
-  /* Dividers */
-  --theme-divider: #302B24;
-  --theme-divider-light: #252119;
-
-  /* Input */
-  --theme-input-bg: #211E1A;
-  --theme-input-border: #3D362D;
-  --theme-input-focus-border: #C9A96E;
-}
 
 /* =============================================================================
    MODERN THEME - LIGHT MODE
-   Sophisticated warm neutrals, bronze/brass accents
-   Inspired by Restoration Hardware, Hermès — understated luxury
+   Clean whites with professional blue accents
    ============================================================================= */
 :root,
 .theme-modern-light {
-  /* Background colors - warm sophisticated whites */
-  --theme-bg-primary: #FAF9F7;
-  --theme-bg-secondary: #F3F1ED;
-  --theme-bg-tertiary: #EBE8E3;
+  /* Background colors */
+  --theme-bg-primary: #FAFBFD;
+  --theme-bg-secondary: #F1F4F9;
+  --theme-bg-tertiary: #E4E9F0;
   --theme-bg-elevated: #FFFFFF;
-  --theme-bg-overlay: rgba(250, 249, 247, 0.96);
+  --theme-bg-overlay: rgba(250, 251, 253, 0.96);
 
-  /* Text colors - rich, deep */
-  --theme-text-primary: #1A1816;
-  --theme-text-secondary: #5C5650;
-  --theme-text-tertiary: #7A746E;
-  --theme-text-muted: #9C958E;
+  /* Text colors */
+  --theme-text-primary: #111827;
+  --theme-text-secondary: #4B5563;
+  --theme-text-tertiary: #6B7280;
+  --theme-text-muted: #9CA3AF;
   --theme-text-inverse: #FFFFFF;
 
-  /* Accent colors - Warm Bronze/Brass */
-  --theme-accent-primary: #8B6F47;
-  --theme-accent-secondary: #A68B5B;
-  --theme-accent-tertiary: #6B5535;
-  --theme-accent-hover: #7A6040;
-  --theme-accent-active: #6B5535;
+  /* Accent colors - Professional Blue */
+  --theme-accent-primary: #2563EB;
+  --theme-accent-secondary: #3B82F6;
+  --theme-accent-tertiary: #1D4ED8;
+  --theme-accent-hover: #1D4ED8;
+  --theme-accent-active: #1E40AF;
 
-  /* Border colors - soft, refined */
-  --theme-border-primary: #E5E1DB;
-  --theme-border-secondary: #D5D0C8;
-  --theme-border-light: #EFECE7;
+  /* Border colors */
+  --theme-border-primary: #E2E6EC;
+  --theme-border-secondary: #D1D5DB;
+  --theme-border-light: #EDF0F4;
 
   /* Component-specific */
-  --theme-header-bg: rgba(250, 249, 247, 0.92);
-  --theme-header-bg-scrolled: rgba(250, 249, 247, 0.98);
-  --theme-footer-bg: #1A1816;
-  --theme-footer-text: #C4BDB5;
-  --theme-footer-text-secondary: #8C857D;
-  --theme-footer-text-muted: #5C5650;
-  --theme-footer-heading: #F0EDE8;
-  --theme-footer-border: rgba(139, 111, 71, 0.15);
-  --theme-footer-link-hover: #F0EDE8;
+  --theme-header-bg: rgba(250, 251, 253, 0.92);
+  --theme-header-bg-scrolled: rgba(250, 251, 253, 0.98);
+  --theme-footer-bg: #111827;
+  --theme-footer-text: #D1D5DB;
+  --theme-footer-text-secondary: #9CA3AF;
+  --theme-footer-text-muted: #6B7280;
+  --theme-footer-heading: #F3F4F6;
+  --theme-footer-border: rgba(37, 99, 235, 0.15);
+  --theme-footer-link-hover: #F3F4F6;
   --theme-card-bg: #FFFFFF;
-  --theme-nav-bg: rgba(250, 249, 247, 0.92);
+  --theme-nav-bg: rgba(250, 251, 253, 0.92);
 
   /* Hero / accent sections */
-  --theme-hero-gradient-from: #2C2620;
-  --theme-hero-gradient-via: #38302A;
-  --theme-hero-gradient-to: #1A1816;
+  --theme-hero-gradient-from: #0F172A;
+  --theme-hero-gradient-via: #1E293B;
+  --theme-hero-gradient-to: #0C1524;
   --theme-hero-text: #FFFFFF;
-  --theme-hero-text-secondary: #C4BDB5;
+  --theme-hero-text-secondary: #CBD5E1;
   --theme-hero-badge-bg: rgba(255, 255, 255, 0.1);
   --theme-hero-badge-text: rgba(255, 255, 255, 0.85);
 
   /* Badge / pill */
-  --theme-badge-bg: #EFECE7;
-  --theme-badge-text: #6B5535;
+  --theme-badge-bg: #EFF6FF;
+  --theme-badge-text: #1D4ED8;
 
   /* Section alternate backgrounds */
-  --theme-section-card-bg: #F3F1ED;
-  --theme-section-card-border: #E5E1DB;
-  --theme-section-card-hover-border: #8B6F47;
+  --theme-section-card-bg: #F1F4F9;
+  --theme-section-card-border: #E2E6EC;
+  --theme-section-card-hover-border: #2563EB;
   --theme-section-card-hover-bg: #FFFFFF;
 
   /* Icon containers */
-  --theme-icon-bg: #EFECE7;
-  --theme-icon-color: #7A6040;
-  --theme-icon-hover-bg: #8B6F47;
+  --theme-icon-bg: #EFF6FF;
+  --theme-icon-color: #2563EB;
+  --theme-icon-hover-bg: #2563EB;
   --theme-icon-hover-color: #FFFFFF;
 
-  /* Typography - Bauer Bodoni headings with Avenir Next body for modern elegance */
+  /* Typography - Bauer Bodoni headings with Avenir Next body */
   --theme-heading-font: 'Bauer Bodoni', 'Times New Roman', Times, serif;
   --theme-body-font: 'Avenir Next', 'Proxima Nova', 'Helvetica Neue', Helvetica, Arial, sans-serif;
 
-  /* Shadows - clean, refined */
-  --theme-shadow-sm: 0 1px 3px rgba(26, 24, 22, 0.04);
-  --theme-shadow-md: 0 4px 16px rgba(26, 24, 22, 0.06);
-  --theme-shadow-lg: 0 16px 40px rgba(26, 24, 22, 0.08);
+  /* Shadows */
+  --theme-shadow-sm: 0 1px 3px rgba(17, 24, 39, 0.04);
+  --theme-shadow-md: 0 4px 16px rgba(17, 24, 39, 0.06);
+  --theme-shadow-lg: 0 16px 40px rgba(17, 24, 39, 0.08);
 
   /* Interactive */
-  --theme-link-color: #8B6F47;
-  --theme-link-hover: #6B5535;
-  --theme-button-bg: #1A1816;
+  --theme-link-color: #2563EB;
+  --theme-link-hover: #1D4ED8;
+  --theme-button-bg: #111827;
   --theme-button-text: #FFFFFF;
-  --theme-button-hover-bg: #2C2620;
+  --theme-button-hover-bg: #1F2937;
 
   /* Focus */
-  --theme-focus-ring: rgba(139, 111, 71, 0.35);
+  --theme-focus-ring: rgba(37, 99, 235, 0.35);
 
   /* Dividers */
-  --theme-divider: #E5E1DB;
-  --theme-divider-light: #EFECE7;
+  --theme-divider: #E2E6EC;
+  --theme-divider-light: #EDF0F4;
 
   /* Input */
   --theme-input-bg: #FFFFFF;
-  --theme-input-border: #D5D0C8;
-  --theme-input-focus-border: #8B6F47;
+  --theme-input-border: #D1D5DB;
+  --theme-input-focus-border: #2563EB;
 }
 
 /* =============================================================================
    MODERN THEME - DARK MODE
-   Deep warm dark, bronze/brass accents
+   Deep slate backgrounds with lighter blue accents
    ============================================================================= */
 .theme-modern-dark,
 .dark.theme-modern-light,
 .dark:root {
-  /* Background colors - Deep warm charcoal */
-  --theme-bg-primary: #121110;
-  --theme-bg-secondary: #1A1816;
-  --theme-bg-tertiary: #222018;
-  --theme-bg-elevated: #1E1C1A;
-  --theme-bg-overlay: rgba(18, 17, 16, 0.96);
+  /* Background colors */
+  --theme-bg-primary: #111827;
+  --theme-bg-secondary: #1F2937;
+  --theme-bg-tertiary: #2D3748;
+  --theme-bg-elevated: #1A2332;
+  --theme-bg-overlay: rgba(17, 24, 39, 0.96);
 
   /* Text colors */
-  --theme-text-primary: #F0EDE8;
-  --theme-text-secondary: #B5AFA8;
-  --theme-text-tertiary: #8C857D;
-  --theme-text-muted: #5C5650;
-  --theme-text-inverse: #121110;
+  --theme-text-primary: #F0F4F8;
+  --theme-text-secondary: #B0BAC6;
+  --theme-text-tertiary: #8896A5;
+  --theme-text-muted: #5A6778;
+  --theme-text-inverse: #111827;
 
-  /* Accent colors - Warm bronze/gold */
-  --theme-accent-primary: #C4A87A;
-  --theme-accent-secondary: #D4BA8A;
-  --theme-accent-tertiary: #A68B5B;
-  --theme-accent-hover: #D4BA8A;
-  --theme-accent-active: #E5D4B3;
+  /* Accent colors - Lighter blue for dark mode */
+  --theme-accent-primary: #60A5FA;
+  --theme-accent-secondary: #93C5FD;
+  --theme-accent-tertiary: #3B82F6;
+  --theme-accent-hover: #93C5FD;
+  --theme-accent-active: #BFDBFE;
 
   /* Border colors */
-  --theme-border-primary: #2A2724;
-  --theme-border-secondary: #35322E;
-  --theme-border-light: #1E1C1A;
+  --theme-border-primary: #2A3546;
+  --theme-border-secondary: #374151;
+  --theme-border-light: #1F2937;
 
   /* Component-specific */
-  --theme-header-bg: rgba(26, 24, 22, 0.94);
-  --theme-header-bg-scrolled: rgba(18, 17, 16, 0.98);
-  --theme-footer-bg: #0A0908;
-  --theme-footer-text: #B5AFA8;
-  --theme-footer-text-secondary: #6B6560;
-  --theme-footer-text-muted: #45413D;
-  --theme-footer-heading: #F0EDE8;
-  --theme-footer-border: rgba(196, 168, 122, 0.1);
-  --theme-footer-link-hover: #D4BA8A;
-  --theme-card-bg: #1E1C1A;
-  --theme-nav-bg: rgba(26, 24, 22, 0.94);
+  --theme-header-bg: rgba(31, 41, 55, 0.94);
+  --theme-header-bg-scrolled: rgba(17, 24, 39, 0.98);
+  --theme-footer-bg: #0B1120;
+  --theme-footer-text: #B0BAC6;
+  --theme-footer-text-secondary: #6B7B8D;
+  --theme-footer-text-muted: #45526A;
+  --theme-footer-heading: #F0F4F8;
+  --theme-footer-border: rgba(96, 165, 250, 0.1);
+  --theme-footer-link-hover: #93C5FD;
+  --theme-card-bg: #1A2332;
+  --theme-nav-bg: rgba(31, 41, 55, 0.94);
 
   /* Hero / accent sections */
-  --theme-hero-gradient-from: #1A1816;
-  --theme-hero-gradient-via: #222018;
-  --theme-hero-gradient-to: #121110;
-  --theme-hero-text: #F0EDE8;
-  --theme-hero-text-secondary: #C4A87A;
-  --theme-hero-badge-bg: rgba(196, 168, 122, 0.1);
-  --theme-hero-badge-text: #C4A87A;
+  --theme-hero-gradient-from: #0F172A;
+  --theme-hero-gradient-via: #1E293B;
+  --theme-hero-gradient-to: #0B1120;
+  --theme-hero-text: #F0F4F8;
+  --theme-hero-text-secondary: #60A5FA;
+  --theme-hero-badge-bg: rgba(96, 165, 250, 0.1);
+  --theme-hero-badge-text: #60A5FA;
 
   /* Badge / pill */
-  --theme-badge-bg: rgba(196, 168, 122, 0.08);
-  --theme-badge-text: #C4A87A;
+  --theme-badge-bg: rgba(96, 165, 250, 0.1);
+  --theme-badge-text: #60A5FA;
 
   /* Section alternate backgrounds */
-  --theme-section-card-bg: #1A1816;
-  --theme-section-card-border: #2A2724;
-  --theme-section-card-hover-border: #C4A87A;
-  --theme-section-card-hover-bg: #1E1C1A;
+  --theme-section-card-bg: #1F2937;
+  --theme-section-card-border: #2A3546;
+  --theme-section-card-hover-border: #60A5FA;
+  --theme-section-card-hover-bg: #1A2332;
 
   /* Icon containers */
-  --theme-icon-bg: rgba(196, 168, 122, 0.08);
-  --theme-icon-color: #C4A87A;
-  --theme-icon-hover-bg: #A68B5B;
-  --theme-icon-hover-color: #121110;
+  --theme-icon-bg: rgba(96, 165, 250, 0.08);
+  --theme-icon-color: #60A5FA;
+  --theme-icon-hover-bg: #3B82F6;
+  --theme-icon-hover-color: #111827;
 
   /* Typography */
   --theme-heading-font: 'Bauer Bodoni', 'Times New Roman', Times, serif;
@@ -384,23 +183,23 @@
   --theme-shadow-lg: 0 16px 40px rgba(0, 0, 0, 0.4);
 
   /* Interactive */
-  --theme-link-color: #C4A87A;
-  --theme-link-hover: #D4BA8A;
-  --theme-button-bg: #C4A87A;
-  --theme-button-text: #121110;
-  --theme-button-hover-bg: #D4BA8A;
+  --theme-link-color: #60A5FA;
+  --theme-link-hover: #93C5FD;
+  --theme-button-bg: #60A5FA;
+  --theme-button-text: #111827;
+  --theme-button-hover-bg: #93C5FD;
 
   /* Focus */
-  --theme-focus-ring: rgba(196, 168, 122, 0.35);
+  --theme-focus-ring: rgba(96, 165, 250, 0.35);
 
   /* Dividers */
-  --theme-divider: #2A2724;
-  --theme-divider-light: #1E1C1A;
+  --theme-divider: #2A3546;
+  --theme-divider-light: #1F2937;
 
   /* Input */
-  --theme-input-bg: #1E1C1A;
-  --theme-input-border: #35322E;
-  --theme-input-focus-border: #C4A87A;
+  --theme-input-bg: #1A2332;
+  --theme-input-border: #374151;
+  --theme-input-focus-border: #60A5FA;
 }
 
 /* =============================================================================

@@ -15,14 +15,11 @@ const isMobileMenuOpen = ref(false)
 const headerRef = ref<HTMLElement | null>(null)
 
 const navLinks = [
-  { label: 'Home', href: '/' },
-  { label: 'Services', href: '/#services' },
-  { label: 'About', href: '/#about' },
-  { label: 'Upload', href: '/upload' },
-  { label: 'Tax Planning', href: '/tax-planning' },
-  { label: 'Contact', href: '/#contact' },
-  { label: 'Client Portal', href: '/portal/login' },
-  { label: 'Admin', href: '/admin/chat' },
+  { label: 'Home', href: '/', external: false },
+  { label: 'Services', href: '/#services', external: false },
+  { label: 'About', href: '/#about', external: false },
+  { label: 'Contact', href: '/#contact', external: false },
+  { label: 'Client Portal', href: 'https://sjhas.clientportal.com/#/login', external: true },
 ]
 
 const toggleMobileMenu = () => {
@@ -87,19 +84,29 @@ onMounted(() => {
 
         <!-- Desktop Navigation -->
         <div class="hidden lg:flex items-center gap-0.5">
-          <NuxtLink
-            v-for="link in navLinks"
-            :key="link.href"
-            :to="link.href"
-            class="px-4 py-2 text-sm tracking-wide t-text-secondary hover:t-text-accent transition-colors rounded-lg t-hover-bg"
-          >
-            {{ link.label }}
-          </NuxtLink>
+          <template v-for="link in navLinks" :key="link.href">
+            <a
+              v-if="link.external"
+              :href="link.href"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="px-4 py-2 text-sm tracking-wide t-text-secondary hover:t-text-accent transition-colors rounded-lg t-hover-bg"
+            >
+              {{ link.label }}
+            </a>
+            <NuxtLink
+              v-else
+              :to="link.href"
+              class="px-4 py-2 text-sm tracking-wide t-text-secondary hover:t-text-accent transition-colors rounded-lg t-hover-bg"
+            >
+              {{ link.label }}
+            </NuxtLink>
+          </template>
         </div>
 
-        <!-- CTA Button & Theme Switcher (Desktop) -->
+        <!-- CTA Button & Dark Mode (Desktop) -->
         <div class="hidden lg:flex items-center gap-3">
-          <LayoutThemeSwitcher />
+          <LayoutDarkModeToggle />
           <Button as="a" href="https://app.reclaim.ai/m/sjhas/quick-meeting" target="_blank" class="tracking-wide">
             Book Appointment
           </Button>
@@ -137,21 +144,27 @@ onMounted(() => {
         class="lg:hidden absolute top-full left-0 right-0 t-bg-elevated border-b t-border t-shadow-lg"
       >
         <div class="section-padding py-4 space-y-1">
-          <NuxtLink
-            v-for="link in navLinks"
-            :key="link.href"
-            :to="link.href"
-            class="mobile-nav-link block px-4 py-3 text-base tracking-wide t-text-secondary hover:t-text-accent t-hover-bg rounded-lg transition-colors"
-            @click="closeMobileMenu"
-          >
-            {{ link.label }}
-          </NuxtLink>
-          <!-- Mobile Theme Switcher -->
-          <div class="pt-3 px-4 space-y-3">
-            <div class="flex items-center justify-between">
-              <span class="text-sm t-text-muted tracking-wide">Theme</span>
-              <LayoutThemeSwitcher />
-            </div>
+          <template v-for="link in navLinks" :key="link.href">
+            <a
+              v-if="link.external"
+              :href="link.href"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="mobile-nav-link block px-4 py-3 text-base tracking-wide t-text-secondary hover:t-text-accent t-hover-bg rounded-lg transition-colors"
+              @click="closeMobileMenu"
+            >
+              {{ link.label }}
+            </a>
+            <NuxtLink
+              v-else
+              :to="link.href"
+              class="mobile-nav-link block px-4 py-3 text-base tracking-wide t-text-secondary hover:t-text-accent t-hover-bg rounded-lg transition-colors"
+              @click="closeMobileMenu"
+            >
+              {{ link.label }}
+            </NuxtLink>
+          </template>
+          <div class="pt-3 px-4">
             <Button
               as="a"
               href="https://app.reclaim.ai/m/sjhas/quick-meeting"

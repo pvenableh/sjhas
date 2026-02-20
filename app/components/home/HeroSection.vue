@@ -147,7 +147,7 @@ onMounted(() => {
                   <Icon name="lucide:star" class="w-6 h-6" />
                 </div>
                 <div>
-                  <p class="text-2xl font-light t-heading t-text">24+</p>
+                  <p class="text-2xl font-light t-heading t-text">26+</p>
                   <p class="text-xs t-text-muted tracking-wider uppercase">Years Experience</p>
                 </div>
               </div>
