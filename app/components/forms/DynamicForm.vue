@@ -191,15 +191,15 @@ onMounted(() => {
     <!-- Success message -->
     <div
       v-if="isSuccess"
-      class="success-message text-center py-12 px-6"
+      class="success-message text-center py-16 px-8"
     >
-      <div class="w-16 h-16 rounded-full bg-primary-100 mx-auto mb-4 flex items-center justify-center">
-        <Icon name="lucide:check" class="w-8 h-8 text-primary-600" />
+      <div class="w-16 h-16 rounded-2xl bg-primary-50 mx-auto mb-6 flex items-center justify-center">
+        <Icon name="lucide:check" class="w-7 h-7 text-primary-600" />
       </div>
-      <h3 class="text-xl font-semibold text-slate-900 mb-2">
+      <h3 class="text-2xl font-serif text-slate-900 mb-3 tracking-tight">
         {{ form.success_message || 'Thank you for your submission!' }}
       </h3>
-      <p class="text-slate-600 mb-6">
+      <p class="text-slate-500 mb-8 max-w-md mx-auto leading-relaxed">
         We've received your information and will be in touch soon.
       </p>
       <Button variant="secondary" @click="handleReset">
@@ -211,27 +211,27 @@ onMounted(() => {
     <form
       v-else
       ref="formRef"
-      class="space-y-6"
+      class="space-y-8"
       @submit.prevent="onSubmit"
     >
       <!-- Form description -->
-      <p v-if="form.description" class="text-slate-600 mb-6">
+      <p v-if="form.description" class="text-slate-500 leading-relaxed">
         {{ form.description }}
       </p>
 
       <!-- Error message -->
       <div
         v-if="submitError"
-        class="p-4 rounded-lg bg-red-50 border border-red-200 text-red-700 text-sm"
+        class="p-5 rounded-xl bg-red-50 border border-red-100 text-red-700 text-sm"
       >
-        <div class="flex items-center gap-2">
-          <Icon name="lucide:alert-circle" class="w-5 h-5" />
+        <div class="flex items-center gap-3">
+          <Icon name="lucide:alert-circle" class="w-5 h-5 flex-shrink-0" />
           <span>{{ submitError }}</span>
         </div>
       </div>
 
       <!-- Fields -->
-      <div class="grid grid-cols-2 gap-x-6 gap-y-5">
+      <div class="grid grid-cols-2 gap-x-8 gap-y-7">
         <FormsFormField
           v-for="field in sortedFields"
           :key="field.id"
@@ -241,11 +241,11 @@ onMounted(() => {
       </div>
 
       <!-- Submit button -->
-      <div class="pt-4">
+      <div class="pt-6">
         <Button
           type="submit"
           :disabled="isSubmitting"
-          class="w-full sm:w-auto"
+          class="w-full sm:w-auto min-w-[200px]"
         >
           <Icon
             v-if="isSubmitting"

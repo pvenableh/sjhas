@@ -49,7 +49,7 @@ onMounted(() => {
 <template>
   <section
     ref="sectionRef"
-    class="py-24 lg:py-32 t-hero relative overflow-hidden"
+    class="py-28 lg:py-40 t-hero relative overflow-hidden"
   >
     <!-- Subtle background texture -->
     <div class="absolute inset-0 opacity-[0.06]">
@@ -59,15 +59,15 @@ onMounted(() => {
 
     <div class="relative container-wide section-padding">
       <!-- Section header -->
-      <div class="text-center max-w-2xl mx-auto mb-20">
-        <div class="inline-flex items-center gap-2.5 px-5 py-2.5 rounded-full t-hero-badge text-xs font-medium tracking-widest uppercase mb-6">
+      <div class="text-center max-w-2xl mx-auto mb-24">
+        <div class="inline-flex items-center gap-2.5 px-5 py-2.5 rounded-full t-hero-badge text-xs font-medium tracking-[0.1em] uppercase mb-8">
           <Icon name="lucide:message-square-quote" class="w-3.5 h-3.5" />
           <span>Testimonials</span>
         </div>
-        <h2 class="text-3xl sm:text-4xl lg:text-[2.75rem] t-heading t-hero-text mb-5 tracking-tight">
+        <h2 class="text-3xl sm:text-4xl lg:text-[2.75rem] t-heading t-hero-text mb-6 tracking-tight leading-[1.15]">
           {{ title || 'What Our Clients Say' }}
         </h2>
-        <p class="text-lg t-hero-text-secondary leading-relaxed">
+        <p class="text-lg t-hero-text-secondary leading-[1.7]">
           Don't just take our word for it — hear from our valued clients.
         </p>
       </div>
@@ -77,23 +77,23 @@ onMounted(() => {
         <div
           v-for="testimonial in displayTestimonials"
           :key="testimonial.author_name"
-          class="testimonial-card relative t-bg-elevated rounded-2xl p-10 md:p-14 t-shadow-lg"
+          class="testimonial-card relative t-bg-elevated rounded-3xl p-10 md:p-16 t-shadow-lg"
         >
           <!-- Quote icon -->
-          <div class="absolute -top-6 left-10 w-12 h-12 rounded-xl flex items-center justify-center shadow-lg" style="background-color: var(--theme-accent-primary);">
+          <div class="absolute -top-6 left-10 w-12 h-12 rounded-2xl flex items-center justify-center shadow-lg" style="background-color: var(--theme-accent-primary);">
             <Icon name="lucide:quote" class="w-6 h-6" style="color: var(--theme-text-inverse);" />
           </div>
 
           <!-- Quote -->
-          <blockquote class="text-lg md:text-xl t-text-secondary leading-[1.8] mb-10 italic">
+          <blockquote class="text-lg md:text-xl t-text-secondary leading-[1.85] mb-12 italic">
             "{{ testimonial.quote }}"
           </blockquote>
 
           <!-- Divider -->
-          <div class="w-16 h-px mb-8" style="background-color: var(--theme-accent-primary); opacity: 0.4;" />
+          <div class="w-16 h-px mb-8" style="background-color: var(--theme-accent-primary); opacity: 0.3;" />
 
           <!-- Author -->
-          <div class="flex items-center gap-4">
+          <div class="flex items-center gap-5">
             <div
               v-if="testimonial.author_image"
               class="w-14 h-14 rounded-full overflow-hidden"
@@ -114,14 +114,14 @@ onMounted(() => {
             </div>
             <div>
               <p class="font-medium t-text tracking-wide">{{ testimonial.author_name }}</p>
-              <p v-if="testimonial.author_title" class="text-sm t-text-muted tracking-wide">
+              <p v-if="testimonial.author_title" class="text-sm t-text-muted tracking-wide mt-0.5">
                 {{ testimonial.author_title }}
               </p>
             </div>
           </div>
 
           <!-- Decorative stars -->
-          <div class="absolute top-10 right-10 flex gap-1.5">
+          <div class="absolute top-12 right-12 flex gap-1.5">
             <Icon
               v-for="i in 5"
               :key="i"

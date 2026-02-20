@@ -59,20 +59,20 @@ onMounted(() => {
     <!-- Refined decorative line -->
     <div class="absolute top-0 left-0 right-0 h-px" style="background: linear-gradient(to right, transparent, var(--theme-border-primary), transparent);" />
 
-    <div class="relative container-wide section-padding py-24 lg:py-36">
-      <div class="grid lg:grid-cols-2 gap-16 lg:gap-20 items-center">
+    <div class="relative container-wide section-padding py-28 lg:py-40">
+      <div class="grid lg:grid-cols-2 gap-16 lg:gap-24 items-center">
         <!-- Content -->
         <div class="max-w-xl">
-          <div class="hero-badge inline-flex items-center gap-2.5 px-5 py-2.5 rounded-full t-badge text-xs font-medium tracking-widest uppercase mb-8">
+          <div class="hero-badge inline-flex items-center gap-2.5 px-5 py-2.5 rounded-full t-badge text-xs font-medium tracking-[0.1em] uppercase mb-10">
             <Icon name="lucide:building-2" class="w-3.5 h-3.5" />
             <span>Serving Central NY Since 2000</span>
           </div>
 
-          <h1 class="hero-title text-4xl sm:text-5xl lg:text-[3.5rem] xl:text-[4rem] t-heading t-text leading-[1.1] tracking-tight mb-8">
+          <h1 class="hero-title text-4xl sm:text-5xl lg:text-[3.5rem] xl:text-[4rem] t-heading t-text leading-[1.08] tracking-tight mb-8">
             {{ title || 'It\'s not just about the numbers.' }}
           </h1>
 
-          <p class="hero-subtitle text-lg sm:text-xl t-text-secondary leading-relaxed mb-10 max-w-md">
+          <p class="hero-subtitle text-lg sm:text-xl t-text-secondary leading-[1.7] mb-12 max-w-md">
             {{ subtitle || 'Personalized tax returns, accounting, and payroll services that make a difference for your business and personal finances.' }}
           </p>
 
@@ -82,7 +82,7 @@ onMounted(() => {
               :href="ctaLink || 'https://app.reclaim.ai/m/sjhas/quick-meeting'"
               target="_blank"
               size="lg"
-              class="group tracking-wide"
+              class="group"
             >
               {{ ctaText || 'Book a Consultation' }}
               <Icon name="lucide:arrow-right" class="w-4 h-4 transition-transform group-hover:translate-x-1" />
@@ -92,7 +92,6 @@ onMounted(() => {
               href="#services"
               variant="secondary"
               size="lg"
-              class="tracking-wide"
             >
               Our Services
             </Button>
@@ -107,32 +106,32 @@ onMounted(() => {
             <div class="absolute -bottom-8 -left-8 w-72 h-72 rounded-full blur-[80px]" style="background-color: var(--theme-accent-secondary); opacity: 0.06;" />
 
             <!-- Main card -->
-            <div class="relative t-bg-elevated rounded-2xl t-shadow-lg border t-border p-10 transform rotate-1 hover:rotate-0 transition-all duration-700 ease-out">
-              <div class="flex items-center gap-5 mb-8">
-                <div class="w-16 h-16 rounded-xl t-icon-box flex items-center justify-center">
-                  <Icon name="lucide:calculator" class="w-8 h-8" />
+            <div class="relative t-bg-elevated rounded-3xl t-shadow-lg border t-border p-12 transform rotate-1 hover:rotate-0 transition-all duration-700 ease-out">
+              <div class="flex items-center gap-5 mb-10">
+                <div class="w-16 h-16 rounded-2xl t-icon-box flex items-center justify-center">
+                  <Icon name="lucide:calculator" class="w-7 h-7" />
                 </div>
                 <div>
                   <h3 class="font-medium t-text tracking-wide">Expert Tax Planning</h3>
-                  <p class="text-sm t-text-muted mt-0.5">Personalized strategies</p>
+                  <p class="text-sm t-text-muted mt-1">Personalized strategies</p>
                 </div>
               </div>
 
-              <div class="space-y-5">
+              <div class="space-y-6">
                 <div class="flex items-center gap-4">
-                  <div class="w-10 h-10 rounded-lg t-icon-box flex items-center justify-center flex-shrink-0">
+                  <div class="w-10 h-10 rounded-xl t-icon-box flex items-center justify-center flex-shrink-0">
                     <Icon name="lucide:check" class="w-5 h-5" />
                   </div>
                   <span class="t-text-secondary">Personal Tax Preparation</span>
                 </div>
                 <div class="flex items-center gap-4">
-                  <div class="w-10 h-10 rounded-lg t-icon-box flex items-center justify-center flex-shrink-0">
+                  <div class="w-10 h-10 rounded-xl t-icon-box flex items-center justify-center flex-shrink-0">
                     <Icon name="lucide:check" class="w-5 h-5" />
                   </div>
                   <span class="t-text-secondary">Business Tax Strategy</span>
                 </div>
                 <div class="flex items-center gap-4">
-                  <div class="w-10 h-10 rounded-lg t-icon-box flex items-center justify-center flex-shrink-0">
+                  <div class="w-10 h-10 rounded-xl t-icon-box flex items-center justify-center flex-shrink-0">
                     <Icon name="lucide:check" class="w-5 h-5" />
                   </div>
                   <span class="t-text-secondary">Payroll Processing</span>
@@ -141,14 +140,14 @@ onMounted(() => {
             </div>
 
             <!-- Floating badge -->
-            <div class="absolute -bottom-6 -left-6 t-bg-elevated rounded-xl t-shadow-lg border t-border p-5 transform -rotate-2">
+            <div class="absolute -bottom-6 -left-6 t-bg-elevated rounded-2xl t-shadow-lg border t-border p-6 transform -rotate-2">
               <div class="flex items-center gap-4">
                 <div class="w-12 h-12 rounded-full t-icon-box flex items-center justify-center">
                   <Icon name="lucide:star" class="w-6 h-6" />
                 </div>
                 <div>
                   <p class="text-2xl font-light t-heading t-text">26+</p>
-                  <p class="text-xs t-text-muted tracking-wider uppercase">Years Experience</p>
+                  <p class="text-xs t-text-muted tracking-[0.1em] uppercase">Years Experience</p>
                 </div>
               </div>
             </div>

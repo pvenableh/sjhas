@@ -4,18 +4,18 @@
 @import "./fonts.css";
 
 @theme {
-  /* Color Palette - Professional blue */
-  --color-primary-50: #EFF6FF;
-  --color-primary-100: #DBEAFE;
-  --color-primary-200: #BFDBFE;
-  --color-primary-300: #93C5FD;
-  --color-primary-400: #60A5FA;
-  --color-primary-500: #3B82F6;
-  --color-primary-600: #2563EB;
-  --color-primary-700: #1D4ED8;
-  --color-primary-800: #1E40AF;
-  --color-primary-900: #1E3A8A;
-  --color-primary-950: #172554;
+  /* Color Palette — Navy */
+  --color-primary-50: #F0F5FA;
+  --color-primary-100: #DAE6F2;
+  --color-primary-200: #B5CCE5;
+  --color-primary-300: #8BAFD4;
+  --color-primary-400: #5A8FBE;
+  --color-primary-500: #3A72A4;
+  --color-primary-600: #1A2B42;
+  --color-primary-700: #0F1E32;
+  --color-primary-800: #0A1526;
+  --color-primary-900: #060E1A;
+  --color-primary-950: #030810;
 
   --color-secondary-50: #F8FAFC;
   --color-secondary-100: #F1F5F9;
@@ -29,19 +29,19 @@
   --color-secondary-900: #0F172A;
   --color-secondary-950: #020617;
 
-  --color-accent-50: #EFF6FF;
-  --color-accent-100: #DBEAFE;
-  --color-accent-200: #BFDBFE;
-  --color-accent-300: #93C5FD;
-  --color-accent-400: #60A5FA;
-  --color-accent-500: #3B82F6;
-  --color-accent-600: #2563EB;
-  --color-accent-700: #1D4ED8;
-  --color-accent-800: #1E40AF;
-  --color-accent-900: #1E3A8A;
-  --color-accent-950: #172554;
+  --color-accent-50: #F0F5FA;
+  --color-accent-100: #DAE6F2;
+  --color-accent-200: #B5CCE5;
+  --color-accent-300: #8BAFD4;
+  --color-accent-400: #5A8FBE;
+  --color-accent-500: #3A72A4;
+  --color-accent-600: #2A4A6B;
+  --color-accent-700: #1A2B42;
+  --color-accent-800: #0F1E32;
+  --color-accent-900: #0A1526;
+  --color-accent-950: #030810;
 
-  /* Neutral colors - cool slate */
+  /* Neutral colors — slate */
   --color-slate-50: #F8FAFC;
   --color-slate-100: #F1F5F9;
   --color-slate-200: #E2E8F0;
@@ -58,12 +58,12 @@
   --font-family-sans: "Avenir Next", "Proxima Nova", "Helvetica Neue", Helvetica, Arial, ui-sans-serif, system-ui, sans-serif;
   --font-family-serif: "Bauer Bodoni", "Times New Roman", Times, ui-serif, Georgia, serif;
 
-  /* Border radius */
-  --radius-sm: 0.375rem;
-  --radius: 0.5rem;
-  --radius-md: 0.625rem;
-  --radius-lg: 0.75rem;
-  --radius-xl: 1rem;
+  /* Border radius — generous, iOS-like */
+  --radius-sm: 0.5rem;
+  --radius: 0.625rem;
+  --radius-md: 0.75rem;
+  --radius-lg: 1rem;
+  --radius-xl: 1.25rem;
   --radius-2xl: 1.5rem;
 }
 
@@ -134,38 +134,47 @@
     @apply leading-relaxed;
   }
 
-  /* Primary Button - Theme aware */
+  /* Primary Button — clean, high-end */
   .btn-primary {
-    @apply inline-flex items-center justify-center gap-2 rounded-lg px-6 py-3 text-sm font-semibold shadow-sm transition-all duration-200;
-    @apply focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed;
+    @apply inline-flex items-center justify-center gap-2.5 rounded-xl px-7 py-3.5 text-sm font-medium tracking-wide shadow-sm transition-all duration-200;
+    @apply focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed;
     background-color: var(--theme-button-bg);
     color: var(--theme-button-text);
+    letter-spacing: 0.02em;
   }
 
   .btn-primary:hover {
     background-color: var(--theme-button-hover-bg);
+    transform: translateY(-1px);
+    box-shadow: var(--theme-shadow-md);
   }
 
-  .btn-primary:focus {
+  .btn-primary:active {
+    transform: translateY(0);
+  }
+
+  .btn-primary:focus-visible {
     box-shadow: 0 0 0 3px var(--theme-focus-ring);
   }
 
-  /* Secondary Button - Theme aware */
+  /* Secondary Button — ghost-like */
   .btn-secondary {
-    @apply inline-flex items-center justify-center gap-2 rounded-lg px-6 py-3 text-sm font-semibold shadow-sm transition-all duration-200;
-    @apply focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed;
+    @apply inline-flex items-center justify-center gap-2.5 rounded-xl px-7 py-3.5 text-sm font-medium tracking-wide shadow-sm transition-all duration-200;
+    @apply focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed;
     background-color: var(--theme-bg-elevated);
     color: var(--theme-text-primary);
     border: 1px solid var(--theme-border-primary);
+    letter-spacing: 0.02em;
   }
 
   .btn-secondary:hover {
     background-color: var(--theme-bg-secondary);
+    border-color: var(--theme-border-secondary);
   }
 
-  /* Input Base - Theme aware */
+  /* Input Base — spacious, clean */
   .input-base {
-    @apply w-full rounded-lg px-4 py-3 text-sm transition-colors duration-200;
+    @apply w-full rounded-xl px-4 py-3.5 text-sm transition-all duration-200;
     @apply focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed;
     background-color: var(--theme-input-bg);
     border: 1px solid var(--theme-input-border);
@@ -181,23 +190,24 @@
     box-shadow: 0 0 0 3px var(--theme-focus-ring);
   }
 
-  /* Label Base */
+  /* Label Base — Apple-style */
   .label-base {
-    @apply block text-sm font-medium mb-1.5;
-    color: var(--theme-text-secondary);
+    @apply block text-xs font-semibold uppercase mb-2;
+    color: var(--theme-text-tertiary);
+    letter-spacing: 0.06em;
   }
 
-  /* Card - Theme aware */
+  /* Card — minimal, refined */
   .card {
-    @apply rounded-xl;
+    @apply rounded-2xl;
     background-color: var(--theme-card-bg);
     border: 1px solid var(--theme-border-primary);
     box-shadow: var(--theme-shadow-sm);
   }
 
-  /* Card Hover - Theme aware */
+  /* Card Hover — smooth lift */
   .card-hover {
-    @apply rounded-xl transition-all duration-300;
+    @apply rounded-2xl transition-all duration-300;
     background-color: var(--theme-card-bg);
     border: 1px solid var(--theme-border-primary);
     box-shadow: var(--theme-shadow-sm);
@@ -206,6 +216,7 @@
   .card-hover:hover {
     box-shadow: var(--theme-shadow-md);
     border-color: var(--theme-border-secondary);
+    transform: translateY(-2px);
   }
 }
 
