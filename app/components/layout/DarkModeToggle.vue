@@ -1,51 +1,27 @@
 <script setup lang="ts">
-/**
- * Dark mode toggle button
- * Toggles between light and dark mode
- */
-
-export interface DarkModeToggleProps {
-  size?: 'sm' | 'md' | 'lg'
-}
-
-withDefaults(defineProps<DarkModeToggleProps>(), {
-  size: 'sm',
-})
-
 const { isDark, toggleDarkMode } = useTheme()
-
-const sizeClasses = {
-  sm: 'w-8 h-8',
-  md: 'w-9 h-9',
-  lg: 'w-10 h-10',
-}
-
-const iconSizeClasses = {
-  sm: 'w-4 h-4',
-  md: 'w-5 h-5',
-  lg: 'w-6 h-6',
-}
 </script>
 
 <template>
   <ClientOnly>
-    <button
-      type="button"
-      :aria-label="isDark ? 'Switch to light mode' : 'Switch to dark mode'"
+    <Switch
+      :checked="isDark"
       :class="[
-        'rounded-full flex items-center justify-center transition-colors duration-200',
-        sizeClasses[size],
-        't-text-secondary hover:t-bg-alt hover:t-text'
+        isDark
+          ? 'data-[state=checked]:bg-slate-600'
+          : 'data-[state=unchecked]:bg-slate-300',
       ]"
-      @click="toggleDarkMode"
+      aria-label="Toggle dark mode"
+      @update:checked="toggleDarkMode"
     >
       <Icon
         :name="isDark ? 'lucide:moon' : 'lucide:sun'"
-        :class="iconSizeClasses[size]"
+        class="h-2.5 w-2.5 transition-colors"
+        :class="isDark ? 'text-blue-300' : 'text-amber-500'"
       />
-    </button>
+    </Switch>
     <template #fallback>
-      <div :class="sizeClasses[size]" />
+      <div class="h-5 w-9" />
     </template>
   </ClientOnly>
 </template>
