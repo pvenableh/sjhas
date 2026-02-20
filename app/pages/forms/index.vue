@@ -4,11 +4,11 @@ import { format } from 'date-fns'
 
 definePageMeta({
   middleware: 'auth',
-  layout: 'portal',
+  layout: 'forms',
 })
 
 useSeoMeta({
-  title: 'Dashboard - Client Portal - SJHAS, Inc.',
+  title: 'My Forms - SJHAS, Inc.',
 })
 
 const { user } = useDirectusAuth()
@@ -196,7 +196,7 @@ const getStatusColor = (status: string) => {
           <div class="flex items-center justify-between">
             <CardTitle>Recent Submissions</CardTitle>
             <NuxtLink
-              to="/portal/submissions"
+              to="/forms/submissions"
               class="text-sm text-primary-600 hover:text-primary-700"
             >
               View all →
@@ -244,7 +244,7 @@ const getStatusColor = (status: string) => {
           <div class="flex items-center justify-between">
             <CardTitle>Recent Files</CardTitle>
             <NuxtLink
-              to="/portal/files"
+              to="/forms/files"
               class="text-sm text-primary-600 hover:text-primary-700"
             >
               View all →

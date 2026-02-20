@@ -8,17 +8,15 @@ const isSidebarOpen = ref(false)
 const isProfileMenuOpen = ref(false)
 
 const navigation = [
-  { name: 'Dashboard', href: '/portal', icon: 'lucide:layout-dashboard' },
-  { name: 'My Submissions', href: '/portal/submissions', icon: 'lucide:file-text' },
-  { name: 'My Files', href: '/portal/files', icon: 'lucide:folder' },
-  { name: 'Upload', href: '/upload', icon: 'lucide:upload' },
-  { name: 'Tax Planning', href: '/tax-planning', icon: 'lucide:clipboard-list' },
+  { name: 'Dashboard', href: '/forms', icon: 'lucide:layout-dashboard' },
+  { name: 'My Submissions', href: '/forms/submissions', icon: 'lucide:file-text' },
+  { name: 'My Files', href: '/forms/files', icon: 'lucide:folder' },
 ]
 
 const handleLogout = async () => {
   try {
     await logout()
-    router.push('/portal/login')
+    router.push('/forms/login')
   } catch (error) {
     console.error('Logout failed:', error)
   }
@@ -62,7 +60,7 @@ const closeProfileMenu = () => {
         <div class="w-8 h-8 rounded-lg bg-primary-600 flex items-center justify-center">
           <span class="text-white font-bold text-sm">S</span>
         </div>
-        <span class="font-serif text-lg text-slate-900">Client Portal</span>
+        <span class="font-serif text-lg text-slate-900">My Forms</span>
       </div>
 
       <!-- Navigation -->
@@ -152,7 +150,7 @@ const closeProfileMenu = () => {
                   <p class="text-sm text-slate-500 truncate">{{ user?.email }}</p>
                 </div>
                 <NuxtLink
-                  to="/portal/profile"
+                  to="/forms/profile"
                   class="flex items-center gap-2 px-4 py-2 text-sm text-slate-700 hover:bg-slate-100"
                 >
                   <Icon name="lucide:user" class="w-4 h-4" />

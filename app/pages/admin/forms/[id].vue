@@ -205,11 +205,11 @@ const previewForm = () => {
               <div>
                 <Label class="mb-1.5">URL Slug</Label>
                 <div class="flex items-center gap-2">
-                  <span class="text-slate-500">/</span>
+                  <span class="text-slate-500">/f/</span>
                   <Input v-model="formData.slug" placeholder="tax-planning" />
                 </div>
                 <p class="text-sm text-slate-500 mt-1">
-                  This will be the URL: {{ formData.slug ? `/${formData.slug}` : '/your-form-slug' }}
+                  This will be the URL: {{ formData.slug ? `/f/${formData.slug}` : '/f/your-form-slug' }}
                 </p>
               </div>
 

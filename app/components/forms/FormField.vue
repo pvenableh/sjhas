@@ -41,13 +41,13 @@ const isVisible = computed(() => {
   <div v-if="isVisible" :class="cn('col-span-2', widthClass)">
     <!-- Heading field type -->
     <template v-if="field.type === 'heading'">
-      <h3 class="text-lg font-semibold text-slate-900 mb-2">{{ field.label }}</h3>
-      <p v-if="field.help_text" class="text-sm text-slate-500">{{ field.help_text }}</p>
+      <h3 class="text-lg font-semibold text-slate-900 mb-1 tracking-tight">{{ field.label }}</h3>
+      <p v-if="field.help_text" class="text-sm text-slate-500 leading-relaxed">{{ field.help_text }}</p>
     </template>
 
     <!-- Paragraph field type -->
     <template v-else-if="field.type === 'paragraph'">
-      <p class="text-slate-700">{{ field.label }}</p>
+      <p class="text-slate-600 leading-relaxed">{{ field.label }}</p>
     </template>
 
     <!-- Text input -->
@@ -65,10 +65,10 @@ const isVisible = computed(() => {
         @update:model-value="handleChange"
         @blur="handleBlur"
       />
-      <p v-if="field.help_text && !errorMessage" class="mt-1 text-sm text-slate-500">
+      <p v-if="field.help_text && !errorMessage" class="mt-2 text-xs text-slate-400 leading-relaxed">
         {{ field.help_text }}
       </p>
-      <p v-if="errorMessage" class="mt-1 text-sm text-red-500">{{ errorMessage }}</p>
+      <p v-if="errorMessage" class="mt-2 text-xs text-red-500">{{ errorMessage }}</p>
     </template>
 
     <!-- Email input -->
@@ -86,10 +86,10 @@ const isVisible = computed(() => {
         @update:model-value="handleChange"
         @blur="handleBlur"
       />
-      <p v-if="field.help_text && !errorMessage" class="mt-1 text-sm text-slate-500">
+      <p v-if="field.help_text && !errorMessage" class="mt-2 text-xs text-slate-400 leading-relaxed">
         {{ field.help_text }}
       </p>
-      <p v-if="errorMessage" class="mt-1 text-sm text-red-500">{{ errorMessage }}</p>
+      <p v-if="errorMessage" class="mt-2 text-xs text-red-500">{{ errorMessage }}</p>
     </template>
 
     <!-- Phone input -->
@@ -107,10 +107,10 @@ const isVisible = computed(() => {
         @update:model-value="handleChange"
         @blur="handleBlur"
       />
-      <p v-if="field.help_text && !errorMessage" class="mt-1 text-sm text-slate-500">
+      <p v-if="field.help_text && !errorMessage" class="mt-2 text-xs text-slate-400 leading-relaxed">
         {{ field.help_text }}
       </p>
-      <p v-if="errorMessage" class="mt-1 text-sm text-red-500">{{ errorMessage }}</p>
+      <p v-if="errorMessage" class="mt-2 text-xs text-red-500">{{ errorMessage }}</p>
     </template>
 
     <!-- Number input -->
@@ -128,10 +128,10 @@ const isVisible = computed(() => {
         @update:model-value="handleChange"
         @blur="handleBlur"
       />
-      <p v-if="field.help_text && !errorMessage" class="mt-1 text-sm text-slate-500">
+      <p v-if="field.help_text && !errorMessage" class="mt-2 text-xs text-slate-400 leading-relaxed">
         {{ field.help_text }}
       </p>
-      <p v-if="errorMessage" class="mt-1 text-sm text-red-500">{{ errorMessage }}</p>
+      <p v-if="errorMessage" class="mt-2 text-xs text-red-500">{{ errorMessage }}</p>
     </template>
 
     <!-- Date input -->
@@ -148,10 +148,10 @@ const isVisible = computed(() => {
         @update:model-value="handleChange"
         @blur="handleBlur"
       />
-      <p v-if="field.help_text && !errorMessage" class="mt-1 text-sm text-slate-500">
+      <p v-if="field.help_text && !errorMessage" class="mt-2 text-xs text-slate-400 leading-relaxed">
         {{ field.help_text }}
       </p>
-      <p v-if="errorMessage" class="mt-1 text-sm text-red-500">{{ errorMessage }}</p>
+      <p v-if="errorMessage" class="mt-2 text-xs text-red-500">{{ errorMessage }}</p>
     </template>
 
     <!-- Textarea -->
@@ -168,10 +168,10 @@ const isVisible = computed(() => {
         @update:model-value="handleChange"
         @blur="handleBlur"
       />
-      <p v-if="field.help_text && !errorMessage" class="mt-1 text-sm text-slate-500">
+      <p v-if="field.help_text && !errorMessage" class="mt-2 text-xs text-slate-400 leading-relaxed">
         {{ field.help_text }}
       </p>
-      <p v-if="errorMessage" class="mt-1 text-sm text-red-500">{{ errorMessage }}</p>
+      <p v-if="errorMessage" class="mt-2 text-xs text-red-500">{{ errorMessage }}</p>
     </template>
 
     <!-- Select -->
@@ -197,10 +197,10 @@ const isVisible = computed(() => {
           </SelectItem>
         </SelectContent>
       </Select>
-      <p v-if="field.help_text && !errorMessage" class="mt-1 text-sm text-slate-500">
+      <p v-if="field.help_text && !errorMessage" class="mt-2 text-xs text-slate-400 leading-relaxed">
         {{ field.help_text }}
       </p>
-      <p v-if="errorMessage" class="mt-1 text-sm text-red-500">{{ errorMessage }}</p>
+      <p v-if="errorMessage" class="mt-2 text-xs text-red-500">{{ errorMessage }}</p>
     </template>
 
     <!-- Checkbox -->
@@ -221,7 +221,7 @@ const isVisible = computed(() => {
           </p>
         </div>
       </div>
-      <p v-if="errorMessage" class="mt-1 text-sm text-red-500">{{ errorMessage }}</p>
+      <p v-if="errorMessage" class="mt-2 text-xs text-red-500">{{ errorMessage }}</p>
     </template>
 
     <!-- Radio group -->
@@ -233,7 +233,7 @@ const isVisible = computed(() => {
       <RadioGroup
         :model-value="value as string"
         @update:model-value="handleChange"
-        class="mt-2"
+        class="mt-3 space-y-3"
       >
         <div
           v-for="option in field.options"
@@ -241,15 +241,15 @@ const isVisible = computed(() => {
           class="flex items-center gap-3"
         >
           <RadioGroupItem :id="`${field.name}-${option.value}`" :value="option.value" />
-          <Label :for="`${field.name}-${option.value}`" class="text-sm text-slate-700 cursor-pointer">
+          <Label :for="`${field.name}-${option.value}`" class="text-sm text-slate-600 cursor-pointer">
             {{ option.label }}
           </Label>
         </div>
       </RadioGroup>
-      <p v-if="field.help_text && !errorMessage" class="mt-2 text-sm text-slate-500">
+      <p v-if="field.help_text && !errorMessage" class="mt-2 text-xs text-slate-400 leading-relaxed">
         {{ field.help_text }}
       </p>
-      <p v-if="errorMessage" class="mt-1 text-sm text-red-500">{{ errorMessage }}</p>
+      <p v-if="errorMessage" class="mt-2 text-xs text-red-500">{{ errorMessage }}</p>
     </template>
 
     <!-- File upload -->
@@ -259,7 +259,7 @@ const isVisible = computed(() => {
         :model-value="value"
         @update:model-value="handleChange"
       />
-      <p v-if="errorMessage" class="mt-1 text-sm text-red-500">{{ errorMessage }}</p>
+      <p v-if="errorMessage" class="mt-2 text-xs text-red-500">{{ errorMessage }}</p>
     </template>
   </div>
 </template>

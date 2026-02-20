@@ -1,6 +1,3 @@
-import { createDirectus, rest, createItem, uploadFiles } from '@directus/sdk'
-import type { Collections } from '~/types/directus'
-
 export default defineEventHandler(async (event) => {
   const config = useRuntimeConfig()
 
@@ -35,26 +32,20 @@ export default defineEventHandler(async (event) => {
       }
     }
 
-    // Create Directus client with admin token
-    const client = createDirectus<Collections>(config.public.directusUrl)
-      .with(rest())
-
     // Upload files to Directus if any
     const uploadedFiles: { fieldName: string; fileId: string; filename: string }[] = []
 
-    if (files.length > 0 && config.directusToken) {
+    if (files.length > 0 && config.directus.staticToken) {
       for (const fileData of files) {
         try {
-          // Create a FormData object for the file upload
           const uploadFormData = new FormData()
           const blob = new Blob([fileData.file], { type: fileData.type })
           uploadFormData.append('file', blob, fileData.filename)
 
-          // Upload to Directus
-          const response = await fetch(`${config.public.directusUrl}/files`, {
+          const response = await fetch(`${config.directus.url}/files`, {
             method: 'POST',
             headers: {
-              Authorization: `Bearer ${config.directusToken}`,
+              Authorization: `Bearer ${config.directus.staticToken}`,
             },
             body: uploadFormData,
           })
@@ -94,13 +85,13 @@ export default defineEventHandler(async (event) => {
     }
 
     // Save submission to Directus (if we have admin access)
-    if (config.directusToken) {
+    if (config.directus.staticToken) {
       try {
-        const response = await fetch(`${config.public.directusUrl}/items/form_submissions`, {
+        const response = await fetch(`${config.directus.url}/items/form_submissions`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            Authorization: `Bearer ${config.directusToken}`,
+            Authorization: `Bearer ${config.directus.staticToken}`,
           },
           body: JSON.stringify(submissionData),
         })
@@ -113,12 +104,45 @@ export default defineEventHandler(async (event) => {
       }
     }
 
-    // Send email notification
+    // Fetch form details for per-form notify_email and title
+    let formTitle = 'Form Submission'
+    let formNotifyEmail: string | null = null
+    let formSuccessMessage: string | null = null
+
+    if (formId && config.directus.staticToken) {
+      try {
+        const formResponse = await fetch(
+          `${config.directus.url}/items/forms/${formId}?fields=title,notify_email,notify_on_submission,success_message`,
+          { headers: { Authorization: `Bearer ${config.directus.staticToken}` } }
+        )
+        if (formResponse.ok) {
+          const formResult = await formResponse.json()
+          formTitle = formResult.data?.title || formTitle
+          formNotifyEmail = formResult.data?.notify_email || null
+          formSuccessMessage = formResult.data?.success_message || null
+        }
+      } catch (e) {
+        console.error('Failed to fetch form details:', e)
+      }
+    }
+
+    // Send admin notification email
     if (config.sendgridApiKey && config.notificationEmail) {
       try {
-        await sendNotificationEmail(config, jsonData, uploadedFiles, formId)
+        const notifyTo = formNotifyEmail || config.notificationEmail
+        await sendNotificationEmail(config, jsonData, uploadedFiles, formTitle, notifyTo)
       } catch (emailError) {
         console.error('Email notification error:', emailError)
+      }
+    }
+
+    // Send confirmation email to submitter
+    const submitterEmail = (jsonData.email as string) || null
+    if (config.sendgridApiKey && submitterEmail) {
+      try {
+        await sendConfirmationEmail(config, submitterEmail, submissionData.submitter_name, formTitle, formSuccessMessage)
+      } catch (emailError) {
+        console.error('Confirmation email error:', emailError)
       }
     }
 
@@ -139,16 +163,15 @@ async function sendNotificationEmail(
   config: ReturnType<typeof useRuntimeConfig>,
   data: Record<string, unknown>,
   files: { fieldName: string; fileId: string; filename: string }[],
-  formId: number | null
+  formTitle: string,
+  notifyTo: string
 ) {
   const sgMail = await import('@sendgrid/mail')
   sgMail.default.setApiKey(config.sendgridApiKey)
 
-  // Build email content
   const submitterName = data.name || (data.first_name && data.last_name ? `${data.first_name} ${data.last_name}` : 'Unknown')
   const submitterEmail = data.email || 'Not provided'
 
-  // Format data for email
   const dataRows = Object.entries(data)
     .filter(([key]) => !['uploaded_files'].includes(key))
     .map(([key, value]) => {
@@ -156,16 +179,15 @@ async function sendNotificationEmail(
       const displayValue = typeof value === 'boolean'
         ? (value ? 'Yes' : 'No')
         : (value || 'Not provided')
-      return `<tr><td style="padding: 8px; border-bottom: 1px solid #e5e7eb; font-weight: 500; color: #374151;">${label}</td><td style="padding: 8px; border-bottom: 1px solid #e5e7eb; color: #6b7280;">${displayValue}</td></tr>`
+      return `<tr><td style="padding: 10px 12px; border-bottom: 1px solid #e2e8f0; font-weight: 500; color: #374151;">${label}</td><td style="padding: 10px 12px; border-bottom: 1px solid #e2e8f0; color: #64748b;">${displayValue}</td></tr>`
     })
     .join('')
 
-  // Files section
   const filesSection = files.length > 0
     ? `
-      <h3 style="color: #1f2937; margin-top: 24px; margin-bottom: 12px;">Uploaded Files</h3>
-      <ul style="color: #6b7280; padding-left: 20px;">
-        ${files.map((f) => `<li>${f.filename} <a href="${config.public.directusUrl}/assets/${f.fileId}" style="color: #2563eb;">View</a></li>`).join('')}
+      <h3 style="color: #0f172a; margin-top: 24px; margin-bottom: 12px; font-size: 14px; font-weight: 600;">Uploaded Files</h3>
+      <ul style="color: #64748b; padding-left: 20px;">
+        ${files.map((f) => `<li style="margin-bottom: 6px;">${f.filename} <a href="${config.directus.url}/assets/${f.fileId}" style="color: #243b55;">View</a></li>`).join('')}
       </ul>
     `
     : ''
@@ -177,22 +199,22 @@ async function sendNotificationEmail(
       <meta charset="utf-8">
       <meta name="viewport" content="width=device-width, initial-scale=1.0">
     </head>
-    <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; line-height: 1.6; color: #374151; max-width: 600px; margin: 0 auto; padding: 20px;">
-      <div style="background: linear-gradient(135deg, #1f4537 0%, #2a6c51 100%); padding: 24px; border-radius: 12px 12px 0 0;">
-        <h1 style="color: white; margin: 0; font-size: 24px;">New Form Submission</h1>
-        <p style="color: rgba(255,255,255,0.8); margin: 8px 0 0 0;">From ${submitterName}</p>
+    <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; line-height: 1.6; color: #374151; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #f8fafc;">
+      <div style="background: linear-gradient(135deg, #141e30 0%, #243b55 100%); padding: 28px 24px; border-radius: 16px 16px 0 0;">
+        <h1 style="color: white; margin: 0; font-size: 20px; font-weight: 500; letter-spacing: 0.02em;">New Submission</h1>
+        <p style="color: rgba(255,255,255,0.7); margin: 6px 0 0 0; font-size: 14px;">${formTitle} — from ${submitterName}</p>
       </div>
 
-      <div style="background: #ffffff; padding: 24px; border: 1px solid #e5e7eb; border-top: none; border-radius: 0 0 12px 12px;">
+      <div style="background: #ffffff; padding: 28px 24px; border: 1px solid #e2e8f0; border-top: none; border-radius: 0 0 16px 16px;">
         <table style="width: 100%; border-collapse: collapse;">
           ${dataRows}
         </table>
 
         ${filesSection}
 
-        <div style="margin-top: 24px; padding-top: 16px; border-top: 1px solid #e5e7eb;">
-          <p style="color: #9ca3af; font-size: 12px; margin: 0;">
-            This submission was received on ${new Date().toLocaleString('en-US', { dateStyle: 'full', timeStyle: 'short' })}
+        <div style="margin-top: 24px; padding-top: 16px; border-top: 1px solid #e2e8f0;">
+          <p style="color: #94a3b8; font-size: 12px; margin: 0;">
+            Received on ${new Date().toLocaleString('en-US', { dateStyle: 'full', timeStyle: 'short' })}
           </p>
         </div>
       </div>
@@ -200,13 +222,77 @@ async function sendNotificationEmail(
     </html>
   `
 
-  const msg = {
-    to: config.notificationEmail,
+  await sgMail.default.send({
+    to: notifyTo,
     from: config.sendgridFromEmail,
-    subject: `New Form Submission from ${submitterName}`,
+    subject: `New Submission: ${formTitle} — from ${submitterName}`,
     html: htmlContent,
     replyTo: submitterEmail as string,
-  }
+  })
+}
 
-  await sgMail.default.send(msg)
+async function sendConfirmationEmail(
+  config: ReturnType<typeof useRuntimeConfig>,
+  recipientEmail: string,
+  recipientName: string | null,
+  formTitle: string,
+  successMessage: string | null
+) {
+  const sgMail = await import('@sendgrid/mail')
+  sgMail.default.setApiKey(config.sendgridApiKey)
+
+  const displayName = recipientName || recipientEmail.split('@')[0]
+  const confirmationText = successMessage || 'Thank you for your submission! We have received your information and will be in touch soon.'
+
+  const htmlContent = `
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    </head>
+    <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; line-height: 1.6; color: #374151; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #f8fafc;">
+      <div style="background: linear-gradient(135deg, #141e30 0%, #243b55 100%); padding: 32px; border-radius: 16px 16px 0 0;">
+        <h1 style="color: white; margin: 0; font-size: 22px; font-weight: 500; letter-spacing: 0.02em;">SJHAS, Inc.</h1>
+        <p style="color: rgba(255,255,255,0.7); margin: 6px 0 0 0; font-size: 13px; letter-spacing: 0.04em;">Accounting &amp; Tax Services</p>
+      </div>
+
+      <div style="background: #ffffff; padding: 32px; border: 1px solid #e2e8f0; border-top: none; border-radius: 0 0 16px 16px;">
+        <p style="color: #0f172a; font-size: 16px; font-weight: 500; margin: 0 0 8px 0;">
+          Hi ${displayName},
+        </p>
+
+        <p style="color: #475569; font-size: 15px; line-height: 1.7; margin: 0 0 24px 0;">
+          ${confirmationText}
+        </p>
+
+        <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 20px; margin-bottom: 28px;">
+          <p style="color: #64748b; font-size: 13px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; margin: 0 0 6px 0;">Form Submitted</p>
+          <p style="color: #0f172a; font-size: 15px; font-weight: 500; margin: 0;">${formTitle}</p>
+          <p style="color: #94a3b8; font-size: 13px; margin: 6px 0 0 0;">
+            ${new Date().toLocaleString('en-US', { dateStyle: 'long', timeStyle: 'short' })}
+          </p>
+        </div>
+
+        <p style="color: #475569; font-size: 14px; line-height: 1.7; margin: 0;">
+          If you have any questions, feel free to reply to this email or contact us at <a href="tel:6072168033" style="color: #243b55;">(607) 216-8033</a>.
+        </p>
+
+        <div style="margin-top: 28px; padding-top: 20px; border-top: 1px solid #e2e8f0;">
+          <p style="color: #94a3b8; font-size: 12px; margin: 0;">
+            SJHAS, Inc. &middot; P.O. Box 6623, Ithaca, NY 14850
+          </p>
+        </div>
+      </div>
+    </body>
+    </html>
+  `
+
+  await sgMail.default.send({
+    to: recipientEmail,
+    from: config.sendgridFromEmail,
+    replyTo: config.notificationEmail,
+    subject: `Confirmation: ${formTitle} — SJHAS, Inc.`,
+    html: htmlContent,
+  })
 }

@@ -116,10 +116,10 @@ const openFilePicker = () => {
     <div
       ref="dropZoneRef"
       :class="cn(
-        'relative border-2 border-dashed rounded-lg p-6 text-center transition-all duration-200 cursor-pointer',
+        'relative border-2 border-dashed rounded-2xl p-8 text-center transition-all duration-300 cursor-pointer',
         isDragging || isOverDropZone
           ? 'border-primary-500 bg-primary-50'
-          : 'border-slate-300 hover:border-slate-400 hover:bg-slate-50'
+          : 'border-slate-200 hover:border-slate-300 hover:bg-slate-50/50'
       )"
       @click="openFilePicker"
     >
@@ -132,15 +132,15 @@ const openFilePicker = () => {
         @change="handleFileInput"
       />
 
-      <div class="flex flex-col items-center gap-2">
-        <div class="w-12 h-12 rounded-full bg-primary-100 flex items-center justify-center">
+      <div class="flex flex-col items-center gap-3">
+        <div class="w-14 h-14 rounded-2xl bg-primary-50 flex items-center justify-center">
           <Icon name="lucide:upload-cloud" class="w-6 h-6 text-primary-600" />
         </div>
         <div>
-          <p class="text-sm font-medium text-slate-700">
-            <span class="text-primary-600">Click to upload</span> or drag and drop
+          <p class="text-sm text-slate-600">
+            <span class="font-medium text-primary-600">Click to upload</span> or drag and drop
           </p>
-          <p class="text-xs text-slate-500 mt-1">
+          <p class="text-xs text-slate-400 mt-1.5">
             PDF, DOC, DOCX, XLS, XLSX, CSV, or images (max 10MB)
           </p>
         </div>
@@ -148,40 +148,40 @@ const openFilePicker = () => {
     </div>
 
     <!-- Help text -->
-    <p v-if="field.help_text" class="text-sm text-slate-500">
+    <p v-if="field.help_text" class="text-xs text-slate-400 leading-relaxed">
       {{ field.help_text }}
     </p>
 
     <!-- File list -->
-    <div v-if="files.length > 0" class="space-y-2 mt-3">
+    <div v-if="files.length > 0" class="space-y-2 mt-4">
       <div
         v-for="(file, index) in files"
         :key="file.name"
-        class="flex items-center gap-3 p-3 bg-slate-50 rounded-lg border border-slate-200"
+        class="flex items-center gap-3 p-3.5 bg-slate-50/80 rounded-xl border border-slate-200/80"
       >
-        <div class="w-10 h-10 rounded-lg bg-white border border-slate-200 flex items-center justify-center">
-          <Icon :name="getFileIcon(file.type)" class="w-5 h-5 text-slate-500" />
+        <div class="w-10 h-10 rounded-xl bg-white border border-slate-200/80 flex items-center justify-center">
+          <Icon :name="getFileIcon(file.type)" class="w-5 h-5 text-slate-400" />
         </div>
         <div class="flex-1 min-w-0">
           <p class="text-sm font-medium text-slate-700 truncate">{{ file.name }}</p>
-          <p class="text-xs text-slate-500">{{ formatFileSize(file.size) }}</p>
+          <p class="text-xs text-slate-400">{{ formatFileSize(file.size) }}</p>
           <!-- Progress bar -->
           <div
             v-if="uploadProgress[file.name] !== undefined && uploadProgress[file.name] < 100"
-            class="mt-1 h-1 bg-slate-200 rounded-full overflow-hidden"
+            class="mt-1.5 h-1 bg-slate-200 rounded-full overflow-hidden"
           >
             <div
-              class="h-full bg-primary-500 transition-all duration-300"
+              class="h-full bg-primary-500 rounded-full transition-all duration-300"
               :style="{ width: `${uploadProgress[file.name]}%` }"
             />
           </div>
         </div>
         <button
           type="button"
-          class="p-1.5 rounded-md hover:bg-slate-200 transition-colors"
+          class="p-2 rounded-xl hover:bg-slate-200/80 transition-colors"
           @click.stop="removeFile(index)"
         >
-          <Icon name="lucide:x" class="w-4 h-4 text-slate-500" />
+          <Icon name="lucide:x" class="w-4 h-4 text-slate-400" />
         </button>
       </div>
     </div>

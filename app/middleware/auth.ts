@@ -15,7 +15,7 @@ export default defineNuxtRouteMiddleware((to, from) => {
     // Redirect to the appropriate login page based on route context
     const loginPath = to.fullPath.startsWith("/admin")
       ? "/admin/chat"
-      : "/portal/login";
+      : "/forms/login";
     return navigateTo({
       path: loginPath,
       query: { redirect: to.fullPath },

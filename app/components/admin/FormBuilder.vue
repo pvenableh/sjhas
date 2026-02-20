@@ -193,22 +193,22 @@ const removeOption = (index: number) => {
 </script>
 
 <template>
-  <div class="flex h-[calc(100vh-10rem)] bg-white rounded-xl border border-slate-200 overflow-hidden">
+  <div class="flex h-[calc(100vh-10rem)] bg-white rounded-2xl border border-slate-200/80 overflow-hidden">
     <!-- Field Palette -->
-    <div class="w-64 border-r border-slate-200 bg-slate-50 overflow-y-auto">
-      <div class="p-4">
-        <h3 class="text-sm font-semibold text-slate-900 mb-3">Add Fields</h3>
-        <div class="space-y-1">
+    <div class="w-64 border-r border-slate-200/80 bg-slate-50/60 overflow-y-auto">
+      <div class="p-5">
+        <h3 class="text-xs font-semibold text-slate-400 uppercase tracking-widest mb-4">Add Fields</h3>
+        <div class="space-y-1.5">
           <button
             v-for="fieldType in fieldTypes"
             :key="fieldType.type"
             draggable="true"
-            class="flex items-center gap-3 w-full p-3 rounded-lg border border-slate-200 bg-white hover:border-primary-300 hover:bg-primary-50 transition-colors cursor-grab active:cursor-grabbing"
+            class="flex items-center gap-3 w-full p-3 rounded-xl border border-slate-200/80 bg-white hover:border-primary-300 hover:bg-primary-50 transition-all duration-200 cursor-grab active:cursor-grabbing"
             @dragstart="handleDragStart(fieldType.type)"
             @click="addField(fieldType.type)"
           >
-            <Icon :name="fieldType.icon" class="w-4 h-4 text-slate-500" />
-            <span class="text-sm text-slate-700">{{ fieldType.label }}</span>
+            <Icon :name="fieldType.icon" class="w-4 h-4 text-slate-400" />
+            <span class="text-sm text-slate-600">{{ fieldType.label }}</span>
           </button>
         </div>
       </div>
@@ -216,26 +216,26 @@ const removeOption = (index: number) => {
 
     <!-- Form Canvas -->
     <div
-      class="flex-1 overflow-y-auto p-6"
+      class="flex-1 overflow-y-auto p-8"
       @drop="handleDrop($event)"
       @dragover="handleDragOver"
     >
       <div v-if="fields.length === 0" class="h-full flex items-center justify-center">
         <div class="text-center">
-          <Icon name="lucide:mouse-pointer-click" class="w-12 h-12 mx-auto text-slate-300 mb-4" />
-          <p class="text-slate-500">Drag fields here or click to add</p>
+          <Icon name="lucide:mouse-pointer-click" class="w-12 h-12 mx-auto text-slate-200 mb-5" />
+          <p class="text-slate-400 text-sm">Drag fields here or click to add</p>
         </div>
       </div>
 
-      <div v-else class="space-y-3 max-w-2xl mx-auto">
+      <div v-else class="space-y-4 max-w-2xl mx-auto">
         <div
           v-for="(field, index) in fields"
           :key="field.id"
           :class="[
-            'relative p-4 rounded-lg border-2 transition-all cursor-pointer',
+            'relative p-5 rounded-xl border-2 transition-all duration-200 cursor-pointer',
             selectedFieldId === field.id
-              ? 'border-primary-500 bg-primary-50/50'
-              : 'border-slate-200 hover:border-slate-300'
+              ? 'border-primary-500 bg-primary-50/30 shadow-sm'
+              : 'border-slate-200/80 hover:border-slate-300'
           ]"
           @click="selectedFieldId = field.id"
         >
@@ -357,14 +357,14 @@ const removeOption = (index: number) => {
     </div>
 
     <!-- Field Settings Panel -->
-    <div class="w-80 border-l border-slate-200 bg-white overflow-y-auto">
-      <div v-if="!selectedField" class="p-6 text-center text-slate-500">
-        <Icon name="lucide:settings-2" class="w-12 h-12 mx-auto text-slate-300 mb-4" />
-        <p>Select a field to edit its settings</p>
+    <div class="w-80 border-l border-slate-200/80 bg-white overflow-y-auto">
+      <div v-if="!selectedField" class="p-8 text-center text-slate-400">
+        <Icon name="lucide:settings-2" class="w-10 h-10 mx-auto text-slate-200 mb-5" />
+        <p class="text-sm">Select a field to edit its settings</p>
       </div>
 
-      <div v-else class="p-4 space-y-4">
-        <h3 class="text-sm font-semibold text-slate-900">Field Settings</h3>
+      <div v-else class="p-5 space-y-5">
+        <h3 class="text-xs font-semibold text-slate-400 uppercase tracking-widest">Field Settings</h3>
 
         <!-- Label -->
         <div>

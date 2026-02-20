@@ -4,66 +4,66 @@
 @import "./fonts.css";
 
 @theme {
-  /* Color Palette - Warm bronze/neutral aligned with theme */
-  --color-primary-50: #FAF8F5;
-  --color-primary-100: #F0EBE3;
-  --color-primary-200: #E0D5C6;
-  --color-primary-300: #C4AD8E;
-  --color-primary-400: #A68B5B;
-  --color-primary-500: #8B6F47;
-  --color-primary-600: #7A6040;
-  --color-primary-700: #6B5535;
-  --color-primary-800: #56442B;
-  --color-primary-900: #473923;
-  --color-primary-950: #2C2418;
+  /* Color Palette — Navy (rooted in #141e30 → #243b55) */
+  --color-primary-50: #F0F4FA;
+  --color-primary-100: #D9E4F0;
+  --color-primary-200: #B3C8E1;
+  --color-primary-300: #8AABD0;
+  --color-primary-400: #5A8BBE;
+  --color-primary-500: #3A6EA4;
+  --color-primary-600: #243b55;
+  --color-primary-700: #1a2c43;
+  --color-primary-800: #141e30;
+  --color-primary-900: #0c1420;
+  --color-primary-950: #080e18;
 
-  --color-secondary-50: #FAF9F7;
-  --color-secondary-100: #F3F1ED;
-  --color-secondary-200: #E5E1DB;
-  --color-secondary-300: #D5D0C8;
-  --color-secondary-400: #9C958E;
-  --color-secondary-500: #7A746E;
-  --color-secondary-600: #5C5650;
-  --color-secondary-700: #45413D;
-  --color-secondary-800: #2C2825;
-  --color-secondary-900: #1A1816;
-  --color-secondary-950: #121110;
+  --color-secondary-50: #F8FAFC;
+  --color-secondary-100: #F1F5F9;
+  --color-secondary-200: #E2E8F0;
+  --color-secondary-300: #CBD5E1;
+  --color-secondary-400: #94A3B8;
+  --color-secondary-500: #64748B;
+  --color-secondary-600: #475569;
+  --color-secondary-700: #2c3e52;
+  --color-secondary-800: #1a2838;
+  --color-secondary-900: #101a28;
+  --color-secondary-950: #080e18;
 
-  --color-accent-50: #FBF8F2;
-  --color-accent-100: #F5EDE0;
-  --color-accent-200: #EBD9BD;
-  --color-accent-300: #D4BA8A;
-  --color-accent-400: #C4A87A;
-  --color-accent-500: #A68B5B;
-  --color-accent-600: #8B6F47;
-  --color-accent-700: #7A6040;
-  --color-accent-800: #6B5535;
-  --color-accent-900: #56442B;
-  --color-accent-950: #2C2418;
+  --color-accent-50: #F0F4FA;
+  --color-accent-100: #D9E4F0;
+  --color-accent-200: #B3C8E1;
+  --color-accent-300: #8AABD0;
+  --color-accent-400: #5A8BBE;
+  --color-accent-500: #3A6EA4;
+  --color-accent-600: #2f5070;
+  --color-accent-700: #243b55;
+  --color-accent-800: #1a2c43;
+  --color-accent-900: #141e30;
+  --color-accent-950: #080e18;
 
-  /* Neutral colors - warm neutrals */
-  --color-slate-50: #FAF9F7;
-  --color-slate-100: #F3F1ED;
-  --color-slate-200: #E5E1DB;
-  --color-slate-300: #D5D0C8;
-  --color-slate-400: #9C958E;
-  --color-slate-500: #7A746E;
-  --color-slate-600: #5C5650;
-  --color-slate-700: #45413D;
-  --color-slate-800: #2C2825;
-  --color-slate-900: #1A1816;
-  --color-slate-950: #121110;
+  /* Neutral colors — slate */
+  --color-slate-50: #F8FAFC;
+  --color-slate-100: #F1F5F9;
+  --color-slate-200: #E2E8F0;
+  --color-slate-300: #CBD5E1;
+  --color-slate-400: #94A3B8;
+  --color-slate-500: #64748B;
+  --color-slate-600: #475569;
+  --color-slate-700: #334155;
+  --color-slate-800: #1E293B;
+  --color-slate-900: #0F172A;
+  --color-slate-950: #020617;
 
   /* Typography - Custom fonts (theme.css overrides via CSS vars) */
   --font-family-sans: "Avenir Next", "Proxima Nova", "Helvetica Neue", Helvetica, Arial, ui-sans-serif, system-ui, sans-serif;
   --font-family-serif: "Bauer Bodoni", "Times New Roman", Times, ui-serif, Georgia, serif;
 
-  /* Border radius */
-  --radius-sm: 0.375rem;
-  --radius: 0.5rem;
-  --radius-md: 0.625rem;
-  --radius-lg: 0.75rem;
-  --radius-xl: 1rem;
+  /* Border radius — generous, iOS-like */
+  --radius-sm: 0.5rem;
+  --radius: 0.625rem;
+  --radius-md: 0.75rem;
+  --radius-lg: 1rem;
+  --radius-xl: 1.25rem;
   --radius-2xl: 1.5rem;
 }
 
@@ -134,38 +134,47 @@
     @apply leading-relaxed;
   }
 
-  /* Primary Button - Theme aware */
+  /* Primary Button — clean, high-end */
   .btn-primary {
-    @apply inline-flex items-center justify-center gap-2 rounded-lg px-6 py-3 text-sm font-semibold shadow-sm transition-all duration-200;
-    @apply focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed;
+    @apply inline-flex items-center justify-center gap-2.5 rounded-xl px-7 py-3.5 text-sm font-medium tracking-wide shadow-sm transition-all duration-200;
+    @apply focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed;
     background-color: var(--theme-button-bg);
     color: var(--theme-button-text);
+    letter-spacing: 0.02em;
   }
 
   .btn-primary:hover {
     background-color: var(--theme-button-hover-bg);
+    transform: translateY(-1px);
+    box-shadow: var(--theme-shadow-md);
   }
 
-  .btn-primary:focus {
+  .btn-primary:active {
+    transform: translateY(0);
+  }
+
+  .btn-primary:focus-visible {
     box-shadow: 0 0 0 3px var(--theme-focus-ring);
   }
 
-  /* Secondary Button - Theme aware */
+  /* Secondary Button — ghost-like */
   .btn-secondary {
-    @apply inline-flex items-center justify-center gap-2 rounded-lg px-6 py-3 text-sm font-semibold shadow-sm transition-all duration-200;
-    @apply focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed;
+    @apply inline-flex items-center justify-center gap-2.5 rounded-xl px-7 py-3.5 text-sm font-medium tracking-wide shadow-sm transition-all duration-200;
+    @apply focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed;
     background-color: var(--theme-bg-elevated);
     color: var(--theme-text-primary);
     border: 1px solid var(--theme-border-primary);
+    letter-spacing: 0.02em;
   }
 
   .btn-secondary:hover {
     background-color: var(--theme-bg-secondary);
+    border-color: var(--theme-border-secondary);
   }
 
-  /* Input Base - Theme aware */
+  /* Input Base — spacious, clean */
   .input-base {
-    @apply w-full rounded-lg px-4 py-3 text-sm transition-colors duration-200;
+    @apply w-full rounded-xl px-4 py-3.5 text-sm transition-all duration-200;
     @apply focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed;
     background-color: var(--theme-input-bg);
     border: 1px solid var(--theme-input-border);
@@ -181,23 +190,24 @@
     box-shadow: 0 0 0 3px var(--theme-focus-ring);
   }
 
-  /* Label Base */
+  /* Label Base — Apple-style */
   .label-base {
-    @apply block text-sm font-medium mb-1.5;
-    color: var(--theme-text-secondary);
+    @apply block text-xs font-semibold uppercase mb-2;
+    color: var(--theme-text-tertiary);
+    letter-spacing: 0.06em;
   }
 
-  /* Card - Theme aware */
+  /* Card — minimal, refined */
   .card {
-    @apply rounded-xl;
+    @apply rounded-2xl;
     background-color: var(--theme-card-bg);
     border: 1px solid var(--theme-border-primary);
     box-shadow: var(--theme-shadow-sm);
   }
 
-  /* Card Hover - Theme aware */
+  /* Card Hover — smooth lift */
   .card-hover {
-    @apply rounded-xl transition-all duration-300;
+    @apply rounded-2xl transition-all duration-300;
     background-color: var(--theme-card-bg);
     border: 1px solid var(--theme-border-primary);
     box-shadow: var(--theme-shadow-sm);
@@ -206,6 +216,7 @@
   .card-hover:hover {
     box-shadow: var(--theme-shadow-md);
     border-color: var(--theme-border-secondary);
+    transform: translateY(-2px);
   }
 }
 

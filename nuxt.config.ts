@@ -75,7 +75,8 @@ export default defineNuxtConfig({
 
   routeRules: {
     "/api/**": { cors: true },
-    "/portal/**": { ssr: false },
+    "/forms/**": { ssr: false },
+    "/f/**": { ssr: false },
     "/admin/**": { ssr: false },
   },
 
