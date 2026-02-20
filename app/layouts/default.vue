@@ -35,6 +35,8 @@ const logoUrl = computed(() => {
     <LayoutFooter :settings="settings" />
 
     <!-- Chat Widget -->
-    <ChatChatWidget />
+    <ClientOnly>
+      <ChatChatWidget />
+    </ClientOnly>
   </div>
 </template>
