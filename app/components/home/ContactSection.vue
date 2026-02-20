@@ -44,7 +44,7 @@ onMounted(() => {
         ease: 'power2.out',
         scrollTrigger: {
           trigger: sectionRef.value,
-          start: 'top 70%',
+          start: 'top 90%',
         },
       }
     )

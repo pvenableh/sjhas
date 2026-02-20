@@ -22,7 +22,7 @@ onMounted(() => {
     const tl = gsap.timeline({
       scrollTrigger: {
         trigger: sectionRef.value,
-        start: 'top 70%',
+        start: 'top 90%',
       },
     })
 
