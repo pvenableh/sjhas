@@ -78,7 +78,7 @@
   --theme-icon-hover-color: #FFFFFF;
 
   /* Typography */
-  --theme-heading-font: 'Avenir Next', 'Proxima Nova', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  --theme-heading-font: 'Bauer Bodoni', 'Times New Roman', Times, serif;
   --theme-body-font: 'Avenir Next', 'Proxima Nova', 'Helvetica Neue', Helvetica, Arial, sans-serif;
 
   /* Shadows — minimal, diffused */
@@ -181,7 +181,7 @@
   --theme-icon-hover-color: #141e30;
 
   /* Typography */
-  --theme-heading-font: 'Avenir Next', 'Proxima Nova', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  --theme-heading-font: 'Bauer Bodoni', 'Times New Roman', Times, serif;
   --theme-body-font: 'Avenir Next', 'Proxima Nova', 'Helvetica Neue', Helvetica, Arial, sans-serif;
 
   /* Shadows */
