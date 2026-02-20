@@ -59,7 +59,7 @@ const closeSidebar = () => {
         <div class="w-8 h-8 rounded-lg bg-primary-600 flex items-center justify-center">
           <span class="text-white font-bold text-sm">S</span>
         </div>
-        <span class="font-serif text-lg text-white">Admin Panel</span>
+        <span class="font-sans text-lg font-semibold text-white">Admin Panel</span>
       </div>
 
       <!-- Navigation -->

@@ -211,7 +211,7 @@ export async function directusLogin(
     .with(authentication("json"))
     .with(rest());
 
-  const result = await client.login(email, password);
+  const result = await client.login({ email, password });
   return result as DirectusTokens;
 }
 

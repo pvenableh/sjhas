@@ -195,7 +195,7 @@ onMounted(async () => {
     <!-- Header -->
     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
       <div>
-        <h1 class="text-2xl font-serif text-slate-900">Chat Dashboard</h1>
+        <h1 class="text-2xl font-semibold text-slate-900">Chat Dashboard</h1>
         <p class="text-slate-600 mt-1">Manage visitor conversations in real time</p>
       </div>
 

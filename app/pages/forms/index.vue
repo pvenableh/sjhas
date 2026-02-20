@@ -96,7 +96,7 @@ const getStatusColor = (status: string) => {
   <div class="space-y-8">
     <!-- Welcome header -->
     <div>
-      <h1 class="text-2xl font-serif text-slate-900">
+      <h1 class="text-2xl font-semibold text-slate-900">
         Welcome back, {{ user?.first_name || 'Client' }}!
       </h1>
       <p class="text-slate-600 mt-1">

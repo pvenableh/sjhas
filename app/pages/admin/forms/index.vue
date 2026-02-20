@@ -139,7 +139,7 @@ const handleSendForm = async () => {
     <!-- Header -->
     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
       <div>
-        <h1 class="text-2xl font-serif text-slate-900">Form Builder</h1>
+        <h1 class="text-2xl font-semibold text-slate-900">Form Builder</h1>
         <p class="text-slate-600 mt-1">Create and manage custom forms</p>
       </div>
       <NuxtLink to="/admin/forms/new">

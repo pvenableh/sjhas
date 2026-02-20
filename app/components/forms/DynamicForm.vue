@@ -196,7 +196,7 @@ onMounted(() => {
       <div class="w-16 h-16 rounded-2xl bg-primary-50 mx-auto mb-6 flex items-center justify-center">
         <Icon name="lucide:check" class="w-7 h-7 text-primary-600" />
       </div>
-      <h3 class="text-2xl font-serif text-slate-900 mb-3 tracking-tight">
+      <h3 class="text-2xl font-semibold text-slate-900 mb-3 tracking-tight">
         {{ form.success_message || 'Thank you for your submission!' }}
       </h3>
       <p class="text-slate-500 mb-8 max-w-md mx-auto leading-relaxed">
