@@ -23,12 +23,12 @@
   --theme-text-muted: #94A3B8;
   --theme-text-inverse: #FFFFFF;
 
-  /* Accent — deep sophisticated navy */
-  --theme-accent-primary: #1A2B42;
-  --theme-accent-secondary: #2A4A6B;
-  --theme-accent-tertiary: #0F1E32;
-  --theme-accent-hover: #0F1E32;
-  --theme-accent-active: #0A1526;
+  /* Accent — deep sophisticated navy (rooted in #141e30 → #243b55) */
+  --theme-accent-primary: #243b55;
+  --theme-accent-secondary: #2f5070;
+  --theme-accent-tertiary: #141e30;
+  --theme-accent-hover: #1a2c43;
+  --theme-accent-active: #141e30;
 
   /* Borders — subtle, clean */
   --theme-border-primary: #E2E8F0;
@@ -40,7 +40,7 @@
   --theme-header-bg-scrolled: rgba(250, 251, 252, 0.97);
 
   /* Footer — deep navy */
-  --theme-footer-bg: #0F172A;
+  --theme-footer-bg: #141e30;
   --theme-footer-text: #CBD5E1;
   --theme-footer-text-secondary: #94A3B8;
   --theme-footer-text-muted: #64748B;
@@ -52,10 +52,10 @@
   --theme-card-bg: #FFFFFF;
   --theme-nav-bg: rgba(250, 251, 252, 0.88);
 
-  /* Hero — rich dark navy gradient */
-  --theme-hero-gradient-from: #0A1628;
-  --theme-hero-gradient-via: #142A42;
-  --theme-hero-gradient-to: #060E1A;
+  /* Hero — rich dark navy gradient (based on #141e30 → #243b55) */
+  --theme-hero-gradient-from: #141e30;
+  --theme-hero-gradient-via: #1c2d44;
+  --theme-hero-gradient-to: #243b55;
   --theme-hero-text: #FFFFFF;
   --theme-hero-text-secondary: #94A3B8;
   --theme-hero-badge-bg: rgba(255, 255, 255, 0.08);
@@ -63,18 +63,18 @@
 
   /* Badge — soft steel */
   --theme-badge-bg: #EDF2F7;
-  --theme-badge-text: #1A2B42;
+  --theme-badge-text: #243b55;
 
   /* Section cards */
   --theme-section-card-bg: #F4F6F8;
   --theme-section-card-border: #E2E8F0;
-  --theme-section-card-hover-border: #1A2B42;
+  --theme-section-card-hover-border: #243b55;
   --theme-section-card-hover-bg: #FFFFFF;
 
   /* Icons */
   --theme-icon-bg: #EDF2F7;
-  --theme-icon-color: #1A2B42;
-  --theme-icon-hover-bg: #1A2B42;
+  --theme-icon-color: #243b55;
+  --theme-icon-hover-bg: #243b55;
   --theme-icon-hover-color: #FFFFFF;
 
   /* Typography */
@@ -87,14 +87,14 @@
   --theme-shadow-lg: 0 20px 50px rgba(15, 23, 42, 0.07);
 
   /* Interactive */
-  --theme-link-color: #1A2B42;
-  --theme-link-hover: #2A4A6B;
-  --theme-button-bg: #1A2B42;
+  --theme-link-color: #243b55;
+  --theme-link-hover: #2f5070;
+  --theme-button-bg: #243b55;
   --theme-button-text: #FFFFFF;
-  --theme-button-hover-bg: #0F1E32;
+  --theme-button-hover-bg: #1a2c43;
 
   /* Focus — subtle navy ring */
-  --theme-focus-ring: rgba(26, 43, 66, 0.2);
+  --theme-focus-ring: rgba(36, 59, 85, 0.2);
 
   /* Dividers */
   --theme-divider: #E2E8F0;
@@ -103,7 +103,7 @@
   /* Input */
   --theme-input-bg: #FFFFFF;
   --theme-input-border: #E2E8F0;
-  --theme-input-focus-border: #1A2B42;
+  --theme-input-focus-border: #243b55;
 }
 
 /* =============================================================================
@@ -112,19 +112,19 @@
 .theme-modern-dark,
 .dark.theme-modern-light,
 .dark:root {
-  /* Backgrounds — deep slate-navy */
-  --theme-bg-primary: #0F172A;
-  --theme-bg-secondary: #1E293B;
-  --theme-bg-tertiary: #2D3A4E;
-  --theme-bg-elevated: #172033;
-  --theme-bg-overlay: rgba(15, 23, 42, 0.97);
+  /* Backgrounds — deep slate-navy (rooted in #141e30) */
+  --theme-bg-primary: #101a28;
+  --theme-bg-secondary: #1a2838;
+  --theme-bg-tertiary: #243548;
+  --theme-bg-elevated: #152030;
+  --theme-bg-overlay: rgba(16, 26, 40, 0.97);
 
   /* Text */
   --theme-text-primary: #F1F5F9;
   --theme-text-secondary: #94A3B8;
   --theme-text-tertiary: #64748B;
   --theme-text-muted: #475569;
-  --theme-text-inverse: #0F172A;
+  --theme-text-inverse: #141e30;
 
   /* Accent — lighter steel blue for readability */
   --theme-accent-primary: #7EB0D6;
@@ -134,16 +134,16 @@
   --theme-accent-active: #C5DFF2;
 
   /* Borders */
-  --theme-border-primary: #1E293B;
-  --theme-border-secondary: #334155;
-  --theme-border-light: #1E293B;
+  --theme-border-primary: #1a2838;
+  --theme-border-secondary: #2c3e52;
+  --theme-border-light: #1a2838;
 
   /* Header */
-  --theme-header-bg: rgba(15, 23, 42, 0.88);
-  --theme-header-bg-scrolled: rgba(15, 23, 42, 0.97);
+  --theme-header-bg: rgba(16, 26, 40, 0.88);
+  --theme-header-bg-scrolled: rgba(16, 26, 40, 0.97);
 
   /* Footer */
-  --theme-footer-bg: #070D16;
+  --theme-footer-bg: #0c1420;
   --theme-footer-text: #94A3B8;
   --theme-footer-text-secondary: #64748B;
   --theme-footer-text-muted: #475569;
@@ -152,16 +152,16 @@
   --theme-footer-link-hover: #A3C9E8;
 
   /* Card */
-  --theme-card-bg: #172033;
-  --theme-nav-bg: rgba(15, 23, 42, 0.88);
+  --theme-card-bg: #152030;
+  --theme-nav-bg: rgba(16, 26, 40, 0.88);
 
   /* Hero */
-  --theme-hero-gradient-from: #070D16;
-  --theme-hero-gradient-via: #0F172A;
-  --theme-hero-gradient-to: #040810;
+  --theme-hero-gradient-from: #0c1420;
+  --theme-hero-gradient-via: #141e30;
+  --theme-hero-gradient-to: #0a1018;
   --theme-hero-text: #F1F5F9;
   --theme-hero-text-secondary: #7EB0D6;
-  --theme-hero-badge-bg: rgba(126, 176, 214, 0.08);
+  --theme-hero-badge-bg: rgba(126, 176, 214, 0.06);
   --theme-hero-badge-text: #7EB0D6;
 
   /* Badge */
@@ -169,16 +169,16 @@
   --theme-badge-text: #7EB0D6;
 
   /* Section cards */
-  --theme-section-card-bg: #1E293B;
-  --theme-section-card-border: #2D3A4E;
+  --theme-section-card-bg: #1a2838;
+  --theme-section-card-border: #243548;
   --theme-section-card-hover-border: #7EB0D6;
-  --theme-section-card-hover-bg: #172033;
+  --theme-section-card-hover-bg: #152030;
 
   /* Icons */
   --theme-icon-bg: rgba(126, 176, 214, 0.06);
   --theme-icon-color: #7EB0D6;
   --theme-icon-hover-bg: #5A93BC;
-  --theme-icon-hover-color: #0F172A;
+  --theme-icon-hover-color: #141e30;
 
   /* Typography */
   --theme-heading-font: 'Bauer Bodoni', 'Times New Roman', Times, serif;
@@ -193,19 +193,19 @@
   --theme-link-color: #7EB0D6;
   --theme-link-hover: #A3C9E8;
   --theme-button-bg: #7EB0D6;
-  --theme-button-text: #0F172A;
+  --theme-button-text: #141e30;
   --theme-button-hover-bg: #A3C9E8;
 
   /* Focus */
   --theme-focus-ring: rgba(126, 176, 214, 0.25);
 
   /* Dividers */
-  --theme-divider: #1E293B;
-  --theme-divider-light: #172033;
+  --theme-divider: #1a2838;
+  --theme-divider-light: #152030;
 
   /* Input */
-  --theme-input-bg: #172033;
-  --theme-input-border: #2D3A4E;
+  --theme-input-bg: #152030;
+  --theme-input-border: #243548;
   --theme-input-focus-border: #7EB0D6;
 }
 

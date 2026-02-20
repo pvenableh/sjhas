@@ -4,18 +4,18 @@
 @import "./fonts.css";
 
 @theme {
-  /* Color Palette — Navy */
-  --color-primary-50: #F0F5FA;
-  --color-primary-100: #DAE6F2;
-  --color-primary-200: #B5CCE5;
-  --color-primary-300: #8BAFD4;
-  --color-primary-400: #5A8FBE;
-  --color-primary-500: #3A72A4;
-  --color-primary-600: #1A2B42;
-  --color-primary-700: #0F1E32;
-  --color-primary-800: #0A1526;
-  --color-primary-900: #060E1A;
-  --color-primary-950: #030810;
+  /* Color Palette — Navy (rooted in #141e30 → #243b55) */
+  --color-primary-50: #F0F4FA;
+  --color-primary-100: #D9E4F0;
+  --color-primary-200: #B3C8E1;
+  --color-primary-300: #8AABD0;
+  --color-primary-400: #5A8BBE;
+  --color-primary-500: #3A6EA4;
+  --color-primary-600: #243b55;
+  --color-primary-700: #1a2c43;
+  --color-primary-800: #141e30;
+  --color-primary-900: #0c1420;
+  --color-primary-950: #080e18;
 
   --color-secondary-50: #F8FAFC;
   --color-secondary-100: #F1F5F9;
@@ -24,22 +24,22 @@
   --color-secondary-400: #94A3B8;
   --color-secondary-500: #64748B;
   --color-secondary-600: #475569;
-  --color-secondary-700: #334155;
-  --color-secondary-800: #1E293B;
-  --color-secondary-900: #0F172A;
-  --color-secondary-950: #020617;
+  --color-secondary-700: #2c3e52;
+  --color-secondary-800: #1a2838;
+  --color-secondary-900: #101a28;
+  --color-secondary-950: #080e18;
 
-  --color-accent-50: #F0F5FA;
-  --color-accent-100: #DAE6F2;
-  --color-accent-200: #B5CCE5;
-  --color-accent-300: #8BAFD4;
-  --color-accent-400: #5A8FBE;
-  --color-accent-500: #3A72A4;
-  --color-accent-600: #2A4A6B;
-  --color-accent-700: #1A2B42;
-  --color-accent-800: #0F1E32;
-  --color-accent-900: #0A1526;
-  --color-accent-950: #030810;
+  --color-accent-50: #F0F4FA;
+  --color-accent-100: #D9E4F0;
+  --color-accent-200: #B3C8E1;
+  --color-accent-300: #8AABD0;
+  --color-accent-400: #5A8BBE;
+  --color-accent-500: #3A6EA4;
+  --color-accent-600: #2f5070;
+  --color-accent-700: #243b55;
+  --color-accent-800: #1a2c43;
+  --color-accent-900: #141e30;
+  --color-accent-950: #080e18;
 
   /* Neutral colors — slate */
   --color-slate-50: #F8FAFC;
