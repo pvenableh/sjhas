@@ -16,7 +16,7 @@ const { isDark, toggleDarkMode } = useTheme()
     >
       <Icon
         :name="isDark ? 'lucide:moon' : 'lucide:sun'"
-        class="h-2.5 w-2.5"
+        class="h-2.5 w-2.5 text-slate-700 dark:text-yellow-300"
       />
     </Switch>
     <template #fallback>

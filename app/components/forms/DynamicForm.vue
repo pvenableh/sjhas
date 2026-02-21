@@ -18,6 +18,8 @@ const emit = defineEmits<{
 const buildValidationSchema = (fields: FormField[]) => {
   const schemaShape: Record<string, z.ZodTypeAny> = {}
 
+  if (!fields || !Array.isArray(fields)) return z.object(schemaShape)
+
   fields.forEach((field) => {
     if (field.type === 'heading' || field.type === 'paragraph') {
       return
@@ -83,7 +85,7 @@ const buildValidationSchema = (fields: FormField[]) => {
 }
 
 const validationSchema = computed(() => {
-  return toTypedSchema(buildValidationSchema(props.form.fields))
+  return toTypedSchema(buildValidationSchema(props.form.fields || []))
 })
 
 const { handleSubmit, isSubmitting, resetForm } = useForm({
@@ -96,7 +98,8 @@ const submitError = ref<string | null>(null)
 
 // Sort fields by sort order
 const sortedFields = computed(() => {
-  return [...props.form.fields].sort((a, b) => a.sort - b.sort)
+  const fields = props.form.fields || []
+  return [...fields].sort((a, b) => a.sort - b.sort)
 })
 
 const onSubmit = handleSubmit(async (values) => {

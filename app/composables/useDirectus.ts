@@ -69,6 +69,7 @@ export const useForm = async (slug: string) => {
         slug: { _eq: slug },
         status: { _eq: 'published' },
       },
+      fields: ['*', { fields: ['*'] }],
       limit: 1,
     })
   )
