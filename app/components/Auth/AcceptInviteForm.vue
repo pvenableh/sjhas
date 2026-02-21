@@ -8,6 +8,13 @@ import { refDebounced } from "@vueuse/core";
 import { cn } from "@/lib/utils";
 import { Loader2, Check, X, PartyPopper } from "lucide-vue-next";
 
+export interface AcceptInvitePayload {
+  firstName: string;
+  lastName: string;
+  password: string;
+  token: string;
+}
+
 const props = defineProps<{
   class?: HTMLAttributes["class"];
   token?: string;
@@ -15,15 +22,7 @@ const props = defineProps<{
 }>();
 
 const emit = defineEmits<{
-  (
-    e: "submit",
-    values: {
-      firstName: string;
-      lastName: string;
-      password: string;
-      token: string;
-    }
-  ): void;
+  (e: "submit", values: AcceptInvitePayload): void;
   (e: "login"): void;
 }>();
 
@@ -58,6 +57,15 @@ const { handleSubmit, isSubmitting, values } = useForm({
 
 const isSuccess = ref(false);
 
+/**
+ * Set success state from parent after async operation completes.
+ */
+const setSuccess = () => {
+  isSuccess.value = true;
+};
+
+defineExpose({ setSuccess });
+
 // Password validation state
 const passwordValue = computed(() => values.password || "");
 const debouncedPassword = refDebounced(passwordValue, 300);
@@ -82,7 +90,6 @@ const onSubmit = handleSubmit(async (values) => {
     password: values.password!,
     token: props.token,
   });
-  isSuccess.value = true;
 });
 </script>
 

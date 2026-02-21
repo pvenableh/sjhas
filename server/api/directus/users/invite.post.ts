@@ -24,7 +24,7 @@ export default defineEventHandler(async (event) => {
     // Invite user using SDK
     const result = await directus.request(
       inviteUser(email, role, {
-        invite_url: invite_url || `${config.public.appUrl}/accept-invite`,
+        invite_url: invite_url || `${config.public.siteUrl}/accept-invite`,
         ...additionalData,
       })
     );
