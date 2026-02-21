@@ -22,20 +22,20 @@ onMounted(() => {
     const tl = gsap.timeline({
       scrollTrigger: {
         trigger: sectionRef.value,
-        start: 'top 85%',
+        start: 'top bottom',
       },
     })
 
     tl.fromTo(
       sectionRef.value.querySelector('.about-image'),
       { opacity: 0, x: -24 },
-      { opacity: 1, x: 0, duration: 0.5, ease: 'power3.out', force3D: true }
+      { opacity: 1, x: 0, duration: 0.8, ease: 'power3.out', force3D: true }
     )
       .fromTo(
         sectionRef.value.querySelector('.about-content'),
         { opacity: 0, x: 24 },
-        { opacity: 1, x: 0, duration: 0.5, ease: 'power3.out', force3D: true },
-        '-=0.3'
+        { opacity: 1, x: 0, duration: 0.8, ease: 'power3.out', force3D: true },
+        '-=0.4'
       )
   }
 })

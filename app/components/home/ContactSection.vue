@@ -39,13 +39,13 @@ onMounted(() => {
       {
         opacity: 1,
         y: 0,
-        duration: 0.4,
+        duration: 0.6,
         stagger: 0.06,
         ease: 'power3.out',
         force3D: true,
         scrollTrigger: {
           trigger: sectionRef.value,
-          start: 'top 85%',
+          start: 'top bottom',
         },
       }
     )

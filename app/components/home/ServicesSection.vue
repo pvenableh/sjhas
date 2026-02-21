@@ -48,12 +48,12 @@ onMounted(() => {
       {
         opacity: 1,
         y: 0,
-        duration: 0.45,
+        duration: 0.7,
         ease: 'power3.out',
         force3D: true,
         scrollTrigger: {
           trigger: sectionRef.value,
-          start: 'top 85%',
+          start: 'top bottom',
         },
       }
     )
@@ -64,13 +64,13 @@ onMounted(() => {
       {
         opacity: 1,
         y: 0,
-        duration: 0.4,
+        duration: 0.6,
         stagger: 0.07,
         ease: 'power3.out',
         force3D: true,
         scrollTrigger: {
           trigger: sectionRef.value.querySelector('.services-grid'),
-          start: 'top 85%',
+          start: 'top bottom',
         },
       }
     )
