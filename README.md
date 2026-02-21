@@ -18,13 +18,14 @@ A modern website and client platform for SJHAS, Inc., an accounting and tax serv
 ## Features
 
 - **Marketing Website** -- Responsive landing page with hero, services, about, testimonials, and contact sections. Dark/light mode with system preference detection.
-- **Visual Form Builder** -- Drag-and-drop form designer with 12+ field types. Create, preview, publish, and email forms to clients.
+- **Visual Form Builder** -- Drag-and-drop form designer with 12+ field types. Create, preview, publish, and email forms to clients. Quick-start templates for Document Upload, Tax Planning, and Client Intake forms.
 - **Public Forms** -- Client-accessible forms at `/f/{slug}` with validation and file uploads.
 - **File Uploads** -- Secure document upload with drag-and-drop, type/size validation, stored in Directus.
 - **Email Notifications** -- Admin notifications on submission and client confirmation emails via SendGrid.
 - **Client Portal** -- Authenticated dashboard with submission history, files, and quick actions.
-- **Admin Panel** -- Manage forms, submissions, clients, files, chat, and site settings.
-- **Live Chat** -- Real-time WebSocket chat between site visitors and admin.
+- **Admin Panel** -- Full management dashboard for forms, submissions, clients, files, chat, and site settings. Includes client user management with invite flow, file browser with search/filter, and profile/site configuration settings.
+- **Live Chat** -- Real-time WebSocket chat between site visitors and admin with Nitro storage fallback for reliable status toggling.
+- **Smart Navigation** -- Role-aware header navigation: admins see "Admin", authenticated clients see "My Account", and guests see "Login".
 - **SEO** -- Built-in optimization with `@nuxtjs/seo`.
 
 ## Project Structure
@@ -44,7 +45,7 @@ app/
   layouts/              default, admin, forms, auth
   middleware/           auth (requires login), guest (login/register only)
   pages/
-    admin/              Form builder, submissions, chat
+    admin/              Dashboard, form builder, submissions, chat, clients, files, settings
     forms/              Client portal (login, dashboard, submissions, files, profile)
     f/[slug].vue        Public form rendering
     index.vue           Landing page
@@ -119,23 +120,30 @@ Configured for Vercel deployment via the `vercel` Nitro preset.
 | `/forms/submissions` | Auth | Client submission history |
 | `/forms/files` | Auth | Client file browser |
 | `/forms/profile` | Auth | Client profile settings |
-| `/admin/forms` | Admin | Form builder (list) |
+| `/admin` | Admin | Admin dashboard with stats and quick actions |
+| `/admin/forms` | Admin | Form builder (list) with quick-start templates |
 | `/admin/forms/new` | Admin | Create new form |
 | `/admin/forms/{id}` | Admin | Edit form |
 | `/admin/submissions` | Admin | All submissions |
 | `/admin/chat` | Admin | Live chat management |
+| `/admin/clients` | Admin | Client user management and invites |
+| `/admin/files` | Admin | File browser with search and filtering |
+| `/admin/settings` | Admin | Profile and site configuration |
 
 ## Admin Form Workflow
 
 1. Log in at `/forms/login` with Directus admin credentials
 2. Navigate to `/admin/forms`
-3. Click **Create Form** (links to `/admin/forms/new`) to open the visual form builder
+3. Click **Create Form** (links to `/admin/forms/new`) to open the visual form builder, or use a **quick-start template** (Document Upload, Tax Planning, or Client Intake) to generate a pre-populated draft form
 4. Add fields by dragging from the palette or clicking field types
 5. Configure each field (label, placeholder, required, width, options)
 6. Set form settings (title, slug, notifications, file upload rules)
 7. Preview the form, then **Publish**
 8. Use **Send to Client** to email a branded form link via SendGrid
 9. View submissions at `/admin/submissions` -- mark as reviewed or archived
+10. Manage client users at `/admin/clients` -- view user list and send invites
+11. Browse all uploaded files at `/admin/files` -- search, filter by type, and download
+12. Update your profile and site configuration at `/admin/settings`
 
 ## Directus Collections
 

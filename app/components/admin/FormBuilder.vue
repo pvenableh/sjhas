@@ -31,16 +31,22 @@ const fieldTypes = [
 const fields = ref<FormField[]>([...props.modelValue])
 const selectedFieldId = ref<string | null>(null)
 const draggedFieldType = ref<string | null>(null)
+const isSyncing = ref(false)
 
 // Watch for external changes
 watch(() => props.modelValue, (newValue) => {
+  if (isSyncing.value) return
   fields.value = [...newValue]
 }, { deep: true })
 
-// Watch for internal changes
-watch(fields, (newValue) => {
-  emit('update:modelValue', newValue)
-}, { deep: true })
+// Emit changes to parent without triggering circular updates
+const emitFields = () => {
+  isSyncing.value = true
+  emit('update:modelValue', [...fields.value])
+  nextTick(() => {
+    isSyncing.value = false
+  })
+}
 
 // Selected field
 const selectedField = computed(() => {
@@ -94,6 +100,7 @@ const addField = (type: string, index?: number) => {
   })
 
   selectedFieldId.value = newField.id
+  emitFields()
 }
 
 // Remove field
@@ -104,6 +111,7 @@ const removeField = (id: string) => {
     if (selectedFieldId.value === id) {
       selectedFieldId.value = null
     }
+    emitFields()
   }
 }
 
@@ -126,6 +134,7 @@ const duplicateField = (id: string) => {
   })
 
   selectedFieldId.value = newField.id
+  emitFields()
 }
 
 // Move field
@@ -143,6 +152,7 @@ const moveField = (id: string, direction: 'up' | 'down') => {
   fields.value.forEach((f, i) => {
     f.sort = i
   })
+  emitFields()
 }
 
 // Update field property
@@ -150,6 +160,7 @@ const updateField = (id: string, updates: Partial<FormField>) => {
   const field = fields.value.find((f) => f.id === id)
   if (field) {
     Object.assign(field, updates)
+    emitFields()
   }
 }
 
@@ -183,12 +194,14 @@ const addOption = () => {
     label: `Option ${optionNum}`,
     value: `option_${optionNum}`,
   })
+  emitFields()
 }
 
 // Remove option
 const removeOption = (index: number) => {
   if (!selectedField.value?.options) return
   selectedField.value.options.splice(index, 1)
+  emitFields()
 }
 </script>
 

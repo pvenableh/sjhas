@@ -32,7 +32,6 @@ const baseNavLinks = [
   { label: 'About', href: '/#about', external: false },
   { label: 'Contact', href: '/#contact', external: false },
   { label: 'Portal', href: 'https://sjhas.clientportal.com/', external: true },
-  { label: 'Client Login', href: '/forms/login', external: false },
 ]
 
 const navLinks = computed(() => {
@@ -42,7 +41,16 @@ const navLinks = computed(() => {
       { label: 'Admin', href: '/admin', external: false },
     ]
   }
-  return baseNavLinks
+  if (loggedIn.value) {
+    return [
+      ...baseNavLinks,
+      { label: 'My Account', href: '/forms', external: false },
+    ]
+  }
+  return [
+    ...baseNavLinks,
+    { label: 'Login', href: '/forms/login', external: false },
+  ]
 })
 
 const toggleMobileMenu = () => {

@@ -107,6 +107,87 @@ const openSendDialog = (form: Form) => {
   showSendDialog.value = true
 }
 
+// Quick start templates
+const isCreatingTemplate = ref(false)
+const createFromTemplate = async (templateName: string) => {
+  if (isCreatingTemplate.value) return
+  isCreatingTemplate.value = true
+
+  const templates: Record<string, { title: string; slug: string; description: string; fields: any[] }> = {
+    'document-upload': {
+      title: 'Document Upload',
+      slug: `document-upload-${Date.now()}`,
+      description: 'Upload your documents securely.',
+      fields: [
+        { id: 'f_1', type: 'heading', label: 'Document Upload', name: 'heading', placeholder: null, help_text: null, required: false, validation_rules: null, options: null, conditional_logic: null, width: 'full', sort: 0 },
+        { id: 'f_2', type: 'text', label: 'Full Name', name: 'full_name', placeholder: 'Enter your full name', help_text: null, required: true, validation_rules: null, options: null, conditional_logic: null, width: 'half', sort: 1 },
+        { id: 'f_3', type: 'email', label: 'Email Address', name: 'email', placeholder: 'you@example.com', help_text: null, required: true, validation_rules: null, options: null, conditional_logic: null, width: 'half', sort: 2 },
+        { id: 'f_4', type: 'select', label: 'Document Type', name: 'document_type', placeholder: 'Select document type', help_text: null, required: true, validation_rules: null, options: [{ label: 'Tax Return', value: 'tax_return' }, { label: 'W-2', value: 'w2' }, { label: '1099', value: '1099' }, { label: 'Other', value: 'other' }], conditional_logic: null, width: 'full', sort: 3 },
+        { id: 'f_5', type: 'file', label: 'Upload Files', name: 'files', placeholder: null, help_text: 'Accepted formats: PDF, DOC, DOCX, JPG, PNG', required: true, validation_rules: null, options: null, conditional_logic: null, width: 'full', sort: 4 },
+        { id: 'f_6', type: 'textarea', label: 'Notes', name: 'notes', placeholder: 'Any additional notes...', help_text: null, required: false, validation_rules: null, options: null, conditional_logic: null, width: 'full', sort: 5 },
+      ],
+    },
+    'tax-planning': {
+      title: 'Tax Planning Questionnaire',
+      slug: `tax-planning-${Date.now()}`,
+      description: 'Help us understand your tax situation for the upcoming year.',
+      fields: [
+        { id: 'f_1', type: 'heading', label: 'Tax Planning Questionnaire', name: 'heading', placeholder: null, help_text: null, required: false, validation_rules: null, options: null, conditional_logic: null, width: 'full', sort: 0 },
+        { id: 'f_2', type: 'text', label: 'Full Name', name: 'full_name', placeholder: 'Enter your full name', help_text: null, required: true, validation_rules: null, options: null, conditional_logic: null, width: 'half', sort: 1 },
+        { id: 'f_3', type: 'email', label: 'Email Address', name: 'email', placeholder: 'you@example.com', help_text: null, required: true, validation_rules: null, options: null, conditional_logic: null, width: 'half', sort: 2 },
+        { id: 'f_4', type: 'phone', label: 'Phone Number', name: 'phone', placeholder: '(555) 555-5555', help_text: null, required: false, validation_rules: null, options: null, conditional_logic: null, width: 'half', sort: 3 },
+        { id: 'f_5', type: 'select', label: 'Filing Status', name: 'filing_status', placeholder: 'Select your filing status', help_text: null, required: true, validation_rules: null, options: [{ label: 'Single', value: 'single' }, { label: 'Married Filing Jointly', value: 'married_joint' }, { label: 'Married Filing Separately', value: 'married_separate' }, { label: 'Head of Household', value: 'head_of_household' }], conditional_logic: null, width: 'half', sort: 4 },
+        { id: 'f_6', type: 'number', label: 'Estimated Annual Income', name: 'annual_income', placeholder: '0', help_text: null, required: true, validation_rules: null, options: null, conditional_logic: null, width: 'half', sort: 5 },
+        { id: 'f_7', type: 'checkbox', label: 'I own a home', name: 'owns_home', placeholder: null, help_text: null, required: false, validation_rules: null, options: null, conditional_logic: null, width: 'half', sort: 6 },
+        { id: 'f_8', type: 'checkbox', label: 'I own a business', name: 'owns_business', placeholder: null, help_text: null, required: false, validation_rules: null, options: null, conditional_logic: null, width: 'half', sort: 7 },
+        { id: 'f_9', type: 'textarea', label: 'Additional Information', name: 'additional_info', placeholder: 'Any other details about your tax situation...', help_text: null, required: false, validation_rules: null, options: null, conditional_logic: null, width: 'full', sort: 8 },
+      ],
+    },
+    'client-intake': {
+      title: 'New Client Intake',
+      slug: `client-intake-${Date.now()}`,
+      description: 'Welcome! Please provide your information so we can serve you better.',
+      fields: [
+        { id: 'f_1', type: 'heading', label: 'New Client Information', name: 'heading', placeholder: null, help_text: null, required: false, validation_rules: null, options: null, conditional_logic: null, width: 'full', sort: 0 },
+        { id: 'f_2', type: 'text', label: 'First Name', name: 'first_name', placeholder: 'First name', help_text: null, required: true, validation_rules: null, options: null, conditional_logic: null, width: 'half', sort: 1 },
+        { id: 'f_3', type: 'text', label: 'Last Name', name: 'last_name', placeholder: 'Last name', help_text: null, required: true, validation_rules: null, options: null, conditional_logic: null, width: 'half', sort: 2 },
+        { id: 'f_4', type: 'email', label: 'Email Address', name: 'email', placeholder: 'you@example.com', help_text: null, required: true, validation_rules: null, options: null, conditional_logic: null, width: 'half', sort: 3 },
+        { id: 'f_5', type: 'phone', label: 'Phone Number', name: 'phone', placeholder: '(555) 555-5555', help_text: null, required: true, validation_rules: null, options: null, conditional_logic: null, width: 'half', sort: 4 },
+        { id: 'f_6', type: 'text', label: 'Address', name: 'address', placeholder: 'Street address', help_text: null, required: false, validation_rules: null, options: null, conditional_logic: null, width: 'full', sort: 5 },
+        { id: 'f_7', type: 'text', label: 'City', name: 'city', placeholder: 'City', help_text: null, required: false, validation_rules: null, options: null, conditional_logic: null, width: 'third', sort: 6 },
+        { id: 'f_8', type: 'text', label: 'State', name: 'state', placeholder: 'State', help_text: null, required: false, validation_rules: null, options: null, conditional_logic: null, width: 'third', sort: 7 },
+        { id: 'f_9', type: 'text', label: 'ZIP Code', name: 'zip_code', placeholder: 'ZIP', help_text: null, required: false, validation_rules: null, options: null, conditional_logic: null, width: 'third', sort: 8 },
+        { id: 'f_10', type: 'select', label: 'How did you hear about us?', name: 'referral_source', placeholder: 'Select one', help_text: null, required: false, validation_rules: null, options: [{ label: 'Referral', value: 'referral' }, { label: 'Google Search', value: 'google' }, { label: 'Social Media', value: 'social_media' }, { label: 'Other', value: 'other' }], conditional_logic: null, width: 'full', sort: 9 },
+        { id: 'f_11', type: 'textarea', label: 'What services are you interested in?', name: 'services_needed', placeholder: 'Tell us how we can help...', help_text: null, required: false, validation_rules: null, options: null, conditional_logic: null, width: 'full', sort: 10 },
+      ],
+    },
+  }
+
+  const template = templates[templateName]
+  if (!template) return
+
+  try {
+    const created = await forms.create({
+      title: template.title,
+      slug: template.slug,
+      description: template.description,
+      status: 'draft',
+      fields: template.fields,
+      success_message: 'Thank you for your submission!',
+      notify_on_submission: true,
+      allow_file_uploads: true,
+      max_file_size_mb: 10,
+      allowed_file_types: '.pdf,.doc,.docx,.xls,.xlsx,.csv,.jpg,.jpeg,.png',
+    } as any)
+    toast.success(`"${template.title}" form created`)
+    navigateTo(`/admin/forms/${created.id}`)
+  } catch (error: any) {
+    toast.error(error.message || 'Failed to create form from template')
+  } finally {
+    isCreatingTemplate.value = false
+  }
+}
+
 const handleSendForm = async () => {
   if (!sendEmail.value || !sendFormTarget.value) {
     toast.error('Please enter a recipient email')
@@ -332,7 +413,9 @@ const handleSendForm = async () => {
       <h2 class="text-lg font-semibold text-slate-900 mb-4">Quick Start Templates</h2>
       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         <button
-          class="flex items-start gap-3 p-4 rounded-lg border border-slate-200 hover:border-primary-200 hover:bg-primary-50 transition-colors text-left"
+          :disabled="isCreatingTemplate"
+          class="flex items-start gap-3 p-4 rounded-lg border border-slate-200 hover:border-primary-200 hover:bg-primary-50 transition-colors text-left disabled:opacity-50"
+          @click="createFromTemplate('document-upload')"
         >
           <div class="w-10 h-10 rounded-lg bg-blue-100 flex items-center justify-center">
             <Icon name="lucide:upload" class="w-5 h-5 text-blue-600" />
@@ -344,7 +427,9 @@ const handleSendForm = async () => {
         </button>
 
         <button
-          class="flex items-start gap-3 p-4 rounded-lg border border-slate-200 hover:border-primary-200 hover:bg-primary-50 transition-colors text-left"
+          :disabled="isCreatingTemplate"
+          class="flex items-start gap-3 p-4 rounded-lg border border-slate-200 hover:border-primary-200 hover:bg-primary-50 transition-colors text-left disabled:opacity-50"
+          @click="createFromTemplate('tax-planning')"
         >
           <div class="w-10 h-10 rounded-lg bg-green-100 flex items-center justify-center">
             <Icon name="lucide:clipboard-list" class="w-5 h-5 text-green-600" />
@@ -356,7 +441,9 @@ const handleSendForm = async () => {
         </button>
 
         <button
-          class="flex items-start gap-3 p-4 rounded-lg border border-slate-200 hover:border-primary-200 hover:bg-primary-50 transition-colors text-left"
+          :disabled="isCreatingTemplate"
+          class="flex items-start gap-3 p-4 rounded-lg border border-slate-200 hover:border-primary-200 hover:bg-primary-50 transition-colors text-left disabled:opacity-50"
+          @click="createFromTemplate('client-intake')"
         >
           <div class="w-10 h-10 rounded-lg bg-purple-100 flex items-center justify-center">
             <Icon name="lucide:user" class="w-5 h-5 text-purple-600" />
