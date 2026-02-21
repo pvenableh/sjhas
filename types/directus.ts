@@ -58,7 +58,7 @@ export interface Form {
 	/** @description Comma-separated list of extensions (e.g., .pdf,.doc,.docx) */
 	allowed_file_types?: string | null;
 	/** @description JSON array of form field definitions */
-	fields?: FormField[] | Record<string, any> | null;
+	fields?: Record<string, any> | null;
 }
 
 export interface FormSubmission {
@@ -663,45 +663,4 @@ export enum CollectionNames {
 	directus_translations = 'directus_translations',
 	directus_versions = 'directus_versions',
 	directus_extensions = 'directus_extensions'
-}
-
-// Alias used by useDirectus composable
-export type Collections = Schema;
-
-// ============================================================================
-// Form Helper Types (used by FormBuilder and DynamicForm)
-// ============================================================================
-
-export interface FormField {
-	id: string;
-	type: 'text' | 'email' | 'phone' | 'textarea' | 'select' | 'checkbox' | 'radio' | 'file' | 'date' | 'number' | 'heading' | 'paragraph';
-	label: string;
-	name: string;
-	placeholder: string | null;
-	help_text: string | null;
-	required: boolean;
-	validation_rules: ValidationRule[] | null;
-	options: FieldOption[] | null;
-	conditional_logic: ConditionalLogic | null;
-	width: 'full' | 'half' | 'third';
-	sort: number;
-}
-
-export interface ValidationRule {
-	type: 'min' | 'max' | 'pattern' | 'minLength' | 'maxLength';
-	value: string | number;
-	message: string;
-}
-
-export interface FieldOption {
-	label: string;
-	value: string;
-}
-
-export interface ConditionalLogic {
-	show_when: {
-		field: string;
-		operator: 'equals' | 'not_equals' | 'contains' | 'not_empty';
-		value: string;
-	};
 }
