@@ -13,12 +13,16 @@ useSeoMeta({
   title: 'Clients - Admin - SJHAS, Inc.',
 })
 
+const { inviteUser } = useDirectusUser()
+const config = useRuntimeConfig()
+
 const isLoading = ref(true)
 const clients = ref<any[]>([])
 const searchQuery = ref('')
 const showInviteDialog = ref(false)
 const inviteEmail = ref('')
-const inviteName = ref('')
+const inviteFirstName = ref('')
+const inviteLastName = ref('')
 const isInviting = ref(false)
 
 const fetchClients = async () => {
@@ -90,19 +94,23 @@ const handleInvite = async () => {
     return
   }
 
+  const roleId = config.public.clientRoleId
+  if (!roleId) {
+    toast.error('Client role is not configured. Set CLIENT_ROLE_ID in your environment.')
+    return
+  }
+
   isInviting.value = true
   try {
-    await $fetch('/api/directus/users/invite', {
-      method: 'POST',
-      body: {
-        email: inviteEmail.value,
-        name: inviteName.value,
-      },
+    await inviteUser(inviteEmail.value, roleId as string, {
+      first_name: inviteFirstName.value || undefined,
+      last_name: inviteLastName.value || undefined,
     })
     toast.success(`Invitation sent to ${inviteEmail.value}`)
     showInviteDialog.value = false
     inviteEmail.value = ''
-    inviteName.value = ''
+    inviteFirstName.value = ''
+    inviteLastName.value = ''
     await fetchClients()
   } catch (error: any) {
     toast.error(error.data?.message || 'Failed to send invitation')
@@ -219,9 +227,15 @@ const getInitials = (user: any) => {
                 <Label class="mb-1.5">Email Address *</Label>
                 <Input v-model="inviteEmail" type="email" placeholder="client@example.com" />
               </div>
-              <div>
-                <Label class="mb-1.5">Name</Label>
-                <Input v-model="inviteName" placeholder="John Doe" />
+              <div class="grid grid-cols-2 gap-3">
+                <div>
+                  <Label class="mb-1.5">First Name</Label>
+                  <Input v-model="inviteFirstName" placeholder="John" />
+                </div>
+                <div>
+                  <Label class="mb-1.5">Last Name</Label>
+                  <Input v-model="inviteLastName" placeholder="Doe" />
+                </div>
               </div>
             </div>
 

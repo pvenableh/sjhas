@@ -70,6 +70,7 @@ export default defineNuxtConfig({
         url: process.env.DIRECTUS_URL || "http://localhost:8055",
       },
       siteUrl: process.env.SITE_URL || "http://localhost:3000",
+      clientRoleId: process.env.CLIENT_ROLE_ID || "",
     },
   },
 
@@ -78,6 +79,7 @@ export default defineNuxtConfig({
     "/forms/**": { ssr: false },
     "/f/**": { ssr: false },
     "/admin/**": { ssr: false },
+    "/accept-invite": { ssr: false },
   },
 
   nitro: {
