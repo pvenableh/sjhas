@@ -35,16 +35,17 @@ onMounted(() => {
 
     gsap.fromTo(
       sectionRef.value.querySelectorAll('.contact-card'),
-      { opacity: 0, y: 30 },
+      { opacity: 0, y: 16 },
       {
         opacity: 1,
         y: 0,
-        duration: 0.6,
-        stagger: 0.1,
-        ease: 'power2.out',
+        duration: 0.4,
+        stagger: 0.06,
+        ease: 'power3.out',
+        force3D: true,
         scrollTrigger: {
           trigger: sectionRef.value,
-          start: 'top 90%',
+          start: 'top 85%',
         },
       }
     )

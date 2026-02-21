@@ -44,31 +44,33 @@ onMounted(() => {
 
     gsap.fromTo(
       sectionRef.value.querySelector('.section-header'),
-      { opacity: 0, y: 30 },
+      { opacity: 0, y: 16 },
       {
         opacity: 1,
         y: 0,
-        duration: 0.7,
-        ease: 'power2.out',
+        duration: 0.45,
+        ease: 'power3.out',
+        force3D: true,
         scrollTrigger: {
           trigger: sectionRef.value,
-          start: 'top 90%',
+          start: 'top 85%',
         },
       }
     )
 
     gsap.fromTo(
       sectionRef.value.querySelectorAll('.service-card'),
-      { opacity: 0, y: 40 },
+      { opacity: 0, y: 20 },
       {
         opacity: 1,
         y: 0,
-        duration: 0.6,
-        stagger: 0.15,
-        ease: 'power2.out',
+        duration: 0.4,
+        stagger: 0.07,
+        ease: 'power3.out',
+        force3D: true,
         scrollTrigger: {
           trigger: sectionRef.value.querySelector('.services-grid'),
-          start: 'top 90%',
+          start: 'top 85%',
         },
       }
     )

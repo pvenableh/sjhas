@@ -30,15 +30,16 @@ onMounted(() => {
 
     gsap.fromTo(
       sectionRef.value.querySelector('.testimonial-card'),
-      { opacity: 0, y: 40 },
+      { opacity: 0, y: 20 },
       {
         opacity: 1,
         y: 0,
-        duration: 0.8,
-        ease: 'power2.out',
+        duration: 0.5,
+        ease: 'power3.out',
+        force3D: true,
         scrollTrigger: {
           trigger: sectionRef.value,
-          start: 'top 90%',
+          start: 'top 85%',
         },
       }
     )
