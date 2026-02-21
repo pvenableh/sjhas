@@ -7,6 +7,27 @@ const props = defineProps<{
 
 const currentYear = new Date().getFullYear()
 
+const { user, loggedIn, logout } = useDirectusAuth()
+const router = useRouter()
+
+const isAdmin = computed(() => {
+  if (!loggedIn.value || !user.value) return false
+  const role = (user.value as any)?.role
+  if (typeof role === 'object' && role !== null) {
+    return role.admin_access === true || role.name?.toLowerCase().includes('admin')
+  }
+  return false
+})
+
+const handleLogout = async () => {
+  try {
+    await logout()
+    router.push('/')
+  } catch {
+    // session cleared by composable regardless
+  }
+}
+
 const contactInfo = computed(() => ({
   email: props.settings?.contact_email || 'sjh@sjhas.com',
   phone: props.settings?.contact_phone || '(607) 216-8033',
@@ -25,13 +46,23 @@ const hours = computed(() => [
   { day: 'Friday', hours: props.settings?.hours_friday || '9am - 1:30pm' },
 ])
 
-const quickLinks = [
+const baseLinks = [
   { label: 'Home', href: '/', external: false },
   { label: 'Services', href: '/#services', external: false },
   { label: 'About', href: '/#about', external: false },
   { label: 'Contact', href: '/#contact', external: false },
   { label: 'Client Portal', href: 'https://sjhas.clientportal.com/#/login', external: true },
 ]
+
+const quickLinks = computed(() => {
+  if (isAdmin.value) {
+    return [...baseLinks, { label: 'Admin', href: '/admin', external: false }]
+  }
+  if (loggedIn.value) {
+    return [...baseLinks, { label: 'My Account', href: '/forms', external: false }]
+  }
+  return [...baseLinks, { label: 'Login', href: '/forms/login', external: false }]
+})
 </script>
 
 <template>
@@ -75,6 +106,14 @@ const quickLinks = [
               >
                 {{ link.label }}
               </NuxtLink>
+            </li>
+            <li v-if="loggedIn">
+              <button
+                class="text-sm t-footer-link inline-flex items-center gap-1.5 tracking-wide"
+                @click="handleLogout"
+              >
+                Logout
+              </button>
             </li>
           </ul>
         </div>

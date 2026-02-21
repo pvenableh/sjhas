@@ -11,8 +11,9 @@ useSeoMeta({
   title: 'Client Login - SJHAS, Inc.',
 })
 
-const { login } = useDirectusAuth()
+const { login, user } = useDirectusAuth()
 const router = useRouter()
+const route = useRoute()
 
 const isLoading = ref(false)
 const loginFormRef = ref<any>(null)
@@ -23,7 +24,19 @@ const handleLogin = async (credentials: { email: string; password: string }) => 
   try {
     await login(credentials)
     toast.success('Welcome back!')
-    router.push('/forms')
+
+    // Honor redirect query param from auth middleware
+    const redirectTo = route.query.redirect as string | undefined
+    if (redirectTo) {
+      router.push(redirectTo)
+      return
+    }
+
+    // Role-aware redirect: admins go to /admin, clients go to /forms
+    const role = (user.value as any)?.role
+    const isAdmin = typeof role === 'object' && role !== null
+      && (role.admin_access === true || role.name?.toLowerCase().includes('admin'))
+    router.push(isAdmin ? '/admin' : '/forms')
   } catch (error: any) {
     console.error('Login error:', error)
     loginFormRef.value?.setFormError(
