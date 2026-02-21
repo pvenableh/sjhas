@@ -13,8 +13,6 @@ const { data: form, error } = await useAsyncData('upload-form', async () => {
 const defaultForm = {
   id: 0,
   status: 'published' as const,
-  date_created: new Date().toISOString(),
-  date_updated: null,
   title: 'Upload Files to SJHAS, Inc.',
   slug: 'upload',
   description: 'Upload your documents securely. We accept PDF, Word, Excel, and image files up to 10MB each.',

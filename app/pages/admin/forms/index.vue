@@ -23,8 +23,8 @@ const fetchForms = async () => {
   isLoading.value = true
   try {
     const result = await forms.list({
-      sort: ['-date_created'],
-      fields: ['id', 'title', 'slug', 'status', 'date_created', 'date_updated'],
+      sort: ['-id'],
+      fields: ['id', 'title', 'slug', 'status'],
     })
     formsList.value = result
   } catch (error) {
@@ -218,7 +218,7 @@ const handleSendForm = async () => {
 
           <div class="flex items-center gap-2">
             <span class="text-sm text-slate-500 hidden sm:block">
-              {{ formatDate(form.date_updated || form.date_created) }}
+              /{{ form.slug }}
             </span>
 
             <!-- Actions dropdown -->

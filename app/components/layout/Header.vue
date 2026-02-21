@@ -19,6 +19,7 @@ const navLinks = [
   { label: 'Services', href: '/#services', external: false },
   { label: 'About', href: '/#about', external: false },
   { label: 'Contact', href: '/#contact', external: false },
+  { label: 'Portal', href: 'https://sjhas.clientportal.com/', external: true },
   { label: 'Client Login', href: '/forms/login', external: false },
 ]
 

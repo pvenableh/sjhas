@@ -29,8 +29,8 @@ const fetchData = async () => {
   try {
     const [subs, forms] = await Promise.all([
       submissions.list({
-        sort: ['-date_created'],
-        fields: ['id', 'date_created', 'form.id', 'form.title', 'form.slug', 'status', 'data', 'submitter_email', 'submitter_name', 'notes'],
+        sort: ['-id'],
+        fields: ['id', 'form.id', 'form.title', 'form.slug', 'status', 'data', 'submitter_email', 'submitter_name', 'notes'],
         limit: 100,
       }),
       formsApi.list({
@@ -214,7 +214,7 @@ const getDisplayableData = (data: Record<string, unknown>) => {
                 <div class="flex items-center gap-3 mt-1 text-sm text-slate-500">
                   <span>{{ sub.form?.title || 'Unknown Form' }}</span>
                   <span>&middot;</span>
-                  <span>{{ formatDate(sub.date_created) }}</span>
+                  <span>#{{ sub.id }}</span>
                 </div>
               </div>
             </div>

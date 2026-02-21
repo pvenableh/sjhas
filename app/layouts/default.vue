@@ -15,7 +15,7 @@ const logoUrl = computed(() => {
     const logoId = typeof settings.value.logo === 'string'
       ? settings.value.logo
       : settings.value.logo.id
-    return `${config.public.directusUrl}/assets/${logoId}`
+    return `${config.public.directus.url}/assets/${logoId}`
   }
   return null
 })

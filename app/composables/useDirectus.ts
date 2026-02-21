@@ -18,7 +18,7 @@ export const useDirectus = () => {
   const config = useRuntimeConfig()
 
   if (!directusClient) {
-    directusClient = createDirectus<Collections>(config.public.directusUrl)
+    directusClient = createDirectus<Collections>(config.public.directus.url as string)
       .with(rest())
   }
 

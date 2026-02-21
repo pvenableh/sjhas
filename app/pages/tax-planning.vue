@@ -13,8 +13,6 @@ const { data: form, error } = await useAsyncData('tax-planning-form', async () =
 const defaultForm = {
   id: 0,
   status: 'published' as const,
-  date_created: new Date().toISOString(),
-  date_updated: null,
   title: 'Tax Planning Questionnaire',
   slug: 'tax-planning',
   description: 'Please complete this questionnaire to help us prepare for your tax planning session. All information is kept strictly confidential.',
