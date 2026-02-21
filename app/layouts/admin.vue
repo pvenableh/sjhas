@@ -56,8 +56,8 @@ const closeSidebar = () => {
     >
       <!-- Logo -->
       <div class="flex items-center gap-2 h-16 px-6 border-b border-slate-800">
-        <div class="w-8 h-8 rounded-lg bg-primary-600 flex items-center justify-center">
-          <span class="text-white font-bold text-sm">S</span>
+        <div class="w-8 h-8 rounded-xl bg-primary-600 flex items-center justify-center">
+          <span class="text-white font-extralight text-base t-heading">S</span>
         </div>
         <span class="font-sans text-lg font-semibold text-white">Admin Panel</span>
       </div>

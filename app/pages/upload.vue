@@ -2,7 +2,7 @@
 // Fetch the upload form from Directus
 const { data: form, error } = await useAsyncData('upload-form', async () => {
   try {
-    return await useForm('upload')
+    return await useDirectusForm('upload')
   } catch (error) {
     console.error('Failed to fetch upload form:', error)
     return null

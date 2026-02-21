@@ -2,7 +2,7 @@
 // Fetch the tax planning form from Directus
 const { data: form, error } = await useAsyncData('tax-planning-form', async () => {
   try {
-    return await useForm('tax-planning')
+    return await useDirectusForm('tax-planning')
   } catch (error) {
     console.error('Failed to fetch tax planning form:', error)
     return null

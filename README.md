@@ -33,25 +33,27 @@ A modern website and client platform for SJHAS, Inc., an accounting and tax serv
 app/
   assets/css/           Theme system (CSS custom properties), fonts
   components/
-    admin/              FormBuilder
-    chat/               ChatWidget
+    Auth/               LoginForm, RegisterForm, PasswordResetForm, AcceptInviteForm
+    admin/              FormBuilder (drag-and-drop form designer)
+    chat/               ChatWidget (WebSocket-based live chat)
     forms/              DynamicForm, FormField, FileUpload
     home/               Landing page sections (Hero, Services, About, etc.)
-    layout/             Header, Footer, DarkModeToggle
+    layout/             Header, Footer, DarkModeToggle, ThemeSwitcher
     ui/                 shadcn-vue components (Button, Card, Input, Switch, etc.)
   composables/          useDirectus, useDirectusAuth, useDirectusItems, useTheme, etc.
   layouts/              default, admin, forms, auth
+  middleware/           auth (requires login), guest (login/register only)
   pages/
-    admin/              Admin dashboard, forms, submissions, chat, files, settings
-    forms/              Client portal (login, dashboard, submissions, files)
+    admin/              Form builder, submissions, chat
+    forms/              Client portal (login, dashboard, submissions, files, profile)
     f/[slug].vue        Public form rendering
     index.vue           Landing page
-    upload.vue           Document upload
+    upload.vue          Document upload
     tax-planning.vue    Tax planning questionnaire
 server/
   api/                  Auth, forms (submit, send), directus proxy, chat
-  routes/               WebSocket routes (chat)
-  utils/                Directus server utilities
+  routes/               WebSocket routes (_ws)
+  utils/                Directus server client, session helpers
 types/
   directus.ts           Auto-generated Directus type definitions
 ```
@@ -115,19 +117,19 @@ Configured for Vercel deployment via the `vercel` Nitro preset.
 | `/forms/login` | Guest | Client login / register |
 | `/forms` | Auth | Client dashboard |
 | `/forms/submissions` | Auth | Client submission history |
-| `/admin` | Admin | Admin dashboard |
+| `/forms/files` | Auth | Client file browser |
+| `/forms/profile` | Auth | Client profile settings |
 | `/admin/forms` | Admin | Form builder (list) |
-| `/admin/forms/{id}` | Admin | Form editor |
+| `/admin/forms/new` | Admin | Create new form |
+| `/admin/forms/{id}` | Admin | Edit form |
 | `/admin/submissions` | Admin | All submissions |
 | `/admin/chat` | Admin | Live chat management |
-| `/admin/files` | Admin | File management |
-| `/admin/settings` | Admin | Site settings |
 
 ## Admin Form Workflow
 
-1. Log in at `/forms/login` with Directus credentials
+1. Log in at `/forms/login` with Directus admin credentials
 2. Navigate to `/admin/forms`
-3. Click **Create Form** to open the visual form builder
+3. Click **Create Form** (links to `/admin/forms/new`) to open the visual form builder
 4. Add fields by dragging from the palette or clicking field types
 5. Configure each field (label, placeholder, required, width, options)
 6. Set form settings (title, slug, notifications, file upload rules)
@@ -152,7 +154,9 @@ Configured for Vercel deployment via the `vercel` Nitro preset.
 
 ## Theme System
 
-The app uses a CSS custom property-based theme system (`app/assets/css/theme.css`) with light and dark variants. Theme classes (`.theme-modern-light`, `.theme-modern-dark`) are applied to the `<html>` element. Utility classes like `.t-bg`, `.t-text`, `.t-card`, `.t-hero`, etc. map to theme variables for consistent styling across modes.
+The app uses a CSS custom property-based theme system (`app/assets/css/theme.css`) with light and dark variants. Theme classes (`.theme-modern-light`, `.theme-modern-dark`) are applied to the `<html>` element. Utility classes like `.t-bg`, `.t-text`, `.t-card`, `.t-hero`, etc. map to theme variables for consistent styling across modes. The heading font is Bauer Bodoni (serif), applied via the `.t-heading` class.
+
+Dark mode is toggled via the `DarkModeToggle` component (used in the header and public form pages) and the `ThemeSwitcher` dropdown. The `useTheme` composable manages color mode state, including system preference detection via `@nuxtjs/color-mode`.
 
 ---
 

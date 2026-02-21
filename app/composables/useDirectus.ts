@@ -61,7 +61,7 @@ export const useTestimonials = async (featured = false) => {
   )
 }
 
-export const useForm = async (slug: string) => {
+export const useDirectusForm = async (slug: string) => {
   const client = useDirectus()
   const forms = await client.request(
     readItems('forms', {
