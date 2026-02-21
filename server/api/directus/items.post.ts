@@ -82,14 +82,16 @@ async function executeOperation(
         throw new Error(`Unknown operation: ${operation}`);
     }
   } catch (error: any) {
-    // Check if this is a token expiration error
-    const isTokenExpired =
+    // Check if this is a token / auth error from Directus
+    const isAuthError =
       error.message?.includes("Token expired") ||
       error.errors?.[0]?.extensions?.code === "TOKEN_EXPIRED" ||
-      (error.response?.status === 401 && error.message?.includes("Token"));
+      error.errors?.[0]?.extensions?.code === "FORBIDDEN" ||
+      error.response?.status === 401 ||
+      error.response?.status === 403;
 
-    // Retry once with force refresh if token is expired
-    if (isTokenExpired && retryCount === 0 && session?.user) {
+    // Retry once with force refresh if auth-related and user is logged in
+    if (isAuthError && retryCount === 0 && session?.user) {
       return executeOperation(event, collection, operation, id, data, query, retryCount + 1);
     }
 

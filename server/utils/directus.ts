@@ -109,6 +109,12 @@ export function getTypedDirectus() {
     .with(rest());
 }
 
+// Module-level lock to prevent concurrent token refresh race conditions.
+// When multiple requests arrive simultaneously and all need a refresh,
+// only one refresh is performed; the others wait for its result.
+let _refreshPromise: Promise<DirectusTokens> | null = null;
+let _refreshingToken: string | null = null;
+
 /**
  * Get a Directus client with user authentication
  * Uses the session token from nuxt-auth-utils
@@ -144,27 +150,54 @@ export async function getUserDirectus(
   // Check if token is expired or about to expire (within 60 seconds)
   const now = Date.now();
   const expiresAt = (session as any).expiresAt;
+  const loggedInAt = (session as any).loggedInAt;
 
-  // If expiresAt is missing (old session), don't force refresh unless explicitly requested
+  // Guard: never refresh tokens obtained within the last 30 seconds.
+  // This prevents spurious refresh attempts right after login when
+  // expiresAt might be incorrect (e.g. if 'expires' was null or 0).
+  const isRecentLogin = loggedInAt && now - loggedInAt < 30_000;
+
+  // Only refresh if expiresAt is a valid future timestamp that falls
+  // within the 60-second refresh window, OR if explicitly forced.
+  // Skip if the token was just obtained (recent login).
   const shouldRefresh =
-    forceRefresh || (expiresAt && now >= expiresAt - 60000);
+    !isRecentLogin &&
+    (forceRefresh ||
+      (typeof expiresAt === "number" &&
+        expiresAt > 0 &&
+        now >= expiresAt - 60_000));
 
   if (shouldRefresh && refreshToken) {
     try {
-      const newTokens = await directusRefresh(refreshToken);
+      let newTokens: DirectusTokens;
 
-      // Update session with new tokens
-      await updateSessionTokens(event, session, newTokens);
+      // Deduplicate concurrent refresh attempts: if another request is
+      // already refreshing with the same refresh token, reuse its promise.
+      if (_refreshPromise && _refreshingToken === refreshToken) {
+        newTokens = await _refreshPromise;
+      } else {
+        _refreshingToken = refreshToken;
+        _refreshPromise = directusRefresh(refreshToken);
+        try {
+          newTokens = await _refreshPromise;
+        } finally {
+          _refreshPromise = null;
+          _refreshingToken = null;
+        }
+        // Only the request that performed the refresh updates the session
+        await updateSessionTokens(event, session, newTokens);
+      }
 
       accessToken = newTokens.access_token;
     } catch (error) {
-      console.error("Token refresh failed:", error);
-      // Clear session on refresh failure
-      await clearUserSession(event);
-      throw createError({
-        statusCode: 401,
-        statusMessage: "Session expired - please log in again",
-      });
+      // Don't clear the session — the current access token may still be
+      // valid and concurrent requests would lose their session.  The
+      // caller (executeOperation) already has retry logic for truly
+      // expired tokens.
+      console.warn(
+        "Token refresh failed, continuing with current token:",
+        (error as Error).message
+      );
     }
   }
 
@@ -212,7 +245,19 @@ export async function directusLogin(
     .with(rest());
 
   const result = await client.login({ email, password });
-  return result as DirectusTokens;
+
+  // The SDK may return expires/refresh_token as null depending on
+  // the authentication mode and Directus configuration.  Normalise
+  // to safe defaults so downstream code doesn't break.
+  return {
+    access_token: result.access_token ?? "",
+    refresh_token: result.refresh_token ?? "",
+    // expires is in milliseconds; default to 15 min if missing/null
+    expires:
+      typeof result.expires === "number" && result.expires > 0
+        ? result.expires
+        : 900_000,
+  };
 }
 
 /**
@@ -229,7 +274,16 @@ export async function directusRefresh(
   const result = await client.request(
     refresh({ mode: "json", refresh_token: refreshToken })
   );
-  return result as DirectusTokens;
+
+  const tokens = result as Record<string, any>;
+  return {
+    access_token: tokens.access_token ?? "",
+    refresh_token: tokens.refresh_token ?? "",
+    expires:
+      typeof tokens.expires === "number" && tokens.expires > 0
+        ? tokens.expires
+        : 900_000,
+  };
 }
 
 /**
