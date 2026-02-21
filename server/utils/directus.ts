@@ -228,6 +228,7 @@ export function getPublicDirectus() {
 interface DirectusTokens {
   access_token: string;
   refresh_token: string;
+  /** Token lifetime in **milliseconds** (already converted from the Directus API which returns seconds). */
   expires: number;
 }
 
@@ -249,14 +250,20 @@ export async function directusLogin(
   // The SDK may return expires/refresh_token as null depending on
   // the authentication mode and Directus configuration.  Normalise
   // to safe defaults so downstream code doesn't break.
+  //
+  // IMPORTANT: The Directus API returns `expires` in **seconds**
+  // (e.g. 900 = 15 minutes).  Convert to milliseconds here so the
+  // rest of the codebase can use Date.now() arithmetic directly.
+  const rawExpires = result.expires;
+  const expiresMs =
+    typeof rawExpires === "number" && rawExpires > 0
+      ? rawExpires * 1000
+      : 900_000;
+
   return {
     access_token: result.access_token ?? "",
     refresh_token: result.refresh_token ?? "",
-    // expires is in milliseconds; default to 15 min if missing/null
-    expires:
-      typeof result.expires === "number" && result.expires > 0
-        ? result.expires
-        : 900_000,
+    expires: expiresMs,
   };
 }
 
@@ -275,14 +282,18 @@ export async function directusRefresh(
     refresh({ mode: "json", refresh_token: refreshToken })
   );
 
+  // Directus API returns `expires` in seconds — convert to milliseconds.
   const tokens = result as Record<string, any>;
+  const rawExpires = tokens.expires;
+  const expiresMs =
+    typeof rawExpires === "number" && rawExpires > 0
+      ? rawExpires * 1000
+      : 900_000;
+
   return {
     access_token: tokens.access_token ?? "",
     refresh_token: tokens.refresh_token ?? "",
-    expires:
-      typeof tokens.expires === "number" && tokens.expires > 0
-        ? tokens.expires
-        : 900_000,
+    expires: expiresMs,
   };
 }
 
