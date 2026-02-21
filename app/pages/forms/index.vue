@@ -33,9 +33,9 @@ onMounted(async () => {
       filter: {
         submitter_email: { _eq: user.value?.email },
       },
-      sort: ['-date_created'],
+      sort: ['-id'],
       limit: 5,
-      fields: ['id', 'date_created', 'form.title', 'status', 'data'],
+      fields: ['id', 'form.title', 'status', 'data'],
     })
     recentSubmissions.value = userSubmissions
 
@@ -222,7 +222,7 @@ const getStatusColor = (status: string) => {
                   {{ submission.form?.title || 'Form Submission' }}
                 </p>
                 <p class="text-sm text-slate-500">
-                  {{ formatDate(submission.date_created) }}
+                  Submission #{{ submission.id }}
                 </p>
               </div>
               <span

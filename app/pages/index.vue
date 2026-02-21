@@ -43,7 +43,7 @@ const aboutImageUrl = computed(() => {
     const imageId = typeof homePage.value.about_image === 'string'
       ? homePage.value.about_image
       : homePage.value.about_image.id
-    return `${config.public.directusUrl}/assets/${imageId}`
+    return `${config.public.directus.url}/assets/${imageId}`
   }
   return null
 })

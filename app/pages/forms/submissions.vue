@@ -24,8 +24,8 @@ onMounted(async () => {
       filter: {
         submitter_email: { _eq: user.value?.email },
       },
-      sort: ['-date_created'],
-      fields: ['id', 'date_created', 'form.title', 'status', 'data'],
+      sort: ['-id'],
+      fields: ['id', 'form.title', 'status', 'data'],
     })
   } catch (error) {
     console.error('Failed to load submissions:', error)
@@ -83,7 +83,7 @@ const getStatusColor = (status: string) => {
               {{ submission.form?.title || 'Form Submission' }}
             </p>
             <p class="text-sm text-slate-500">
-              {{ formatDate(submission.date_created) }}
+              Submission #{{ submission.id }}
             </p>
           </div>
           <span

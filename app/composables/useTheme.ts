@@ -25,8 +25,13 @@ export function useTheme() {
   })
 
   // Toggle dark mode
-  function toggleDarkMode() {
-    colorMode.preference = colorMode.value === 'dark' ? 'light' : 'dark'
+  function toggleDarkMode(value?: boolean) {
+    if (typeof value === 'boolean') {
+      colorMode.preference = value ? 'dark' : 'light'
+    } else {
+      colorMode.preference = colorMode.value === 'dark' ? 'light' : 'dark'
+    }
+    nextTick(() => updateHtmlClass())
   }
 
   // Set dark mode
