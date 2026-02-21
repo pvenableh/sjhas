@@ -14,7 +14,19 @@ const isScrolled = computed(() => y.value > 20)
 const isMobileMenuOpen = ref(false)
 const headerRef = ref<HTMLElement | null>(null)
 
-const navLinks = [
+// Check if user is logged in and has admin role
+const { user, loggedIn } = useDirectusAuth()
+const isAdmin = computed(() => {
+  if (!loggedIn.value || !user.value) return false
+  const role = (user.value as any)?.role
+  // Check for admin role by name or admin_access flag
+  if (typeof role === 'object' && role !== null) {
+    return role.admin_access === true || role.name?.toLowerCase().includes('admin')
+  }
+  return false
+})
+
+const baseNavLinks = [
   { label: 'Home', href: '/', external: false },
   { label: 'Services', href: '/#services', external: false },
   { label: 'About', href: '/#about', external: false },
@@ -22,6 +34,16 @@ const navLinks = [
   { label: 'Portal', href: 'https://sjhas.clientportal.com/', external: true },
   { label: 'Client Login', href: '/forms/login', external: false },
 ]
+
+const navLinks = computed(() => {
+  if (isAdmin.value) {
+    return [
+      ...baseNavLinks,
+      { label: 'Admin', href: '/admin', external: false },
+    ]
+  }
+  return baseNavLinks
+})
 
 const toggleMobileMenu = () => {
   isMobileMenuOpen.value = !isMobileMenuOpen.value
