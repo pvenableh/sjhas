@@ -91,8 +91,10 @@ async function toggleOnlineStatus() {
     })
     adminOnline.value = !adminOnline.value
     toast.success(adminOnline.value ? 'You are now online' : 'You are now offline')
-  } catch {
-    toast.error('Failed to update status')
+  } catch (error: any) {
+    const msg = error?.data?.message || error?.message || 'Failed to update status'
+    toast.error(msg)
+    console.error('[chat] Toggle status error:', error)
   } finally {
     togglingStatus.value = false
   }

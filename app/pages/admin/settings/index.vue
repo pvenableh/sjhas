@@ -104,18 +104,19 @@ const saveProfile = async () => {
 }
 
 const saveSiteSettings = async () => {
-  if (!siteSettingsId.value) {
-    toast.error('Site settings not found')
-    return
-  }
-
   isSavingSite.value = true
   try {
-    await siteSettings.update(siteSettingsId.value, siteForm.value as any)
+    if (siteSettingsId.value) {
+      await siteSettings.update(siteSettingsId.value, siteForm.value as any)
+    } else {
+      // No record yet — create one
+      const created = await siteSettings.create(siteForm.value as any)
+      if (created?.id) siteSettingsId.value = created.id
+    }
     toast.success('Site settings updated successfully')
   } catch (error) {
     console.error('Failed to update site settings:', error)
-    toast.error('Failed to update site settings')
+    toast.error('Failed to update site settings. Make sure the site_settings collection exists in Directus.')
   } finally {
     isSavingSite.value = false
   }
@@ -196,6 +197,9 @@ const saveSiteSettings = async () => {
       </div>
 
       <Card v-else class="p-6">
+        <div v-if="!siteSettingsId" class="mb-4 rounded-lg bg-amber-50 border border-amber-200 p-3 text-sm text-amber-800">
+          No site settings record found. Fill in the fields below and save to create one.
+        </div>
         <h3 class="text-lg font-semibold text-slate-900 mb-6">Site Configuration</h3>
         <form class="space-y-5" @submit.prevent="saveSiteSettings">
           <div>
