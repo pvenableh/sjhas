@@ -20,7 +20,7 @@ const navigation = [
 const handleLogout = async () => {
   try {
     await logout()
-    router.push('/admin/login')
+    router.push('/forms/login')
   } catch (error) {
     console.error('Logout failed:', error)
   }

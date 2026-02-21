@@ -6,12 +6,21 @@ import * as z from 'zod'
 import { gsap } from 'gsap'
 import type { Form, FormField } from '~/types/directus'
 
+export interface FormStep {
+  label: string
+  icon?: string
+  /** Sort range [min, max] inclusive — fields with sort values in this range belong to this step */
+  fieldRange: [number, number]
+}
+
 const props = defineProps<{
   form: Form
+  steps?: FormStep[]
 }>()
 
 const emit = defineEmits<{
   submitted: [data: Record<string, unknown>]
+  'update:currentStep': [step: number]
 }>()
 
 // Build Zod schema from form fields
@@ -88,19 +97,86 @@ const validationSchema = computed(() => {
   return toTypedSchema(buildValidationSchema(props.form.fields || []))
 })
 
-const { handleSubmit, isSubmitting, resetForm } = useForm({
+const { handleSubmit, isSubmitting, resetForm, validate } = useForm({
   validationSchema,
 })
 
 const formRef = ref<HTMLFormElement | null>(null)
 const isSuccess = ref(false)
 const submitError = ref<string | null>(null)
+const currentStep = ref(0)
 
 // Sort fields by sort order
 const sortedFields = computed(() => {
   const fields = props.form.fields || []
   return [...fields].sort((a, b) => a.sort - b.sort)
 })
+
+// Multi-step support
+const isMultiStep = computed(() => !!props.steps && props.steps.length > 1)
+const totalSteps = computed(() => props.steps?.length || 1)
+const isLastStep = computed(() => currentStep.value >= totalSteps.value - 1)
+
+// Fields visible in the current step
+const visibleFields = computed(() => {
+  if (!isMultiStep.value) return sortedFields.value
+  const step = props.steps![currentStep.value]
+  if (!step) return sortedFields.value
+  return sortedFields.value.filter(
+    (f) => f.sort >= step.fieldRange[0] && f.sort <= step.fieldRange[1]
+  )
+})
+
+// Field names for the current step (used for validation)
+const currentStepFieldNames = computed(() => {
+  return visibleFields.value
+    .filter((f) => f.type !== 'heading' && f.type !== 'paragraph')
+    .map((f) => f.name)
+})
+
+// Navigate to next step with validation
+const goToNextStep = async () => {
+  // Validate only the current step's fields
+  const result = await validate()
+  const stepFieldNames = currentStepFieldNames.value
+  const hasStepErrors = Object.keys(result.errors).some((name) =>
+    stepFieldNames.includes(name)
+  )
+
+  if (hasStepErrors) return
+
+  if (!isLastStep.value) {
+    currentStep.value++
+    emit('update:currentStep', currentStep.value)
+    animateStepTransition()
+  }
+}
+
+const goToPrevStep = () => {
+  if (currentStep.value > 0) {
+    currentStep.value--
+    emit('update:currentStep', currentStep.value)
+    animateStepTransition()
+  }
+}
+
+const animateStepTransition = () => {
+  nextTick(() => {
+    if (formRef.value) {
+      gsap.fromTo(
+        formRef.value.querySelectorAll('.form-field'),
+        { opacity: 0, y: 15 },
+        {
+          opacity: 1,
+          y: 0,
+          duration: 0.3,
+          stagger: 0.04,
+          ease: 'power2.out',
+        }
+      )
+    }
+  })
+}
 
 const onSubmit = handleSubmit(async (values) => {
   submitError.value = null
@@ -160,6 +236,8 @@ const onSubmit = handleSubmit(async (values) => {
 const handleReset = () => {
   isSuccess.value = false
   submitError.value = null
+  currentStep.value = 0
+  emit('update:currentStep', 0)
   resetForm()
 
   if (formRef.value) {
@@ -217,8 +295,8 @@ onMounted(() => {
       class="space-y-8"
       @submit.prevent="onSubmit"
     >
-      <!-- Form description -->
-      <p v-if="form.description" class="text-slate-500 leading-relaxed">
+      <!-- Form description (only on first step for multi-step forms) -->
+      <p v-if="form.description && (!isMultiStep || currentStep === 0)" class="text-slate-500 leading-relaxed">
         {{ form.description }}
       </p>
 
@@ -236,15 +314,52 @@ onMounted(() => {
       <!-- Fields -->
       <div class="grid grid-cols-2 gap-x-8 gap-y-7">
         <FormsFormField
-          v-for="field in sortedFields"
+          v-for="field in visibleFields"
           :key="field.id"
           :field="field"
           class="form-field"
         />
       </div>
 
-      <!-- Submit button -->
-      <div class="pt-6">
+      <!-- Navigation buttons (multi-step) -->
+      <div v-if="isMultiStep" class="pt-6 flex items-center justify-between gap-4">
+        <Button
+          v-if="currentStep > 0"
+          type="button"
+          variant="secondary"
+          @click="goToPrevStep"
+        >
+          <Icon name="lucide:arrow-left" class="w-4 h-4" />
+          Previous
+        </Button>
+        <div v-else />
+
+        <Button
+          v-if="!isLastStep"
+          type="button"
+          @click="goToNextStep"
+          class="min-w-[200px]"
+        >
+          Next
+          <Icon name="lucide:arrow-right" class="w-4 h-4" />
+        </Button>
+        <Button
+          v-else
+          type="submit"
+          :disabled="isSubmitting"
+          class="min-w-[200px]"
+        >
+          <Icon
+            v-if="isSubmitting"
+            name="lucide:loader-2"
+            class="w-4 h-4 animate-spin"
+          />
+          {{ isSubmitting ? 'Submitting...' : 'Submit' }}
+        </Button>
+      </div>
+
+      <!-- Submit button (single-step forms) -->
+      <div v-else class="pt-6">
         <Button
           type="submit"
           :disabled="isSubmitting"

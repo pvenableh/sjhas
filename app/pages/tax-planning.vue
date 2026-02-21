@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import type { FormStep } from '~/components/forms/DynamicForm.vue'
+
 // Fetch the tax planning form from Directus
 const { data: form, error } = await useAsyncData('tax-planning-form', async () => {
   try {
@@ -376,6 +378,19 @@ const defaultForm = {
 
 const displayForm = computed(() => form.value || defaultForm)
 
+// Multi-step configuration
+const formSteps: FormStep[] = [
+  { label: 'Personal Info', icon: 'lucide:user', fieldRange: [1, 12] },
+  { label: 'Income', icon: 'lucide:dollar-sign', fieldRange: [20, 35] },
+  { label: 'Documents', icon: 'lucide:file-text', fieldRange: [40, 50] },
+]
+
+const currentStep = ref(0)
+
+const onStepChange = (step: number) => {
+  currentStep.value = step
+}
+
 const handleSubmitted = (data: Record<string, unknown>) => {
   console.log('Tax planning questionnaire submitted:', data)
 }
@@ -409,20 +424,28 @@ useSeoMeta({
     <section class="t-bg-elevated border-b t-border py-4">
       <div class="container-wide section-padding">
         <div class="flex items-center justify-center gap-8 text-sm">
-          <div class="flex items-center gap-2 t-text-accent">
-            <div class="w-6 h-6 rounded-full t-btn flex items-center justify-center text-xs font-medium">1</div>
-            <span class="hidden sm:inline font-medium">Personal Info</span>
-          </div>
-          <div class="w-8 h-px" style="background-color: var(--theme-border-secondary);" />
-          <div class="flex items-center gap-2 t-text-muted">
-            <div class="w-6 h-6 rounded-full t-bg-alt flex items-center justify-center text-xs font-medium">2</div>
-            <span class="hidden sm:inline">Income</span>
-          </div>
-          <div class="w-8 h-px" style="background-color: var(--theme-border-secondary);" />
-          <div class="flex items-center gap-2 t-text-muted">
-            <div class="w-6 h-6 rounded-full t-bg-alt flex items-center justify-center text-xs font-medium">3</div>
-            <span class="hidden sm:inline">Documents</span>
-          </div>
+          <template v-for="(step, index) in formSteps" :key="step.label">
+            <div
+              class="flex items-center gap-2"
+              :class="index <= currentStep ? 't-text-accent' : 't-text-muted'"
+            >
+              <div
+                class="w-6 h-6 rounded-full flex items-center justify-center text-xs font-medium"
+                :class="index <= currentStep ? 't-btn' : 't-bg-alt'"
+              >
+                <Icon v-if="index < currentStep" name="lucide:check" class="w-3.5 h-3.5" />
+                <span v-else>{{ index + 1 }}</span>
+              </div>
+              <span class="hidden sm:inline" :class="index <= currentStep ? 'font-medium' : ''">
+                {{ step.label }}
+              </span>
+            </div>
+            <div
+              v-if="index < formSteps.length - 1"
+              class="w-8 h-px"
+              :style="{ backgroundColor: index < currentStep ? 'var(--theme-accent, var(--theme-primary))' : 'var(--theme-border-secondary)' }"
+            />
+          </template>
         </div>
       </div>
     </section>
@@ -433,7 +456,9 @@ useSeoMeta({
         <Card class="p-6 sm:p-8 lg:p-10">
           <FormsDynamicForm
             :form="displayForm"
+            :steps="formSteps"
             @submitted="handleSubmitted"
+            @update:current-step="onStepChange"
           />
         </Card>
 
