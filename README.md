@@ -115,7 +115,10 @@ Configured for Vercel deployment via the `vercel` Nitro preset.
 | `/upload` | Public | Document upload form |
 | `/tax-planning` | Public | Tax planning questionnaire |
 | `/f/{slug}` | Public | Dynamic form by slug |
-| `/forms/login` | Guest | Client login / register |
+| `/auth/login` | Guest | Client login |
+| `/auth/register` | Guest | Client registration |
+| `/auth/forgot-password` | Guest | Request password reset |
+| `/auth/reset-password` | Guest | Reset password with token |
 | `/forms` | Auth | Client dashboard |
 | `/forms/submissions` | Auth | Client submission history |
 | `/forms/files` | Auth | Client file browser |
@@ -132,7 +135,7 @@ Configured for Vercel deployment via the `vercel` Nitro preset.
 
 ## Admin Form Workflow
 
-1. Log in at `/forms/login` with Directus admin credentials
+1. Log in at `/auth/login` with Directus admin credentials
 2. Navigate to `/admin/forms`
 3. Click **Create Form** (links to `/admin/forms/new`) to open the visual form builder, or use a **quick-start template** (Document Upload, Tax Planning, or Client Intake) to generate a pre-populated draft form
 4. Add fields by dragging from the palette or clicking field types

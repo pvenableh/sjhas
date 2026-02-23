@@ -54,7 +54,7 @@ const handleSubmit = async (values: {
 }
 
 const handleLogin = () => {
-  router.push('/forms/login')
+  router.push('/auth/login')
 }
 </script>
 
@@ -63,11 +63,11 @@ const handleLogin = () => {
     <div class="w-full max-w-md">
       <!-- Logo -->
       <div class="text-center mb-8">
-        <NuxtLink to="/" class="inline-flex items-center gap-2">
-          <div class="w-12 h-12 rounded-lg bg-primary-600 flex items-center justify-center">
-            <span class="text-white font-bold text-xl">S</span>
+        <NuxtLink to="/" class="inline-flex items-center gap-3">
+          <div class="w-10 h-10 rounded-xl t-bg-accent flex items-center justify-center">
+            <span class="t-text-inverse font-extralight text-lg t-heading">S</span>
           </div>
-          <span class="font-sans text-2xl text-slate-900">SJHAS, Inc.</span>
+          <span class="t-heading text-xl t-text tracking-[0.04em]">SJHAS, Inc.</span>
         </NuxtLink>
       </div>
 
@@ -80,7 +80,7 @@ const handleLogin = () => {
             This invitation link is invalid or has expired. Please contact us if you need a new invitation.
           </p>
           <NuxtLink
-            to="/forms/login"
+            to="/auth/login"
             class="inline-flex items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90"
           >
             Go to login

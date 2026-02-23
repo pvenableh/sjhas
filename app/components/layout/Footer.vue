@@ -61,7 +61,7 @@ const quickLinks = computed(() => {
   if (loggedIn.value) {
     return [...baseLinks, { label: 'My Account', href: '/forms', external: false }]
   }
-  return [...baseLinks, { label: 'Login', href: '/forms/login', external: false }]
+  return [...baseLinks, { label: 'Login', href: '/auth/login', external: false }]
 })
 </script>
 

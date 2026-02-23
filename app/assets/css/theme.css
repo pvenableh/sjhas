@@ -93,6 +93,10 @@
   --theme-button-text: #FFFFFF;
   --theme-button-hover-bg: #1a2c43;
 
+  /* Shorthand aliases used by components (e.g. ChatWidget) */
+  --theme-accent: var(--theme-accent-primary);
+  --theme-border: var(--theme-border-primary);
+
   /* Focus — subtle navy ring */
   --theme-focus-ring: rgba(36, 59, 85, 0.2);
 
@@ -195,6 +199,10 @@
   --theme-button-bg: #7EB0D6;
   --theme-button-text: #141e30;
   --theme-button-hover-bg: #A3C9E8;
+
+  /* Shorthand aliases used by components (e.g. ChatWidget) */
+  --theme-accent: var(--theme-accent-primary);
+  --theme-border: var(--theme-border-primary);
 
   /* Focus */
   --theme-focus-ring: rgba(126, 176, 214, 0.25);
