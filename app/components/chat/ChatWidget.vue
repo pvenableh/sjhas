@@ -470,15 +470,6 @@ const isLiveChat = computed(() => sessionId.value !== null && adminOnline.value)
         </template>
       </div>
 
-      <!-- Footer -->
-      <div
-        class="border-t px-4 py-2 text-center"
-        style="border-color: var(--theme-border);"
-      >
-        <p class="text-[10px] tracking-wide" style="color: var(--theme-text-muted);">
-          SJHAS, Inc. &bull; Powered by Directus
-        </p>
-      </div>
     </div>
   </Transition>
 </template>
