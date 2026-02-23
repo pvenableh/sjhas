@@ -29,22 +29,30 @@ const handleLogout = async () => {
 }
 
 const contactInfo = computed(() => ({
-  email: props.settings?.contact_email || 'sjh@sjhas.com',
-  phone: props.settings?.contact_phone || '(607) 216-8033',
+  email: props.settings?.contact_email,
+  phone: props.settings?.contact_phone,
   address: [
-    props.settings?.address_line_1 || 'P.O. Box 6623',
-    props.settings?.address_line_2 || '139 E. King Road',
-    `${props.settings?.city || 'Ithaca'}, ${props.settings?.state || 'NY'} ${props.settings?.zip_code || '14850'}`,
-  ].filter(Boolean),
+    props.settings?.address_line_1,
+    props.settings?.address_line_2,
+    props.settings?.city || props.settings?.state || props.settings?.zip_code
+      ? `${props.settings?.city || ''}${props.settings?.city && props.settings?.state ? ', ' : ''}${props.settings?.state || ''} ${props.settings?.zip_code || ''}`.trim()
+      : null,
+  ].filter(Boolean) as string[],
 }))
 
-const hours = computed(() => [
-  { day: 'Monday', hours: props.settings?.hours_monday || '1pm - 5pm' },
-  { day: 'Tuesday', hours: props.settings?.hours_tuesday || '9am - 4:30pm' },
-  { day: 'Wednesday', hours: props.settings?.hours_wednesday || 'Closed' },
-  { day: 'Thursday', hours: props.settings?.hours_thursday || '9am - 4:30pm' },
-  { day: 'Friday', hours: props.settings?.hours_friday || '9am - 1:30pm' },
-])
+const hasContactInfo = computed(() => contactInfo.value.email || contactInfo.value.phone || contactInfo.value.address.length)
+
+const hours = computed(() => {
+  const s = props.settings
+  if (!s?.hours_monday && !s?.hours_tuesday && !s?.hours_wednesday && !s?.hours_thursday && !s?.hours_friday) return []
+  return [
+    { day: 'Monday', hours: s?.hours_monday },
+    { day: 'Tuesday', hours: s?.hours_tuesday },
+    { day: 'Wednesday', hours: s?.hours_wednesday },
+    { day: 'Thursday', hours: s?.hours_thursday },
+    { day: 'Friday', hours: s?.hours_friday },
+  ].filter(item => item.hours) as { day: string; hours: string }[]
+})
 
 const baseLinks = [
   { label: 'Home', href: '/', external: false },
@@ -80,8 +88,8 @@ const quickLinks = computed(() => {
             </div>
             <span class="t-heading text-xl t-footer-heading tracking-[0.04em]">SJHAS, Inc.</span>
           </div>
-          <p class="text-sm t-footer-text-secondary leading-[1.8]">
-            {{ settings?.footer_tagline || 'Providing personalized tax returns, accounting, and payroll services throughout Central New York since 2000.' }}
+          <p v-if="settings?.footer_tagline" class="text-sm t-footer-text-secondary leading-[1.8]">
+            {{ settings.footer_tagline }}
           </p>
         </div>
 
@@ -119,10 +127,10 @@ const quickLinks = computed(() => {
         </div>
 
         <!-- Contact -->
-        <div>
+        <div v-if="hasContactInfo">
           <h4 class="t-footer-heading font-medium mb-6 text-[10px] tracking-[0.12em] uppercase">Contact</h4>
           <ul class="space-y-5">
-            <li>
+            <li v-if="contactInfo.email">
               <a
                 :href="`mailto:${contactInfo.email}`"
                 class="text-sm t-footer-link flex items-center gap-3"
@@ -131,7 +139,7 @@ const quickLinks = computed(() => {
                 {{ contactInfo.email }}
               </a>
             </li>
-            <li>
+            <li v-if="contactInfo.phone">
               <a
                 :href="`tel:${contactInfo.phone.replace(/[^0-9]/g, '')}`"
                 class="text-sm t-footer-link flex items-center gap-3"
@@ -140,7 +148,7 @@ const quickLinks = computed(() => {
                 {{ contactInfo.phone }}
               </a>
             </li>
-            <li class="flex items-start gap-3">
+            <li v-if="contactInfo.address.length" class="flex items-start gap-3">
               <Icon name="lucide:map-pin" class="w-4 h-4 t-text-accent mt-0.5" />
               <div class="text-sm t-footer-text-secondary leading-[1.7]">
                 <p v-for="line in contactInfo.address" :key="line">{{ line }}</p>
@@ -150,7 +158,7 @@ const quickLinks = computed(() => {
         </div>
 
         <!-- Hours -->
-        <div>
+        <div v-if="hours.length">
           <h4 class="t-footer-heading font-medium mb-6 text-[10px] tracking-[0.12em] uppercase">Office Hours</h4>
           <ul class="space-y-3">
             <li

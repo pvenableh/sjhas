@@ -65,23 +65,24 @@ onMounted(() => {
       <div class="grid lg:grid-cols-2 gap-16 lg:gap-24 items-center">
         <!-- Content -->
         <div class="max-w-xl">
-          <div class="hero-badge inline-flex items-center gap-2.5 px-5 py-2.5 rounded-full t-badge text-xs font-medium tracking-[0.1em] uppercase mb-10">
+          <div v-if="badgeText" class="hero-badge inline-flex items-center gap-2.5 px-5 py-2.5 rounded-full t-badge text-xs font-medium tracking-[0.1em] uppercase mb-10">
             <Icon name="lucide:building-2" class="w-3.5 h-3.5" />
-            <span>{{ badgeText || 'Serving Central NY Since 2000' }}</span>
+            <span>{{ badgeText }}</span>
           </div>
 
-          <h1 class="hero-title text-4xl sm:text-5xl lg:text-[3.5rem] xl:text-[4rem] t-heading t-text leading-[1.08] tracking-tight mb-8">
-            {{ title || 'It\'s not just about the numbers.' }}
+          <h1 v-if="title" class="hero-title text-4xl sm:text-5xl lg:text-[3.5rem] xl:text-[4rem] t-heading t-text leading-[1.08] tracking-tight mb-8">
+            {{ title }}
           </h1>
 
-          <p class="hero-subtitle text-lg sm:text-xl t-text-secondary leading-[1.7] mb-12 max-w-md">
-            {{ subtitle || 'Personalized tax returns, accounting, and payroll services that make a difference for your business and personal finances.' }}
+          <p v-if="subtitle" class="hero-subtitle text-lg sm:text-xl t-text-secondary leading-[1.7] mb-12 max-w-md">
+            {{ subtitle }}
           </p>
 
           <div class="hero-cta flex flex-col sm:flex-row gap-4">
             <Button
+              v-if="ctaText || ctaLink || bookingUrl"
               as="a"
-              :href="ctaLink || bookingUrl || 'https://app.reclaim.ai/m/sjhas/quick-meeting'"
+              :href="ctaLink || bookingUrl"
               target="_blank"
               size="lg"
               class="group"

@@ -10,18 +10,7 @@ const props = defineProps<{
   testimonials?: Testimonial[]
 }>()
 
-const defaultTestimonials: Partial<Testimonial>[] = [
-  {
-    quote: 'Stephen was the accountant for the previous owners of our realty co. We "inherited" him and we are so happy that we did! He does all of our tax filings for our property management/real estate corp. and our personal taxes. He\'s extremely honest and we have enjoyed working with him for over 10 years now. But, he has always taken a genuine interest as our accountant. We appreciate his knowledge and skill.',
-    author_name: 'MH',
-    author_title: 'Realtor',
-    featured: true,
-  },
-]
-
-const displayTestimonials = computed(() =>
-  props.testimonials?.length ? props.testimonials : defaultTestimonials
-)
+const hasContent = computed(() => props.title || props.subtitle || props.testimonials?.length)
 
 const sectionRef = ref<HTMLElement | null>(null)
 
@@ -50,6 +39,7 @@ onMounted(() => {
 
 <template>
   <section
+    v-if="hasContent"
     ref="sectionRef"
     class="py-28 lg:py-40 t-hero relative overflow-hidden"
   >
@@ -66,18 +56,18 @@ onMounted(() => {
           <Icon name="lucide:message-square-quote" class="w-3.5 h-3.5" />
           <span>Testimonials</span>
         </div>
-        <h2 class="text-3xl sm:text-4xl lg:text-[2.75rem] t-heading t-hero-text mb-6 tracking-tight leading-[1.15]">
-          {{ title || 'What Our Clients Say' }}
+        <h2 v-if="title" class="text-3xl sm:text-4xl lg:text-[2.75rem] t-heading t-hero-text mb-6 tracking-tight leading-[1.15]">
+          {{ title }}
         </h2>
-        <p class="text-lg t-hero-text-secondary leading-[1.7]">
-          {{ subtitle || 'Don\'t just take our word for it — hear from our valued clients.' }}
+        <p v-if="subtitle" class="text-lg t-hero-text-secondary leading-[1.7]">
+          {{ subtitle }}
         </p>
       </div>
 
       <!-- Testimonials -->
-      <div class="max-w-4xl mx-auto">
+      <div v-if="testimonials?.length" class="max-w-4xl mx-auto">
         <div
-          v-for="testimonial in displayTestimonials"
+          v-for="testimonial in testimonials"
           :key="testimonial.author_name"
           class="testimonial-card relative t-bg-elevated rounded-3xl p-10 md:p-16 t-shadow-lg"
         >
