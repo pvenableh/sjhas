@@ -49,7 +49,7 @@ const navLinks = computed(() => {
   }
   return [
     ...baseNavLinks,
-    { label: 'Login', href: '/forms/login', external: false },
+    { label: 'Login', href: '/auth/login', external: false },
   ]
 })
 

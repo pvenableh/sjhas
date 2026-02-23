@@ -52,11 +52,11 @@ const handleLogin = async (credentials: { email: string; password: string }) => 
 }
 
 const handleForgotPassword = () => {
-  router.push('/forms/forgot-password')
+  router.push('/auth/forgot-password')
 }
 
 const handleRegister = () => {
-  router.push('/forms/register')
+  router.push('/auth/register')
 }
 </script>
 
@@ -71,7 +71,7 @@ const handleRegister = () => {
           </div>
           <span class="font-sans text-2xl text-slate-900">SJHAS, Inc.</span>
         </NuxtLink>
-        <p class="mt-2 text-slate-600">Sign in to your forms</p>
+        <p class="mt-2 text-slate-600">Sign in to your account</p>
       </div>
 
       <AuthLoginForm

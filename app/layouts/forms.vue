@@ -21,7 +21,7 @@ const formLinks = [
 const handleLogout = async () => {
   try {
     await logout()
-    router.push('/forms/login')
+    router.push('/auth/login')
   } catch (error) {
     console.error('Logout failed:', error)
   }
