@@ -108,68 +108,40 @@ const openSendDialog = (form: Form) => {
 }
 
 // Quick start templates
+const { categories, templates: formTemplates, getTemplatesByCategory, getTemplateByKey } = useFormTemplates()
 const isCreatingTemplate = ref(false)
-const createFromTemplate = async (templateName: string) => {
+const templateSearchQuery = ref('')
+
+const filteredTemplates = computed(() => {
+  if (!templateSearchQuery.value) return formTemplates
+  const query = templateSearchQuery.value.toLowerCase()
+  return formTemplates.filter(
+    (t) =>
+      t.title.toLowerCase().includes(query) ||
+      t.description.toLowerCase().includes(query)
+  )
+})
+
+const filteredCategories = computed(() => {
+  return categories.filter((cat) =>
+    filteredTemplates.value.some((t) => t.category === cat.key)
+  )
+})
+
+const createFromTemplate = async (templateKey: string) => {
   if (isCreatingTemplate.value) return
   isCreatingTemplate.value = true
 
-  const templates: Record<string, { title: string; slug: string; description: string; fields: any[] }> = {
-    'document-upload': {
-      title: 'Document Upload',
-      slug: `document-upload-${Date.now()}`,
-      description: 'Upload your documents securely.',
-      fields: [
-        { id: 'f_1', type: 'heading', label: 'Document Upload', name: 'heading', placeholder: null, help_text: null, required: false, validation_rules: null, options: null, conditional_logic: null, width: 'full', sort: 0 },
-        { id: 'f_2', type: 'text', label: 'Full Name', name: 'full_name', placeholder: 'Enter your full name', help_text: null, required: true, validation_rules: null, options: null, conditional_logic: null, width: 'half', sort: 1 },
-        { id: 'f_3', type: 'email', label: 'Email Address', name: 'email', placeholder: 'you@example.com', help_text: null, required: true, validation_rules: null, options: null, conditional_logic: null, width: 'half', sort: 2 },
-        { id: 'f_4', type: 'select', label: 'Document Type', name: 'document_type', placeholder: 'Select document type', help_text: null, required: true, validation_rules: null, options: [{ label: 'Tax Return', value: 'tax_return' }, { label: 'W-2', value: 'w2' }, { label: '1099', value: '1099' }, { label: 'Other', value: 'other' }], conditional_logic: null, width: 'full', sort: 3 },
-        { id: 'f_5', type: 'file', label: 'Upload Files', name: 'files', placeholder: null, help_text: 'Accepted formats: PDF, DOC, DOCX, JPG, PNG', required: true, validation_rules: null, options: null, conditional_logic: null, width: 'full', sort: 4 },
-        { id: 'f_6', type: 'textarea', label: 'Notes', name: 'notes', placeholder: 'Any additional notes...', help_text: null, required: false, validation_rules: null, options: null, conditional_logic: null, width: 'full', sort: 5 },
-      ],
-    },
-    'tax-planning': {
-      title: 'Tax Planning Questionnaire',
-      slug: `tax-planning-${Date.now()}`,
-      description: 'Help us understand your tax situation for the upcoming year.',
-      fields: [
-        { id: 'f_1', type: 'heading', label: 'Tax Planning Questionnaire', name: 'heading', placeholder: null, help_text: null, required: false, validation_rules: null, options: null, conditional_logic: null, width: 'full', sort: 0 },
-        { id: 'f_2', type: 'text', label: 'Full Name', name: 'full_name', placeholder: 'Enter your full name', help_text: null, required: true, validation_rules: null, options: null, conditional_logic: null, width: 'half', sort: 1 },
-        { id: 'f_3', type: 'email', label: 'Email Address', name: 'email', placeholder: 'you@example.com', help_text: null, required: true, validation_rules: null, options: null, conditional_logic: null, width: 'half', sort: 2 },
-        { id: 'f_4', type: 'phone', label: 'Phone Number', name: 'phone', placeholder: '(555) 555-5555', help_text: null, required: false, validation_rules: null, options: null, conditional_logic: null, width: 'half', sort: 3 },
-        { id: 'f_5', type: 'select', label: 'Filing Status', name: 'filing_status', placeholder: 'Select your filing status', help_text: null, required: true, validation_rules: null, options: [{ label: 'Single', value: 'single' }, { label: 'Married Filing Jointly', value: 'married_joint' }, { label: 'Married Filing Separately', value: 'married_separate' }, { label: 'Head of Household', value: 'head_of_household' }], conditional_logic: null, width: 'half', sort: 4 },
-        { id: 'f_6', type: 'number', label: 'Estimated Annual Income', name: 'annual_income', placeholder: '0', help_text: null, required: true, validation_rules: null, options: null, conditional_logic: null, width: 'half', sort: 5 },
-        { id: 'f_7', type: 'checkbox', label: 'I own a home', name: 'owns_home', placeholder: null, help_text: null, required: false, validation_rules: null, options: null, conditional_logic: null, width: 'half', sort: 6 },
-        { id: 'f_8', type: 'checkbox', label: 'I own a business', name: 'owns_business', placeholder: null, help_text: null, required: false, validation_rules: null, options: null, conditional_logic: null, width: 'half', sort: 7 },
-        { id: 'f_9', type: 'textarea', label: 'Additional Information', name: 'additional_info', placeholder: 'Any other details about your tax situation...', help_text: null, required: false, validation_rules: null, options: null, conditional_logic: null, width: 'full', sort: 8 },
-      ],
-    },
-    'client-intake': {
-      title: 'New Client Intake',
-      slug: `client-intake-${Date.now()}`,
-      description: 'Welcome! Please provide your information so we can serve you better.',
-      fields: [
-        { id: 'f_1', type: 'heading', label: 'New Client Information', name: 'heading', placeholder: null, help_text: null, required: false, validation_rules: null, options: null, conditional_logic: null, width: 'full', sort: 0 },
-        { id: 'f_2', type: 'text', label: 'First Name', name: 'first_name', placeholder: 'First name', help_text: null, required: true, validation_rules: null, options: null, conditional_logic: null, width: 'half', sort: 1 },
-        { id: 'f_3', type: 'text', label: 'Last Name', name: 'last_name', placeholder: 'Last name', help_text: null, required: true, validation_rules: null, options: null, conditional_logic: null, width: 'half', sort: 2 },
-        { id: 'f_4', type: 'email', label: 'Email Address', name: 'email', placeholder: 'you@example.com', help_text: null, required: true, validation_rules: null, options: null, conditional_logic: null, width: 'half', sort: 3 },
-        { id: 'f_5', type: 'phone', label: 'Phone Number', name: 'phone', placeholder: '(555) 555-5555', help_text: null, required: true, validation_rules: null, options: null, conditional_logic: null, width: 'half', sort: 4 },
-        { id: 'f_6', type: 'text', label: 'Address', name: 'address', placeholder: 'Street address', help_text: null, required: false, validation_rules: null, options: null, conditional_logic: null, width: 'full', sort: 5 },
-        { id: 'f_7', type: 'text', label: 'City', name: 'city', placeholder: 'City', help_text: null, required: false, validation_rules: null, options: null, conditional_logic: null, width: 'third', sort: 6 },
-        { id: 'f_8', type: 'text', label: 'State', name: 'state', placeholder: 'State', help_text: null, required: false, validation_rules: null, options: null, conditional_logic: null, width: 'third', sort: 7 },
-        { id: 'f_9', type: 'text', label: 'ZIP Code', name: 'zip_code', placeholder: 'ZIP', help_text: null, required: false, validation_rules: null, options: null, conditional_logic: null, width: 'third', sort: 8 },
-        { id: 'f_10', type: 'select', label: 'How did you hear about us?', name: 'referral_source', placeholder: 'Select one', help_text: null, required: false, validation_rules: null, options: [{ label: 'Referral', value: 'referral' }, { label: 'Google Search', value: 'google' }, { label: 'Social Media', value: 'social_media' }, { label: 'Other', value: 'other' }], conditional_logic: null, width: 'full', sort: 9 },
-        { id: 'f_11', type: 'textarea', label: 'What services are you interested in?', name: 'services_needed', placeholder: 'Tell us how we can help...', help_text: null, required: false, validation_rules: null, options: null, conditional_logic: null, width: 'full', sort: 10 },
-      ],
-    },
+  const template = getTemplateByKey(templateKey)
+  if (!template) {
+    isCreatingTemplate.value = false
+    return
   }
-
-  const template = templates[templateName]
-  if (!template) return
 
   try {
     const created = await forms.create({
       title: template.title,
-      slug: template.slug,
+      slug: `${template.key}-${Date.now()}`,
       description: template.description,
       status: 'draft',
       fields: template.fields,
@@ -409,51 +381,71 @@ const handleSendForm = async () => {
     </Teleport>
 
     <!-- Form Templates -->
-    <Card class="p-6">
-      <h2 class="text-lg font-semibold text-slate-900 mb-4">Quick Start Templates</h2>
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-        <button
-          :disabled="isCreatingTemplate"
-          class="flex items-start gap-3 p-4 rounded-lg border border-slate-200 hover:border-primary-200 hover:bg-primary-50 transition-colors text-left disabled:opacity-50"
-          @click="createFromTemplate('document-upload')"
-        >
-          <div class="w-10 h-10 rounded-lg bg-blue-100 flex items-center justify-center">
-            <Icon name="lucide:upload" class="w-5 h-5 text-blue-600" />
-          </div>
-          <div>
-            <p class="font-medium text-slate-900">Document Upload</p>
-            <p class="text-sm text-slate-500">Simple file upload form</p>
-          </div>
-        </button>
-
-        <button
-          :disabled="isCreatingTemplate"
-          class="flex items-start gap-3 p-4 rounded-lg border border-slate-200 hover:border-primary-200 hover:bg-primary-50 transition-colors text-left disabled:opacity-50"
-          @click="createFromTemplate('tax-planning')"
-        >
-          <div class="w-10 h-10 rounded-lg bg-green-100 flex items-center justify-center">
-            <Icon name="lucide:clipboard-list" class="w-5 h-5 text-green-600" />
-          </div>
-          <div>
-            <p class="font-medium text-slate-900">Tax Planning</p>
-            <p class="text-sm text-slate-500">Comprehensive questionnaire</p>
-          </div>
-        </button>
-
-        <button
-          :disabled="isCreatingTemplate"
-          class="flex items-start gap-3 p-4 rounded-lg border border-slate-200 hover:border-primary-200 hover:bg-primary-50 transition-colors text-left disabled:opacity-50"
-          @click="createFromTemplate('client-intake')"
-        >
-          <div class="w-10 h-10 rounded-lg bg-purple-100 flex items-center justify-center">
-            <Icon name="lucide:user" class="w-5 h-5 text-purple-600" />
-          </div>
-          <div>
-            <p class="font-medium text-slate-900">Client Intake</p>
-            <p class="text-sm text-slate-500">New client information</p>
-          </div>
-        </button>
+    <div class="space-y-6">
+      <div class="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
+        <div>
+          <h2 class="text-xl font-semibold text-slate-900">Quick Start Templates</h2>
+          <p class="text-slate-500 mt-1 text-sm">
+            Use these pre-built templates to quickly create forms for collecting client information. Customize fields after creation.
+          </p>
+        </div>
+        <div class="relative w-full sm:w-64">
+          <Icon
+            name="lucide:search"
+            class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400"
+          />
+          <Input
+            v-model="templateSearchQuery"
+            placeholder="Search templates..."
+            class="pl-10"
+          />
+        </div>
       </div>
-    </Card>
+
+      <div
+        v-for="category in filteredCategories"
+        :key="category.key"
+      >
+        <Card class="p-6">
+          <div class="mb-5">
+            <div class="flex items-center gap-2 mb-1">
+              <Icon
+                :name="category.key === 'financial' ? 'lucide:landmark' : 'lucide:layout-template'"
+                class="w-5 h-5 text-slate-400"
+              />
+              <h3 class="text-lg font-semibold text-slate-900">{{ category.label }}</h3>
+            </div>
+            <p class="text-sm text-slate-500 ml-7">{{ category.description }}</p>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            <button
+              v-for="template in filteredTemplates.filter(t => t.category === category.key)"
+              :key="template.key"
+              :disabled="isCreatingTemplate"
+              class="flex items-start gap-3 p-4 rounded-xl border border-slate-200 hover:border-primary-300 hover:bg-primary-50/50 hover:shadow-sm transition-all text-left disabled:opacity-50 group"
+              @click="createFromTemplate(template.key)"
+            >
+              <div :class="['w-10 h-10 rounded-lg flex items-center justify-center shrink-0', template.iconBg]">
+                <Icon :name="template.icon" :class="['w-5 h-5', template.iconColor]" />
+              </div>
+              <div class="min-w-0">
+                <p class="font-medium text-slate-900 group-hover:text-primary-700 transition-colors">{{ template.title }}</p>
+                <p class="text-sm text-slate-500 mt-0.5 line-clamp-2">{{ template.description }}</p>
+                <p class="text-xs text-slate-400 mt-1.5">{{ template.fields.filter(f => f.type !== 'heading' && f.type !== 'paragraph').length }} fields</p>
+              </div>
+            </button>
+          </div>
+        </Card>
+      </div>
+
+      <p v-if="filteredTemplates.length === 0" class="text-center text-slate-400 py-8 text-sm">
+        No templates match your search.
+      </p>
+
+      <p class="text-xs text-slate-400 leading-relaxed">
+        These templates are provided for informational purposes only and do not constitute tax advice. We recommend seeking advice from a tax professional for information regarding your personal tax situation.
+      </p>
+    </div>
   </div>
 </template>
