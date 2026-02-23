@@ -7,6 +7,7 @@ import { cn } from '~/lib/utils'
 const props = defineProps<{
   logo?: string
   siteName?: string
+  bookingUrl?: string
 }>()
 
 const { y } = useWindowScroll()
@@ -138,7 +139,7 @@ onMounted(() => {
         <!-- CTA Button & Dark Mode (Desktop) -->
         <div class="hidden lg:flex items-center gap-4">
           <LayoutDarkModeToggle />
-          <Button as="a" href="https://app.reclaim.ai/m/sjhas/quick-meeting" target="_blank" size="sm" class="tracking-wide">
+          <Button as="a" :href="bookingUrl || 'https://app.reclaim.ai/m/sjhas/quick-meeting'" target="_blank" size="sm" class="tracking-wide">
             Book Appointment
           </Button>
         </div>
@@ -214,7 +215,7 @@ onMounted(() => {
           <div class="pt-4 px-5">
             <Button
               as="a"
-              href="https://app.reclaim.ai/m/sjhas/quick-meeting"
+              :href="bookingUrl || 'https://app.reclaim.ai/m/sjhas/quick-meeting'"
               target="_blank"
               class="w-full tracking-wide"
             >

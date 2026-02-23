@@ -81,7 +81,7 @@ const quickLinks = computed(() => {
             <span class="t-heading text-xl t-footer-heading tracking-[0.04em]">SJHAS, Inc.</span>
           </div>
           <p class="text-sm t-footer-text-secondary leading-[1.8]">
-            Providing personalized tax returns, accounting, and payroll services throughout Central New York since 2000.
+            {{ settings?.footer_tagline || 'Providing personalized tax returns, accounting, and payroll services throughout Central New York since 2000.' }}
           </p>
         </div>
 

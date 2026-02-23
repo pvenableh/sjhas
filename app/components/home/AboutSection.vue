@@ -7,6 +7,9 @@ const props = defineProps<{
   title?: string
   content?: string
   image?: string
+  features?: string[]
+  ctaText?: string
+  ctaLink?: string
 }>()
 
 const sectionRef = ref<HTMLElement | null>(null)
@@ -114,28 +117,20 @@ onMounted(() => {
 
           <!-- Features list -->
           <div class="space-y-5 mb-12">
-            <div class="flex items-center gap-4">
+            <div
+              v-for="(feature, i) in (features?.length ? features : ['Personal & Business Tax Services', 'Comprehensive Payroll Processing', 'Financial Planning & Consulting'])"
+              :key="i"
+              class="flex items-center gap-4"
+            >
               <div class="w-9 h-9 rounded-xl t-icon-box flex items-center justify-center flex-shrink-0">
                 <Icon name="lucide:check" class="w-4 h-4" />
               </div>
-              <span class="t-text-secondary text-sm tracking-wide">Personal & Business Tax Services</span>
-            </div>
-            <div class="flex items-center gap-4">
-              <div class="w-9 h-9 rounded-xl t-icon-box flex items-center justify-center flex-shrink-0">
-                <Icon name="lucide:check" class="w-4 h-4" />
-              </div>
-              <span class="t-text-secondary text-sm tracking-wide">Comprehensive Payroll Processing</span>
-            </div>
-            <div class="flex items-center gap-4">
-              <div class="w-9 h-9 rounded-xl t-icon-box flex items-center justify-center flex-shrink-0">
-                <Icon name="lucide:check" class="w-4 h-4" />
-              </div>
-              <span class="t-text-secondary text-sm tracking-wide">Financial Planning & Consulting</span>
+              <span class="t-text-secondary text-sm tracking-wide">{{ feature }}</span>
             </div>
           </div>
 
-          <Button as="a" href="#contact" class="tracking-wide">
-            Get in Touch
+          <Button as="a" :href="ctaLink || '#contact'" class="tracking-wide">
+            {{ ctaText || 'Get in Touch' }}
             <Icon name="lucide:arrow-right" class="w-4 h-4" />
           </Button>
         </div>

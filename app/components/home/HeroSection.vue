@@ -7,6 +7,8 @@ const props = defineProps<{
   subtitle?: string
   ctaText?: string
   ctaLink?: string
+  badgeText?: string
+  bookingUrl?: string
 }>()
 
 const heroRef = ref<HTMLElement | null>(null)
@@ -65,7 +67,7 @@ onMounted(() => {
         <div class="max-w-xl">
           <div class="hero-badge inline-flex items-center gap-2.5 px-5 py-2.5 rounded-full t-badge text-xs font-medium tracking-[0.1em] uppercase mb-10">
             <Icon name="lucide:building-2" class="w-3.5 h-3.5" />
-            <span>Serving Central NY Since 2000</span>
+            <span>{{ badgeText || 'Serving Central NY Since 2000' }}</span>
           </div>
 
           <h1 class="hero-title text-4xl sm:text-5xl lg:text-[3.5rem] xl:text-[4rem] t-heading t-text leading-[1.08] tracking-tight mb-8">
@@ -79,7 +81,7 @@ onMounted(() => {
           <div class="hero-cta flex flex-col sm:flex-row gap-4">
             <Button
               as="a"
-              :href="ctaLink || 'https://app.reclaim.ai/m/sjhas/quick-meeting'"
+              :href="ctaLink || bookingUrl || 'https://app.reclaim.ai/m/sjhas/quick-meeting'"
               target="_blank"
               size="lg"
               class="group"

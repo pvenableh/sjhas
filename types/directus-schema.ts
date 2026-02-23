@@ -81,12 +81,24 @@ export interface HomePage {
 	hero_subtitle?: string | null;
 	hero_cta_text?: string | null;
 	hero_cta_link?: string | null;
+	/** @description Badge text shown above the hero title (e.g. "Serving Central NY Since 2000") */
+	hero_badge_text?: string | null;
 	about_title?: string | null;
 	about_content?: string | null;
 	about_image?: DirectusFile | string | null;
+	/** @description JSON array of feature highlight strings for the about section */
+	about_features?: string[] | null;
+	about_cta_text?: string | null;
+	about_cta_link?: string | null;
 	services_title?: string | null;
+	/** @description Subtitle shown below the services heading */
+	services_subtitle?: string | null;
 	testimonials_title?: string | null;
+	/** @description Subtitle shown below the testimonials heading */
+	testimonials_subtitle?: string | null;
 	contact_title?: string | null;
+	/** @description Subtitle shown below the contact heading */
+	contact_subtitle?: string | null;
 }
 
 export interface Page {
@@ -136,6 +148,10 @@ export interface SiteSettings {
 	hours_friday?: string | null;
 	hours_saturday?: string | null;
 	hours_sunday?: string | null;
+	/** @description Tagline shown in the footer */
+	footer_tagline?: string | null;
+	/** @description URL for the booking/appointment page */
+	booking_url?: string | null;
 }
 
 export interface Testimonial {

@@ -6,6 +6,7 @@ import type { Testimonial } from '~/types/directus'
 
 const props = defineProps<{
   title?: string
+  subtitle?: string
   testimonials?: Testimonial[]
 }>()
 
@@ -69,7 +70,7 @@ onMounted(() => {
           {{ title || 'What Our Clients Say' }}
         </h2>
         <p class="text-lg t-hero-text-secondary leading-[1.7]">
-          Don't just take our word for it — hear from our valued clients.
+          {{ subtitle || 'Don\'t just take our word for it — hear from our valued clients.' }}
         </p>
       </div>
 

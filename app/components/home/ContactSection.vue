@@ -6,6 +6,7 @@ import type { SiteSettings } from '~/types/directus'
 
 const props = defineProps<{
   title?: string
+  subtitle?: string
   settings?: SiteSettings | null
 }>()
 
@@ -26,6 +27,8 @@ const hours = computed(() => [
   { day: 'Thursday', hours: props.settings?.hours_thursday || '9am - 4:30pm' },
   { day: 'Friday', hours: props.settings?.hours_friday || '9am - 1:30pm' },
 ])
+
+const bookingUrl = computed(() => props.settings?.booking_url || 'https://app.reclaim.ai/m/sjhas/quick-meeting')
 
 const sectionRef = ref<HTMLElement | null>(null)
 
@@ -70,7 +73,7 @@ onMounted(() => {
           {{ title || 'Contact Us' }}
         </h2>
         <p class="text-lg t-text-secondary leading-[1.7]">
-          Ready to get started? We'd love to hear from you.
+          {{ subtitle || 'Ready to get started? We\'d love to hear from you.' }}
         </p>
       </div>
 
@@ -151,7 +154,7 @@ onMounted(() => {
           <div class="space-y-3">
             <Button
               as="a"
-              href="https://app.reclaim.ai/m/sjhas/quick-meeting"
+              :href="bookingUrl"
               target="_blank"
               variant="secondary"
               class="w-full justify-center tracking-wide"

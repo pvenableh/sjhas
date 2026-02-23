@@ -6,7 +6,9 @@ import type { Service } from '~/types/directus'
 
 const props = defineProps<{
   title?: string
+  subtitle?: string
   services?: Service[]
+  bookingUrl?: string
 }>()
 
 // Default services if none provided from CMS
@@ -95,7 +97,7 @@ onMounted(() => {
           {{ title || 'Our Services' }}
         </h2>
         <p class="text-lg t-text-secondary leading-[1.7]">
-          Comprehensive financial services tailored to your personal and business needs.
+          {{ subtitle || 'Comprehensive financial services tailored to your personal and business needs.' }}
         </p>
       </div>
 
@@ -141,7 +143,7 @@ onMounted(() => {
 
       <!-- Bottom CTA -->
       <div class="mt-20 text-center">
-        <Button as="a" href="https://app.reclaim.ai/m/sjhas/quick-meeting" target="_blank" size="lg" class="tracking-wide">
+        <Button as="a" :href="bookingUrl || 'https://app.reclaim.ai/m/sjhas/quick-meeting'" target="_blank" size="lg" class="tracking-wide">
           Book an Appointment
           <Icon name="lucide:calendar" class="w-4 h-4" />
         </Button>
