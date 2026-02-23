@@ -13,6 +13,8 @@ import {
   updateItem,
   deleteItem,
   deleteItems,
+  readSingleton,
+  updateSingleton,
   aggregate as directusAggregate,
 } from "@directus/sdk";
 
@@ -66,6 +68,13 @@ async function executeOperation(
           await directus.request(deleteItem(collection, id));
           return { deleted: 1 };
         }
+
+      case "readSingleton":
+        return await directus.request(readSingleton(collection, query || {}));
+
+      case "updateSingleton":
+        if (!data) throw new Error("Data required for updateSingleton operation");
+        return await directus.request(updateSingleton(collection, data, query));
 
       case "aggregate":
         return await directus.request(

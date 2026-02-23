@@ -177,6 +177,49 @@ export const useDirectusItems = <T = any>(
     return data?.[0]?.count || 0;
   };
 
+  /**
+   * Read a singleton collection (returns a single object, not an array).
+   * Use this for collections like site_settings, home_page, etc.
+   */
+  const readSingleton = async (
+    query: Pick<ItemsQuery, "fields"> = {}
+  ): Promise<T> => {
+    if (requireAuth && !loggedIn.value) {
+      throw new Error("Authentication required");
+    }
+
+    return await $fetch("/api/directus/items", {
+      method: "POST",
+      body: {
+        collection,
+        operation: "readSingleton",
+        query,
+      },
+    });
+  };
+
+  /**
+   * Update a singleton collection (no ID needed — the collection has one record).
+   */
+  const updateSingleton = async (
+    data: Partial<T>,
+    query: Pick<ItemsQuery, "fields"> = {}
+  ): Promise<T> => {
+    if (!loggedIn.value) {
+      throw new Error("Authentication required");
+    }
+
+    return await $fetch("/api/directus/items", {
+      method: "POST",
+      body: {
+        collection,
+        operation: "updateSingleton",
+        data,
+        query,
+      },
+    });
+  };
+
   return {
     list,
     get,
@@ -186,5 +229,7 @@ export const useDirectusItems = <T = any>(
     delete: remove,
     aggregate,
     count,
+    readSingleton,
+    updateSingleton,
   };
 };

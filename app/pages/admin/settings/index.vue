@@ -25,7 +25,7 @@ const profileForm = ref({
 })
 const isSavingProfile = ref(false)
 
-// Site settings
+// Site settings — site_settings is a Directus singleton (one record, no list/create)
 const siteSettings = useDirectusItems('site_settings', { requireAuth: true })
 const siteForm = ref({
   site_name: '',
@@ -38,16 +38,9 @@ const siteForm = ref({
   state: '',
   zip_code: '',
 })
-const siteSettingsId = ref<number | null>(null)
+const siteSettingsLoaded = ref(false)
 const isSavingSite = ref(false)
 const isLoadingSite = ref(true)
-
-// Notification settings
-const notificationForm = ref({
-  notify_email: '',
-  notify_on_submission: true,
-})
-const isSavingNotifications = ref(false)
 
 onMounted(async () => {
   // Load profile
@@ -58,15 +51,13 @@ onMounted(async () => {
     profileForm.value.phone = (user.value as any).phone || ''
   }
 
-  // Load site settings
+  // Load site settings (singleton — returns a single object, not an array)
   try {
-    const settings = await siteSettings.list({
-      limit: 1,
+    const s = await siteSettings.readSingleton({
       fields: ['id', 'site_name', 'site_description', 'contact_email', 'contact_phone', 'address_line_1', 'address_line_2', 'city', 'state', 'zip_code'],
-    })
-    if (settings.length > 0) {
-      const s = settings[0] as any
-      siteSettingsId.value = s.id
+    }) as any
+    if (s) {
+      siteSettingsLoaded.value = true
       siteForm.value = {
         site_name: s.site_name || '',
         site_description: s.site_description || '',
@@ -106,13 +97,9 @@ const saveProfile = async () => {
 const saveSiteSettings = async () => {
   isSavingSite.value = true
   try {
-    if (siteSettingsId.value) {
-      await siteSettings.update(siteSettingsId.value, siteForm.value as any)
-    } else {
-      // No record yet — create one
-      const created = await siteSettings.create(siteForm.value as any)
-      if (created?.id) siteSettingsId.value = created.id
-    }
+    // site_settings is a singleton — always use updateSingleton (no create needed)
+    const updated = await siteSettings.updateSingleton(siteForm.value as any)
+    if (updated) siteSettingsLoaded.value = true
     toast.success('Site settings updated successfully')
   } catch (error) {
     console.error('Failed to update site settings:', error)
@@ -197,8 +184,8 @@ const saveSiteSettings = async () => {
       </div>
 
       <Card v-else class="p-6">
-        <div v-if="!siteSettingsId" class="mb-4 rounded-lg bg-amber-50 border border-amber-200 p-3 text-sm text-amber-800">
-          No site settings record found. Fill in the fields below and save to create one.
+        <div v-if="!siteSettingsLoaded" class="mb-4 rounded-lg bg-amber-50 border border-amber-200 p-3 text-sm text-amber-800">
+          Site settings have not been configured yet. Fill in the fields below and save.
         </div>
         <h3 class="text-lg font-semibold text-slate-900 mb-6">Site Configuration</h3>
         <form class="space-y-5" @submit.prevent="saveSiteSettings">
