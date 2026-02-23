@@ -25,10 +25,14 @@ const handleLogin = async (credentials: { email: string; password: string }) => 
     await login(credentials)
     toast.success('Welcome back!')
 
+    // Allow the session cookie and reactive state to fully settle
+    // before navigating to authenticated pages.
+    await nextTick()
+
     // Honor redirect query param from auth middleware
     const redirectTo = route.query.redirect as string | undefined
     if (redirectTo) {
-      router.push(redirectTo)
+      await navigateTo(redirectTo)
       return
     }
 
@@ -36,7 +40,7 @@ const handleLogin = async (credentials: { email: string; password: string }) => 
     const role = (user.value as any)?.role
     const isAdmin = typeof role === 'object' && role !== null
       && (role.admin_access === true || role.name?.toLowerCase().includes('admin'))
-    router.push(isAdmin ? '/admin' : '/forms')
+    await navigateTo(isAdmin ? '/admin' : '/forms')
   } catch (error: any) {
     console.error('Login error:', error)
     loginFormRef.value?.setFormError(
