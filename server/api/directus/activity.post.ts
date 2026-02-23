@@ -32,11 +32,10 @@ export default defineEventHandler(async (event) => {
         throw new Error(`Unknown operation: ${operation}`);
     }
   } catch (error: any) {
-    console.error("Directus activity API error:", error);
+    const statusCode = getDirectusHttpStatus(error);
+    const message = getDirectusErrorMessage(error);
+    console.error("Directus activity API error:", { message, statusCode });
 
-    throw createError({
-      statusCode: error.statusCode || 500,
-      message: error.message || "Failed to perform activity operation",
-    });
+    throw createError({ statusCode, message });
   }
 });

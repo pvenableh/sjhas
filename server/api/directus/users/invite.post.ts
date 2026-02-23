@@ -35,11 +35,10 @@ export default defineEventHandler(async (event) => {
       data: result,
     };
   } catch (error: any) {
-    console.error("User invitation error:", error);
+    const statusCode = getDirectusHttpStatus(error);
+    const message = getDirectusErrorMessage(error);
+    console.error("User invitation error:", { message, statusCode });
 
-    throw createError({
-      statusCode: error.statusCode || 500,
-      message: error.message || "Failed to send invitation",
-    });
+    throw createError({ statusCode, message });
   }
 });

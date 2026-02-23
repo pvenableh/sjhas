@@ -23,30 +23,15 @@ export default defineEventHandler(async (event) => {
   }
 
   // Try Directus first, fall back to Nitro storage
+  // chat_settings is a singleton — use updateSingleton (no create/ID needed)
   try {
     const directus = getTypedDirectus()
 
-    const existing = await directus.request(
-      readItems('chat_settings' as any, { limit: 1 })
+    await directus.request(
+      updateSingleton('chat_settings' as any, {
+        admin_online: online,
+      })
     )
-
-    const settings = Array.isArray(existing) ? existing[0] : existing
-
-    if (settings?.id) {
-      await directus.request(
-        updateItem('chat_settings' as any, settings.id, {
-          admin_online: online,
-        })
-      )
-    } else {
-      await directus.request(
-        createItem('chat_settings' as any, {
-          admin_online: online,
-          welcome_message: 'Hi! How can we help you today?',
-          offline_message: "Stephen is currently offline. Please leave your contact info and we'll get back to you shortly!",
-        })
-      )
-    }
 
     return { success: true, online }
   } catch (directusError: any) {

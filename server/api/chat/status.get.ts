@@ -9,17 +9,13 @@ export default defineEventHandler(async () => {
     offlineMessage: "Stephen is currently offline. Please leave your contact info and we'll get back to you shortly!",
   }
 
-  // Try Directus first
+  // Try Directus first (chat_settings is a singleton)
   try {
     const directus = getTypedDirectus()
 
-    const settings = await directus.request(
-      readItems('chat_settings' as any, {
-        limit: 1,
-      })
+    const chatSettings = await directus.request(
+      readSingleton('chat_settings' as any)
     )
-
-    const chatSettings = Array.isArray(settings) ? settings[0] : settings
 
     return {
       online: chatSettings?.admin_online ?? defaults.online,

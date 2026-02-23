@@ -41,6 +41,8 @@ import {
   readRoles,
   readRole,
   aggregate,
+  readSingleton,
+  updateSingleton,
   passwordRequest,
   passwordReset,
   inviteUser,
@@ -83,6 +85,8 @@ export {
   readRoles,
   readRole,
   aggregate,
+  readSingleton,
+  updateSingleton,
   passwordRequest,
   passwordReset,
   inviteUser,
@@ -319,4 +323,54 @@ export async function directusGetMe(accessToken: string, fields?: string[]) {
     .with(rest());
 
   return await client.request(readMe({ fields: fields || ["*"] }));
+}
+
+// ============================================
+// Error Handling Utilities
+// ============================================
+
+/**
+ * Extract the HTTP status code from a Directus SDK error.
+ *
+ * The SDK rejects with a plain object containing `response` (the raw
+ * fetch Response) and `errors` (the Directus API errors array).
+ * Errors created by h3's `createError` carry `statusCode` directly.
+ */
+export function getDirectusHttpStatus(error: any): number {
+  // h3 / createError errors already carry statusCode
+  if (error.statusCode) return error.statusCode;
+
+  // Directus SDK errors carry the raw fetch Response
+  const responseStatus = error.response?.status;
+  if (typeof responseStatus === "number" && responseStatus >= 400)
+    return responseStatus;
+
+  // Fall back to mapping well-known Directus error codes
+  const code = error.errors?.[0]?.extensions?.code;
+  switch (code) {
+    case "TOKEN_EXPIRED":
+    case "INVALID_TOKEN":
+      return 401;
+    case "FORBIDDEN":
+      return 403;
+    case "RECORD_NOT_UNIQUE":
+    case "FAILED_VALIDATION":
+    case "INVALID_PAYLOAD":
+      return 400;
+    case "CONTENT_TOO_LARGE":
+      return 413;
+    default:
+      return 500;
+  }
+}
+
+/**
+ * Extract a human-readable message from a Directus SDK error.
+ */
+export function getDirectusErrorMessage(error: any): string {
+  return (
+    error.errors?.[0]?.message ||
+    error.message ||
+    "Failed to perform operation"
+  );
 }

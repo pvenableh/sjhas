@@ -33,11 +33,10 @@ export default defineEventHandler(async (event) => {
       message: `Method ${method} not allowed`,
     });
   } catch (error: any) {
-    console.error("User me operation error:", error);
+    const statusCode = getDirectusHttpStatus(error);
+    const message = getDirectusErrorMessage(error);
+    console.error("User me operation error:", { message, statusCode });
 
-    throw createError({
-      statusCode: error.statusCode || 500,
-      message: error.message || "Failed to perform user operation",
-    });
+    throw createError({ statusCode, message });
   }
 });

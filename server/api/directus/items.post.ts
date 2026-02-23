@@ -13,6 +13,8 @@ import {
   updateItem,
   deleteItem,
   deleteItems,
+  readSingleton,
+  updateSingleton,
   aggregate as directusAggregate,
 } from "@directus/sdk";
 
@@ -67,6 +69,13 @@ async function executeOperation(
           return { deleted: 1 };
         }
 
+      case "readSingleton":
+        return await directus.request(readSingleton(collection, query || {}));
+
+      case "updateSingleton":
+        if (!data) throw new Error("Data required for updateSingleton operation");
+        return await directus.request(updateSingleton(collection, data, query));
+
       case "aggregate":
         return await directus.request(
           directusAggregate(collection, {
@@ -82,17 +91,25 @@ async function executeOperation(
         throw new Error(`Unknown operation: ${operation}`);
     }
   } catch (error: any) {
-    // Check if this is a token / auth error from Directus
-    const isAuthError =
+    // Only retry on genuine token expiration — NOT on permission (FORBIDDEN)
+    // errors, which refreshing the token cannot fix.
+    const isTokenError =
       error.message?.includes("Token expired") ||
       error.errors?.[0]?.extensions?.code === "TOKEN_EXPIRED" ||
-      error.errors?.[0]?.extensions?.code === "FORBIDDEN" ||
-      error.response?.status === 401 ||
-      error.response?.status === 403;
+      error.errors?.[0]?.extensions?.code === "INVALID_TOKEN" ||
+      error.response?.status === 401;
 
-    // Retry once with force refresh if auth-related and user is logged in
-    if (isAuthError && retryCount === 0 && session?.user) {
-      return executeOperation(event, collection, operation, id, data, query, retryCount + 1);
+    // Retry once with force refresh if token-related and user is logged in
+    if (isTokenError && retryCount === 0 && session?.user) {
+      return executeOperation(
+        event,
+        collection,
+        operation,
+        id,
+        data,
+        query,
+        retryCount + 1
+      );
     }
 
     throw error;
@@ -116,26 +133,26 @@ export default defineEventHandler(async (event) => {
       });
     }
 
-    return await executeOperation(event, collection, operation, id, data, query);
+    return await executeOperation(
+      event,
+      collection,
+      operation,
+      id,
+      data,
+      query
+    );
   } catch (error: any) {
+    const statusCode = getDirectusHttpStatus(error);
+    const message = getDirectusErrorMessage(error);
+
     console.error("[/api/directus/items] Error:", {
-      message: error.message,
-      statusCode: error.statusCode,
+      message,
+      statusCode,
+      directusCode: error.errors?.[0]?.extensions?.code,
       collection,
       operation,
     });
 
-    // Check for auth-related errors
-    if (error.statusCode === 401 || error.statusMessage?.includes("session")) {
-      throw createError({
-        statusCode: 401,
-        message: error.statusMessage || "Authentication required - please log in again",
-      });
-    }
-
-    throw createError({
-      statusCode: error.statusCode || 500,
-      message: error.message || "Failed to perform operation",
-    });
+    throw createError({ statusCode, message });
   }
 });

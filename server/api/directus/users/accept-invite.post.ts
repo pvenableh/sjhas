@@ -29,11 +29,10 @@ export default defineEventHandler(async (event) => {
       message: "Invitation accepted successfully",
     };
   } catch (error: any) {
-    console.error("Accept invitation error:", error);
+    const statusCode = getDirectusHttpStatus(error);
+    const message = getDirectusErrorMessage(error);
+    console.error("Accept invitation error:", { message, statusCode });
 
-    throw createError({
-      statusCode: error.statusCode || 500,
-      message: error.message || "Failed to accept invitation",
-    });
+    throw createError({ statusCode, message });
   }
 });

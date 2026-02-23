@@ -63,11 +63,10 @@ export default defineEventHandler(async (event) => {
 
     return result;
   } catch (error: any) {
-    console.error("File upload error:", error);
+    const statusCode = getDirectusHttpStatus(error);
+    const message = getDirectusErrorMessage(error);
+    console.error("File upload error:", { message, statusCode });
 
-    throw createError({
-      statusCode: error.statusCode || 500,
-      message: error.message || "Failed to upload file",
-    });
+    throw createError({ statusCode, message });
   }
 });

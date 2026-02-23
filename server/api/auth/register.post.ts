@@ -28,8 +28,8 @@ export default defineEventHandler(async (event) => {
     const directus = getTypedDirectus();
     const config = useRuntimeConfig();
 
-    // Get default role for new users (configure in env or use a default)
-    const defaultRoleId = config.public.directusRoleUser || null;
+    // Get default role for new users (CLIENT_ROLE_ID in .env)
+    const defaultRoleId = config.public.clientRoleId || null;
 
     const newUser = await directus.request(
       createUser({
@@ -82,9 +82,8 @@ export default defineEventHandler(async (event) => {
       });
     }
 
-    throw createError({
-      statusCode: error.statusCode || 500,
-      message: error.message || "Registration failed",
-    });
+    const statusCode = getDirectusHttpStatus(error);
+    const message = getDirectusErrorMessage(error);
+    throw createError({ statusCode, message });
   }
 });

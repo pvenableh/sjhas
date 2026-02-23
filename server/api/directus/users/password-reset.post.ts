@@ -28,11 +28,10 @@ export default defineEventHandler(async (event) => {
       message: "Password reset successfully",
     };
   } catch (error: any) {
-    console.error("Password reset error:", error);
+    const statusCode = getDirectusHttpStatus(error);
+    const message = getDirectusErrorMessage(error);
+    console.error("Password reset error:", { message, statusCode });
 
-    throw createError({
-      statusCode: error.statusCode || 500,
-      message: error.message || "Failed to reset password",
-    });
+    throw createError({ statusCode, message });
   }
 });
