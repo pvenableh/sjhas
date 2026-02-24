@@ -7,13 +7,14 @@ const props = defineProps<{
   title?: string
   content?: string
   image?: string
+  features?: string[]
+  ctaText?: string
+  ctaLink?: string
 }>()
 
 const sectionRef = ref<HTMLElement | null>(null)
 
-const defaultContent = `Stephen J. Hoffman has been providing clients personalized tax returns, accounting, and payroll services throughout Ithaca, Elmira, and the Central New York area since 2000.
-
-With years of expansive financial knowledge, he is equipped to handle all of your accounting needs, no matter how complex. Whether you require assistance at the corporate or personal level, Stephen is ready to serve as your business consultant, financial and tax planner, payroll processor, and accounting advisor.`
+const hasContent = computed(() => props.title || props.content || props.image || props.features?.length)
 
 onMounted(() => {
   if (import.meta.client && sectionRef.value) {
@@ -43,6 +44,7 @@ onMounted(() => {
 
 <template>
   <section
+    v-if="hasContent"
     id="about"
     ref="sectionRef"
     class="py-28 lg:py-40 t-section-alt"
@@ -98,13 +100,13 @@ onMounted(() => {
             <span>About Us</span>
           </div>
 
-          <h2 class="text-3xl sm:text-4xl lg:text-[2.75rem] t-heading t-text mb-8 tracking-tight leading-[1.15]">
-            {{ title || 'SJHAS, Inc.' }}
+          <h2 v-if="title" class="text-3xl sm:text-4xl lg:text-[2.75rem] t-heading t-text mb-8 tracking-tight leading-[1.15]">
+            {{ title }}
           </h2>
 
-          <div class="prose-accounting space-y-5 mb-12">
+          <div v-if="content" class="prose-accounting space-y-5 mb-12">
             <p
-              v-for="(paragraph, i) in (content || defaultContent).split('\n\n')"
+              v-for="(paragraph, i) in content.split('\n\n')"
               :key="i"
               class="t-text-secondary leading-[1.8] text-[0.95rem]"
             >
@@ -113,29 +115,21 @@ onMounted(() => {
           </div>
 
           <!-- Features list -->
-          <div class="space-y-5 mb-12">
-            <div class="flex items-center gap-4">
+          <div v-if="features?.length" class="space-y-5 mb-12">
+            <div
+              v-for="(feature, i) in features"
+              :key="i"
+              class="flex items-center gap-4"
+            >
               <div class="w-9 h-9 rounded-xl t-icon-box flex items-center justify-center flex-shrink-0">
                 <Icon name="lucide:check" class="w-4 h-4" />
               </div>
-              <span class="t-text-secondary text-sm tracking-wide">Personal & Business Tax Services</span>
-            </div>
-            <div class="flex items-center gap-4">
-              <div class="w-9 h-9 rounded-xl t-icon-box flex items-center justify-center flex-shrink-0">
-                <Icon name="lucide:check" class="w-4 h-4" />
-              </div>
-              <span class="t-text-secondary text-sm tracking-wide">Comprehensive Payroll Processing</span>
-            </div>
-            <div class="flex items-center gap-4">
-              <div class="w-9 h-9 rounded-xl t-icon-box flex items-center justify-center flex-shrink-0">
-                <Icon name="lucide:check" class="w-4 h-4" />
-              </div>
-              <span class="t-text-secondary text-sm tracking-wide">Financial Planning & Consulting</span>
+              <span class="t-text-secondary text-sm tracking-wide">{{ feature }}</span>
             </div>
           </div>
 
-          <Button as="a" href="#contact" class="tracking-wide">
-            Get in Touch
+          <Button v-if="ctaText || ctaLink" as="a" :href="ctaLink || '#contact'" class="tracking-wide">
+            {{ ctaText || 'Get in Touch' }}
             <Icon name="lucide:arrow-right" class="w-4 h-4" />
           </Button>
         </div>

@@ -26,6 +26,7 @@ const logoUrl = computed(() => {
     <LayoutHeader
       :logo="logoUrl || undefined"
       :site-name="settings?.site_name"
+      :booking-url="settings?.booking_url"
     />
 
     <main class="flex-1 pt-20">

@@ -7,6 +7,7 @@ import { cn } from '~/lib/utils'
 const props = defineProps<{
   logo?: string
   siteName?: string
+  bookingUrl?: string
 }>()
 
 const { y } = useWindowScroll()
@@ -109,7 +110,7 @@ onMounted(() => {
             <div class="w-10 h-10 rounded-xl t-bg-accent flex items-center justify-center">
               <span class="t-text-inverse font-extralight text-lg t-heading">S</span>
             </div>
-            <span class="t-heading text-xl t-text tracking-[0.04em]">{{ siteName || 'SJHAS, Inc.' }}</span>
+            <span v-if="siteName" class="t-heading text-xl t-text tracking-[0.04em]">{{ siteName }}</span>
           </div>
         </NuxtLink>
 
@@ -138,7 +139,7 @@ onMounted(() => {
         <!-- CTA Button & Dark Mode (Desktop) -->
         <div class="hidden lg:flex items-center gap-4">
           <LayoutDarkModeToggle />
-          <Button as="a" href="https://app.reclaim.ai/m/sjhas/quick-meeting" target="_blank" size="sm" class="tracking-wide">
+          <Button v-if="bookingUrl" as="a" :href="bookingUrl" target="_blank" size="sm" class="tracking-wide">
             Book Appointment
           </Button>
         </div>
@@ -211,10 +212,10 @@ onMounted(() => {
               {{ link.label }}
             </NuxtLink>
           </template>
-          <div class="pt-4 px-5">
+          <div v-if="bookingUrl" class="pt-4 px-5">
             <Button
               as="a"
-              href="https://app.reclaim.ai/m/sjhas/quick-meeting"
+              :href="bookingUrl"
               target="_blank"
               class="w-full tracking-wide"
             >

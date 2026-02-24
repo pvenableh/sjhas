@@ -6,26 +6,37 @@ import type { SiteSettings } from '~/types/directus'
 
 const props = defineProps<{
   title?: string
+  subtitle?: string
   settings?: SiteSettings | null
 }>()
 
 const contactInfo = computed(() => ({
-  email: props.settings?.contact_email || 'sjh@sjhas.com',
-  phone: props.settings?.contact_phone || '(607) 216-8033',
+  email: props.settings?.contact_email,
+  phone: props.settings?.contact_phone,
   address: [
-    props.settings?.address_line_1 || 'P.O. Box 6623',
-    props.settings?.address_line_2 || '139 E. King Road',
-    `${props.settings?.city || 'Ithaca'}, ${props.settings?.state || 'NY'} ${props.settings?.zip_code || '14850'}`,
-  ].filter(Boolean),
+    props.settings?.address_line_1,
+    props.settings?.address_line_2,
+    props.settings?.city || props.settings?.state || props.settings?.zip_code
+      ? `${props.settings?.city || ''}${props.settings?.city && props.settings?.state ? ', ' : ''}${props.settings?.state || ''} ${props.settings?.zip_code || ''}`.trim()
+      : null,
+  ].filter(Boolean) as string[],
 }))
 
-const hours = computed(() => [
-  { day: 'Monday', hours: props.settings?.hours_monday || '1pm - 5pm' },
-  { day: 'Tuesday', hours: props.settings?.hours_tuesday || '9am - 4:30pm' },
-  { day: 'Wednesday', hours: props.settings?.hours_wednesday || 'Closed' },
-  { day: 'Thursday', hours: props.settings?.hours_thursday || '9am - 4:30pm' },
-  { day: 'Friday', hours: props.settings?.hours_friday || '9am - 1:30pm' },
-])
+const hasContactInfo = computed(() => contactInfo.value.email || contactInfo.value.phone || contactInfo.value.address.length)
+
+const hours = computed(() => {
+  const s = props.settings
+  if (!s?.hours_monday && !s?.hours_tuesday && !s?.hours_wednesday && !s?.hours_thursday && !s?.hours_friday) return []
+  return [
+    { day: 'Monday', hours: s?.hours_monday },
+    { day: 'Tuesday', hours: s?.hours_tuesday },
+    { day: 'Wednesday', hours: s?.hours_wednesday },
+    { day: 'Thursday', hours: s?.hours_thursday },
+    { day: 'Friday', hours: s?.hours_friday },
+  ].filter(item => item.hours) as { day: string; hours: string }[]
+})
+
+const bookingUrl = computed(() => props.settings?.booking_url)
 
 const sectionRef = ref<HTMLElement | null>(null)
 
@@ -61,23 +72,24 @@ onMounted(() => {
   >
     <div class="container-wide section-padding">
       <!-- Section header -->
-      <div class="text-center max-w-2xl mx-auto mb-24">
-        <div class="inline-flex items-center gap-2.5 px-5 py-2.5 rounded-full t-badge text-xs font-medium tracking-[0.1em] uppercase mb-8">
+      <div v-if="title || subtitle" class="text-center max-w-2xl mx-auto mb-24">
+        <div v-if="title" class="inline-flex items-center gap-2.5 px-5 py-2.5 rounded-full t-badge text-xs font-medium tracking-[0.1em] uppercase mb-8">
           <Icon name="lucide:phone" class="w-3.5 h-3.5" />
           <span>Get in Touch</span>
         </div>
-        <h2 class="text-3xl sm:text-4xl lg:text-[2.75rem] t-heading t-text mb-6 tracking-tight leading-[1.15]">
-          {{ title || 'Contact Us' }}
+        <h2 v-if="title" class="text-3xl sm:text-4xl lg:text-[2.75rem] t-heading t-text mb-6 tracking-tight leading-[1.15]">
+          {{ title }}
         </h2>
-        <p class="text-lg t-text-secondary leading-[1.7]">
-          Ready to get started? We'd love to hear from you.
+        <p v-if="subtitle" class="text-lg t-text-secondary leading-[1.7]">
+          {{ subtitle }}
         </p>
       </div>
 
       <!-- Contact cards -->
-      <div class="grid md:grid-cols-3 gap-8 lg:gap-10 max-w-5xl mx-auto">
+      <div v-if="hasContactInfo" class="grid md:grid-cols-3 gap-8 lg:gap-10 max-w-5xl mx-auto">
         <!-- Email -->
         <a
+          v-if="contactInfo.email"
           :href="`mailto:${contactInfo.email}`"
           class="contact-card group rounded-2xl p-10 lg:p-12 border t-section-card t-section-card-hover hover:shadow-lg transition-all duration-500 text-center"
         >
@@ -90,6 +102,7 @@ onMounted(() => {
 
         <!-- Phone -->
         <a
+          v-if="contactInfo.phone"
           :href="`tel:${contactInfo.phone.replace(/[^0-9]/g, '')}`"
           class="contact-card group rounded-2xl p-10 lg:p-12 border t-section-card t-section-card-hover hover:shadow-lg transition-all duration-500 text-center"
         >
@@ -101,7 +114,7 @@ onMounted(() => {
         </a>
 
         <!-- Location -->
-        <div class="contact-card rounded-2xl p-10 lg:p-12 border t-section-card text-center">
+        <div v-if="contactInfo.address.length" class="contact-card rounded-2xl p-10 lg:p-12 border t-section-card text-center">
           <div class="w-16 h-16 rounded-2xl t-icon-box flex items-center justify-center mx-auto mb-8">
             <Icon name="lucide:map-pin" class="w-7 h-7" />
           </div>
@@ -115,9 +128,9 @@ onMounted(() => {
       </div>
 
       <!-- Hours & CTA -->
-      <div class="mt-20 grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+      <div v-if="hours.length || bookingUrl" class="mt-20 grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
         <!-- Hours -->
-        <div class="contact-card rounded-2xl p-10 lg:p-12 border t-section-card">
+        <div v-if="hours.length" class="contact-card rounded-2xl p-10 lg:p-12 border t-section-card">
           <h3 class="font-medium t-text mb-8 flex items-center gap-2.5 tracking-wide">
             <Icon name="lucide:clock" class="w-5 h-5 t-text-accent" />
             Office Hours
@@ -143,7 +156,7 @@ onMounted(() => {
         </div>
 
         <!-- Quick actions -->
-        <div class="contact-card t-hero rounded-2xl p-10 lg:p-12">
+        <div v-if="bookingUrl" class="contact-card t-hero rounded-2xl p-10 lg:p-12">
           <h3 class="font-medium mb-5 text-lg t-hero-text t-heading tracking-wide">Ready to Get Started?</h3>
           <p class="t-hero-text-secondary mb-10 leading-[1.7] text-sm">
             Book an appointment or upload your documents to get started with our services.
@@ -151,7 +164,7 @@ onMounted(() => {
           <div class="space-y-3">
             <Button
               as="a"
-              href="https://app.reclaim.ai/m/sjhas/quick-meeting"
+              :href="bookingUrl"
               target="_blank"
               variant="secondary"
               class="w-full justify-center tracking-wide"
