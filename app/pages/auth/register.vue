@@ -71,7 +71,9 @@ const handleSubmit = async () => {
     toast.success('Account created! Please sign in.')
     router.push('/auth/login')
   } catch (error: any) {
-    errorMessage.value = error.message || 'Registration failed. Please try again.'
+    const msg = error.message || 'Registration failed. Please try again.'
+    errorMessage.value = msg
+    toast.error(msg)
   } finally {
     isLoading.value = false
   }

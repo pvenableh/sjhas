@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
+import { toast } from 'vue-sonner'
 
 definePageMeta({
   middleware: 'auth',
@@ -42,9 +43,11 @@ const handleSave = async () => {
       phone: form.value.phone,
     })
     saveMessage.value = 'Profile updated successfully.'
+    toast.success('Profile updated successfully')
   } catch (error) {
     console.error('Failed to update profile:', error)
     saveMessage.value = 'Failed to update profile. Please try again.'
+    toast.error('Failed to update profile')
   } finally {
     isSaving.value = false
   }

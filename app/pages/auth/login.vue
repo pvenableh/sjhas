@@ -45,9 +45,9 @@ const handleLogin = async (credentials: { email: string; password: string }) => 
     await navigateTo(isAdmin ? '/admin' : '/forms')
   } catch (error: any) {
     console.error('Login error:', error)
-    loginFormRef.value?.setFormError(
-      error.message || 'Invalid email or password'
-    )
+    const msg = error.message || 'Invalid email or password'
+    loginFormRef.value?.setFormError(msg)
+    toast.error(msg)
   } finally {
     isLoading.value = false
   }

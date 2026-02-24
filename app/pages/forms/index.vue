@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import { format } from 'date-fns'
+import { toast } from 'vue-sonner'
 
 definePageMeta({
   middleware: 'auth',
@@ -61,6 +62,7 @@ onMounted(async () => {
     stats.value.totalFiles = (userFiles as any[]).length
   } catch (error) {
     console.error('Failed to load dashboard data:', error)
+    toast.error('Failed to load dashboard data')
   } finally {
     isLoading.value = false
   }
