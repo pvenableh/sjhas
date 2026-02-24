@@ -399,6 +399,19 @@ const handleSubmitted = (data: Record<string, unknown>) => {
 useSeoMeta({
   title: 'Tax Planning Questionnaire - SJHAS, Inc.',
   description: 'Complete our tax planning questionnaire to help us prepare for your personalized tax planning session.',
+  ogTitle: 'Tax Planning Questionnaire - SJHAS, Inc.',
+  ogDescription: 'Complete our tax planning questionnaire to help us prepare for your personalized tax planning session.',
+  ogType: 'website',
+  ogSiteName: 'SJHAS, Inc.',
+  twitterCard: 'summary_large_image',
+  twitterTitle: 'Tax Planning Questionnaire - SJHAS, Inc.',
+  twitterDescription: 'Complete our tax planning questionnaire to help us prepare for your personalized tax planning session.',
+})
+
+defineOgImage({
+  component: 'NuxtSeo',
+  title: 'Tax Planning Questionnaire',
+  description: 'SJHAS, Inc. - Accounting & Tax Services',
 })
 </script>
 

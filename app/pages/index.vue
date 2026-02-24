@@ -49,13 +49,53 @@ const aboutImageUrl = computed(() => {
 })
 
 // SEO
+const seoTitle = settings.value?.site_name
+  ? `${settings.value.site_name} - Accounting & Tax Services in Ithaca, NY`
+  : 'SJHAS, Inc. - Accounting & Tax Services in Ithaca, NY'
+const seoDescription = settings.value?.site_description
+  || 'SJHAS Inc. provides personalized tax returns, accounting, and payroll services throughout Ithaca, Elmira, and Central New York since 2000.'
+
 useSeoMeta({
-  title: settings.value?.site_name
-    ? `${settings.value.site_name} - Accounting & Tax Services in Ithaca, NY`
-    : 'SJHAS, Inc. - Accounting & Tax Services in Ithaca, NY',
-  description: settings.value?.site_description
-    || 'SJHAS Inc. provides personalized tax returns, accounting, and payroll services throughout Ithaca, Elmira, and Central New York since 2000.',
+  title: seoTitle,
+  description: seoDescription,
+  ogTitle: seoTitle,
+  ogDescription: seoDescription,
+  ogType: 'website',
+  ogSiteName: 'SJHAS, Inc.',
+  twitterCard: 'summary_large_image',
+  twitterTitle: seoTitle,
+  twitterDescription: seoDescription,
 })
+
+defineOgImage({
+  component: 'NuxtSeo',
+  title: 'SJHAS, Inc.',
+  description: 'Accounting & Tax Services in Ithaca, NY',
+})
+
+// Structured data - WebPage + services offered
+useSchemaOrg([
+  defineWebPage({
+    '@type': 'WebPage',
+    name: seoTitle,
+    description: seoDescription,
+  }),
+  defineLocalBusiness({
+    name: 'SJHAS, Inc.',
+    description: seoDescription,
+    image: '/icon-512x512.png',
+    email: settings.value?.contact_email || 'sjh@sjhas.com',
+    telephone: settings.value?.contact_phone || '(607) 216-8033',
+    address: {
+      streetAddress: settings.value?.address_line_1 || undefined,
+      addressLocality: settings.value?.city || 'Ithaca',
+      addressRegion: settings.value?.state || 'NY',
+      postalCode: settings.value?.zip_code || undefined,
+      addressCountry: 'US',
+    },
+    priceRange: '$$',
+  }),
+])
 </script>
 
 <template>
