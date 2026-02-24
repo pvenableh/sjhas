@@ -18,36 +18,29 @@ const heroRef = ref<HTMLElement | null>(null)
 onMounted(() => {
   if (heroRef.value) {
     const tl = gsap.timeline()
+    const el = heroRef.value
 
-    tl.fromTo(
-      heroRef.value.querySelector('.hero-badge'),
-      { opacity: 0, y: 20 },
-      { opacity: 1, y: 0, duration: 0.6, ease: 'power2.out' }
-    )
-      .fromTo(
-        heroRef.value.querySelector('.hero-title'),
-        { opacity: 0, y: 40 },
-        { opacity: 1, y: 0, duration: 0.8, ease: 'power3.out' },
-        '-=0.2'
-      )
-      .fromTo(
-        heroRef.value.querySelector('.hero-subtitle'),
-        { opacity: 0, y: 30 },
-        { opacity: 1, y: 0, duration: 0.7, ease: 'power2.out' },
-        '-=0.4'
-      )
-      .fromTo(
-        heroRef.value.querySelector('.hero-cta'),
-        { opacity: 0, y: 20 },
-        { opacity: 1, y: 0, duration: 0.5, ease: 'power2.out' },
-        '-=0.3'
-      )
-      .fromTo(
-        heroRef.value.querySelector('.hero-visual'),
-        { opacity: 0, scale: 0.97 },
-        { opacity: 1, scale: 1, duration: 0.9, ease: 'power2.out' },
-        '-=0.5'
-      )
+    const badge = el.querySelector('.hero-badge')
+    const title = el.querySelector('.hero-title')
+    const subtitle = el.querySelector('.hero-subtitle')
+    const cta = el.querySelector('.hero-cta')
+    const visual = el.querySelector('.hero-visual')
+
+    if (badge) {
+      tl.fromTo(badge, { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.6, ease: 'power2.out' })
+    }
+    if (title) {
+      tl.fromTo(title, { opacity: 0, y: 40 }, { opacity: 1, y: 0, duration: 0.8, ease: 'power3.out' }, badge ? '-=0.2' : 0)
+    }
+    if (subtitle) {
+      tl.fromTo(subtitle, { opacity: 0, y: 30 }, { opacity: 1, y: 0, duration: 0.7, ease: 'power2.out' }, '-=0.4')
+    }
+    if (cta) {
+      tl.fromTo(cta, { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.5, ease: 'power2.out' }, '-=0.3')
+    }
+    if (visual) {
+      tl.fromTo(visual, { opacity: 0, scale: 0.97 }, { opacity: 1, scale: 1, duration: 0.9, ease: 'power2.out' }, '-=0.5')
+    }
   }
 })
 </script>

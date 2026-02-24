@@ -18,21 +18,24 @@ onMounted(() => {
   if (import.meta.client && sectionRef.value) {
     gsap.registerPlugin(ScrollTrigger)
 
-    gsap.fromTo(
-      sectionRef.value.querySelector('.testimonials-carousel'),
-      { opacity: 0, y: 20 },
-      {
-        opacity: 1,
-        y: 0,
-        duration: 0.8,
-        ease: 'power3.out',
-        force3D: true,
-        scrollTrigger: {
-          trigger: sectionRef.value,
-          start: 'top bottom',
-        },
-      }
-    )
+    const carousel = sectionRef.value.querySelector('.testimonials-carousel')
+    if (carousel) {
+      gsap.fromTo(
+        carousel,
+        { opacity: 0, y: 20 },
+        {
+          opacity: 1,
+          y: 0,
+          duration: 0.8,
+          ease: 'power3.out',
+          force3D: true,
+          scrollTrigger: {
+            trigger: sectionRef.value,
+            start: 'top bottom',
+          },
+        }
+      )
+    }
   }
 })
 </script>
@@ -41,7 +44,7 @@ onMounted(() => {
   <section
     v-if="hasContent"
     ref="sectionRef"
-    class="py-28 lg:py-40 t-hero relative overflow-hidden"
+    class="py-28 lg:py-40 t-hero t-force-dark relative overflow-hidden"
   >
     <!-- Subtle background texture -->
     <div class="absolute inset-0 opacity-[0.06]">
@@ -67,7 +70,7 @@ onMounted(() => {
       <!-- Testimonials Carousel -->
       <div v-if="testimonials?.length" class="testimonials-carousel max-w-4xl mx-auto">
         <Carousel class="w-full" :opts="{ loop: true }">
-          <CarouselContent>
+          <CarouselContent class="pt-8">
             <CarouselItem v-for="testimonial in testimonials" :key="testimonial.id">
               <div
                 class="relative t-bg-elevated rounded-3xl p-10 md:p-16 t-shadow-lg"

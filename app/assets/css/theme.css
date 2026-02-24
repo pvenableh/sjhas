@@ -377,3 +377,55 @@ h1, h2, h3, h4, h5, h6 {
 
 /* Selection */
 ::selection { background-color: var(--theme-accent-secondary); color: var(--theme-text-inverse); }
+
+/* =============================================================================
+   FORCE DARK — scope dark-mode variables onto any element
+   ============================================================================= */
+.t-force-dark {
+  --theme-bg-primary: #101a28;
+  --theme-bg-secondary: #1a2838;
+  --theme-bg-tertiary: #243548;
+  --theme-bg-elevated: #152030;
+  --theme-bg-overlay: rgba(16, 26, 40, 0.97);
+  --theme-text-primary: #F1F5F9;
+  --theme-text-secondary: #94A3B8;
+  --theme-text-tertiary: #64748B;
+  --theme-text-muted: #475569;
+  --theme-text-inverse: #141e30;
+  --theme-accent-primary: #7EB0D6;
+  --theme-accent-secondary: #A3C9E8;
+  --theme-accent-tertiary: #5A93BC;
+  --theme-accent-hover: #A3C9E8;
+  --theme-accent-active: #C5DFF2;
+  --theme-border-primary: #1a2838;
+  --theme-border-secondary: #2c3e52;
+  --theme-border-light: #1a2838;
+  --theme-card-bg: #152030;
+  --theme-hero-gradient-from: #0c1420;
+  --theme-hero-gradient-via: #141e30;
+  --theme-hero-gradient-to: #0a1018;
+  --theme-hero-text: #F1F5F9;
+  --theme-hero-text-secondary: #7EB0D6;
+  --theme-hero-badge-bg: rgba(126, 176, 214, 0.06);
+  --theme-hero-badge-text: #7EB0D6;
+  --theme-badge-bg: rgba(126, 176, 214, 0.08);
+  --theme-badge-text: #7EB0D6;
+  --theme-section-card-bg: #1a2838;
+  --theme-section-card-border: #243548;
+  --theme-section-card-hover-border: #7EB0D6;
+  --theme-section-card-hover-bg: #152030;
+  --theme-icon-bg: rgba(126, 176, 214, 0.06);
+  --theme-icon-color: #7EB0D6;
+  --theme-icon-hover-bg: #5A93BC;
+  --theme-icon-hover-color: #141e30;
+  --theme-shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.2);
+  --theme-shadow-md: 0 4px 20px rgba(0, 0, 0, 0.25);
+  --theme-shadow-lg: 0 20px 50px rgba(0, 0, 0, 0.35);
+  --theme-link-color: #7EB0D6;
+  --theme-link-hover: #A3C9E8;
+  --theme-button-bg: #7EB0D6;
+  --theme-button-text: #141e30;
+  --theme-button-hover-bg: #A3C9E8;
+  --theme-divider: #1a2838;
+  --theme-divider-light: #152030;
+}
