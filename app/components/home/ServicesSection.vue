@@ -21,38 +21,45 @@ onMounted(() => {
   if (import.meta.client && sectionRef.value) {
     gsap.registerPlugin(ScrollTrigger)
 
-    gsap.fromTo(
-      sectionRef.value.querySelector('.section-header'),
-      { opacity: 0, y: 16 },
-      {
-        opacity: 1,
-        y: 0,
-        duration: 0.7,
-        ease: 'power3.out',
-        force3D: true,
-        scrollTrigger: {
-          trigger: sectionRef.value,
-          start: 'top bottom',
-        },
-      }
-    )
+    const header = sectionRef.value.querySelector('.section-header')
+    if (header) {
+      gsap.fromTo(
+        header,
+        { opacity: 0, y: 16 },
+        {
+          opacity: 1,
+          y: 0,
+          duration: 0.7,
+          ease: 'power3.out',
+          force3D: true,
+          scrollTrigger: {
+            trigger: sectionRef.value,
+            start: 'top bottom',
+          },
+        }
+      )
+    }
 
-    gsap.fromTo(
-      sectionRef.value.querySelectorAll('.service-card'),
-      { opacity: 0, y: 20 },
-      {
-        opacity: 1,
-        y: 0,
-        duration: 0.6,
-        stagger: 0.07,
-        ease: 'power3.out',
-        force3D: true,
-        scrollTrigger: {
-          trigger: sectionRef.value.querySelector('.services-grid'),
-          start: 'top bottom',
-        },
-      }
-    )
+    const grid = sectionRef.value.querySelector('.services-grid')
+    const cards = sectionRef.value.querySelectorAll('.service-card')
+    if (grid && cards.length) {
+      gsap.fromTo(
+        cards,
+        { opacity: 0, y: 20 },
+        {
+          opacity: 1,
+          y: 0,
+          duration: 0.6,
+          stagger: 0.07,
+          ease: 'power3.out',
+          force3D: true,
+          scrollTrigger: {
+            trigger: grid,
+            start: 'top bottom',
+          },
+        }
+      )
+    }
   }
 })
 </script>

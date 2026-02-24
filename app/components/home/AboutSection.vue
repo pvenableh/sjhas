@@ -20,6 +20,10 @@ onMounted(() => {
   if (import.meta.client && sectionRef.value) {
     gsap.registerPlugin(ScrollTrigger)
 
+    const image = sectionRef.value.querySelector('.about-image')
+    const content = sectionRef.value.querySelector('.about-content')
+    if (!image && !content) return
+
     const tl = gsap.timeline({
       scrollTrigger: {
         trigger: sectionRef.value,
@@ -27,17 +31,12 @@ onMounted(() => {
       },
     })
 
-    tl.fromTo(
-      sectionRef.value.querySelector('.about-image'),
-      { opacity: 0, x: -24 },
-      { opacity: 1, x: 0, duration: 0.8, ease: 'power3.out', force3D: true }
-    )
-      .fromTo(
-        sectionRef.value.querySelector('.about-content'),
-        { opacity: 0, x: 24 },
-        { opacity: 1, x: 0, duration: 0.8, ease: 'power3.out', force3D: true },
-        '-=0.4'
-      )
+    if (image) {
+      tl.fromTo(image, { opacity: 0, x: -24 }, { opacity: 1, x: 0, duration: 0.8, ease: 'power3.out', force3D: true })
+    }
+    if (content) {
+      tl.fromTo(content, { opacity: 0, x: 24 }, { opacity: 1, x: 0, duration: 0.8, ease: 'power3.out', force3D: true }, '-=0.4')
+    }
   }
 })
 </script>
