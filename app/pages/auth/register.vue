@@ -13,6 +13,7 @@ useSeoMeta({
 })
 
 const { register } = useDirectusAuth()
+const { trackSignUp } = useAnalytics()
 const router = useRouter()
 
 const form = ref({
@@ -66,6 +67,7 @@ const handleSubmit = async () => {
       phone: form.value.phone.trim() || undefined,
     })
 
+    trackSignUp()
     toast.success('Account created! Please sign in.')
     router.push('/auth/login')
   } catch (error: any) {

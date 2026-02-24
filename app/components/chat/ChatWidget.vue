@@ -7,6 +7,8 @@
  * Supports typing indicators in both directions.
  */
 
+const { trackChatOpen, trackChatSessionStart, trackChatMessageSent } = useAnalytics()
+
 const isOpen = ref(false)
 const isMinimized = ref(false)
 
@@ -80,6 +82,7 @@ function toggleChat() {
     isOpen.value = true
     isMinimized.value = false
     hasUnread.value = false
+    trackChatOpen()
   }
 }
 
@@ -123,6 +126,7 @@ async function submitVisitorInfo() {
     })
 
     sessionId.value = result.sessionId
+    trackChatSessionStart(adminOnline.value ? 'online' : 'offline')
 
     if (adminOnline.value) {
       // Connect to WebSocket for live chat
@@ -149,6 +153,7 @@ function sendMessage() {
 
   wsSendMessage(messageText)
   sendTyping(false)
+  trackChatMessageSent()
 
   setTimeout(() => {
     sendingMessage.value = false

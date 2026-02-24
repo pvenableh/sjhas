@@ -2,6 +2,8 @@
 import { onMounted, ref } from 'vue'
 import { gsap } from 'gsap'
 
+const { trackCtaClick, trackBookingClick } = useAnalytics()
+
 const props = defineProps<{
   title?: string
   subtitle?: string
@@ -86,6 +88,7 @@ onMounted(() => {
               target="_blank"
               size="lg"
               class="group"
+              @click="trackBookingClick('hero')"
             >
               {{ ctaText || 'Book a Consultation' }}
               <Icon name="lucide:arrow-right" class="w-4 h-4 transition-transform group-hover:translate-x-1" />
@@ -95,6 +98,7 @@ onMounted(() => {
               href="#services"
               variant="secondary"
               size="lg"
+              @click="trackCtaClick('Our Services', '#services', 'hero')"
             >
               Our Services
             </Button>
