@@ -28,20 +28,15 @@ const isInviting = ref(false)
 const fetchClients = async () => {
   isLoading.value = true
   try {
-    const result = await $fetch('/api/directus/users/me', {
+    // Use the dedicated users endpoint (readUsers SDK function).
+    // The generic /api/directus/items endpoint uses readItems() which
+    // doesn't work with system collections like directus_users.
+    const users = await $fetch('/api/directus/users', {
       method: 'GET',
-    })
-    // Fetch all users via admin API
-    const users = await $fetch('/api/directus/items', {
-      method: 'POST',
-      body: {
-        collection: 'directus_users',
-        operation: 'list',
-        query: {
-          fields: ['id', 'first_name', 'last_name', 'email', 'status', 'last_access', 'role.name', 'role.admin_access'],
-          sort: ['first_name'],
-          limit: -1,
-        },
+      query: {
+        fields: 'id,first_name,last_name,email,status,last_access,role.name,role.admin_access',
+        sort: 'first_name',
+        limit: -1,
       },
     })
     clients.value = (users as any[]).filter((u: any) => {
