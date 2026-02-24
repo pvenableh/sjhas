@@ -20,6 +20,8 @@ export const buttonVariants = cva(
         sm: "h-9 rounded-lg px-4 text-xs tracking-wide",
         lg: "h-14 rounded-xl px-10 text-base tracking-wide",
         icon: "h-10 w-10 rounded-xl",
+        "icon-sm": "h-8 w-8 rounded-lg",
+        "icon-lg": "h-12 w-12 rounded-xl",
       },
     },
     defaultVariants: {
