@@ -1,11 +1,10 @@
 // server/api/directus/users/password-reset.post.ts
 /**
  * Server API route for password reset
- * POST: Verify the HMAC-signed token and update the user's password
- *       via the Directus admin API.
+ * POST: Reset password with token
  */
 
-import crypto from "node:crypto";
+import { passwordReset } from "@directus/sdk";
 
 export default defineEventHandler(async (event) => {
   try {
@@ -19,55 +18,18 @@ export default defineEventHandler(async (event) => {
       });
     }
 
-    // Decode and verify the HMAC token: base64url(userId.expiresAt.signature)
-    const config = useRuntimeConfig();
-    const secret = config.sessionPassword;
+    // Use public client for password reset
+    const directus = getPublicDirectus();
 
-    let decoded: string;
-    try {
-      decoded = Buffer.from(token, "base64url").toString("utf-8");
-    } catch {
-      throw createError({ statusCode: 400, message: "Invalid reset token" });
-    }
-
-    const parts = decoded.split(".");
-    if (parts.length !== 3) {
-      throw createError({ statusCode: 400, message: "Invalid reset token" });
-    }
-
-    const [userId, expiresAtStr, signature] = parts;
-    const expiresAt = Number(expiresAtStr);
-
-    // Verify signature
-    const payload = `${userId}.${expiresAtStr}`;
-    const expectedSig = crypto
-      .createHmac("sha256", secret)
-      .update(payload)
-      .digest("hex");
-
-    if (!crypto.timingSafeEqual(Buffer.from(signature), Buffer.from(expectedSig))) {
-      throw createError({ statusCode: 400, message: "Invalid reset token" });
-    }
-
-    // Check expiry
-    if (Date.now() > expiresAt) {
-      throw createError({
-        statusCode: 400,
-        message: "Reset token has expired. Please request a new one.",
-      });
-    }
-
-    // Update the user's password via Directus admin API
-    const directus = getTypedDirectus();
-    await directus.request(updateUser(userId, { password }));
+    await directus.request(passwordReset(token, password));
 
     return {
       success: true,
       message: "Password reset successfully",
     };
   } catch (error: any) {
-    const statusCode = error.statusCode || 500;
-    const message = error.message || "Failed to reset password";
+    const statusCode = getDirectusHttpStatus(error);
+    const message = getDirectusErrorMessage(error);
     console.error("Password reset error:", { message, statusCode });
 
     throw createError({ statusCode, message });
