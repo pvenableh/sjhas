@@ -68,12 +68,12 @@ onMounted(() => {
       </div>
 
       <!-- Testimonials Carousel -->
-      <div v-if="testimonials?.length" class="testimonials-carousel max-w-4xl mx-auto">
+      <div v-if="testimonials?.length" class="testimonials-carousel">
         <Carousel class="w-full" :opts="{ loop: true }">
           <CarouselContent class="pt-8">
             <CarouselItem v-for="testimonial in testimonials" :key="testimonial.id">
               <div
-                class="relative t-bg-elevated rounded-3xl p-10 md:p-16 t-shadow-lg"
+                class="relative t-bg-elevated rounded-3xl p-10 md:p-16 t-shadow-lg max-w-4xl mx-auto"
               >
                 <!-- Quote icon -->
                 <div class="absolute -top-6 left-10 w-12 h-12 rounded-2xl flex items-center justify-center shadow-lg" style="background-color: var(--theme-accent-primary);">
