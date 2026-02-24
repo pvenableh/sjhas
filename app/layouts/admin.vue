@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted } from 'vue'
+import { toast } from 'vue-sonner'
 
 const { user, logout } = useDirectusAuth()
 const { trackLogout } = useAnalytics()
@@ -66,9 +67,11 @@ const handleLogout = async () => {
   try {
     trackLogout()
     await logout()
+    toast.success('You have been signed out')
     router.push('/auth/login')
   } catch (error) {
     console.error('Logout failed:', error)
+    toast.error('Logout failed. Please try again.')
   }
 }
 

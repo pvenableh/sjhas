@@ -49,7 +49,9 @@ const handleSubmit = async () => {
     isSuccess.value = true
     toast.success('Password reset successfully!')
   } catch (error: any) {
-    errorMessage.value = error.message || 'Failed to reset password. The link may have expired.'
+    const msg = error.message || 'Failed to reset password. The link may have expired.'
+    errorMessage.value = msg
+    toast.error(msg)
   } finally {
     isLoading.value = false
   }

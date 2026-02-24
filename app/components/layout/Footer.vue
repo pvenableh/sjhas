@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import type { SiteSettings } from '~/types/directus'
+import { toast } from 'vue-sonner'
 
 const props = defineProps<{
   settings?: SiteSettings | null
@@ -22,9 +23,11 @@ const isAdmin = computed(() => {
 const handleLogout = async () => {
   try {
     await logout()
+    toast.success('You have been signed out')
     router.push('/')
   } catch {
     // session cleared by composable regardless
+    toast.error('Logout failed. Please try again.')
   }
 }
 

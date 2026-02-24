@@ -4,6 +4,7 @@ import { useForm } from 'vee-validate'
 import { toTypedSchema } from '@vee-validate/zod'
 import * as z from 'zod'
 import { gsap } from 'gsap'
+import { toast } from 'vue-sonner'
 import type { Form, FormField } from '~/types/directus'
 
 export interface FormStep {
@@ -217,6 +218,7 @@ const onSubmit = handleSubmit(async (values) => {
     if (response.success) {
       isSuccess.value = true
       trackFormSubmission(props.form.title || 'Unknown Form', props.form.id)
+      toast.success(props.form.success_message || 'Form submitted successfully!')
       emit('submitted', values)
 
       // Animate success state
@@ -238,6 +240,7 @@ const onSubmit = handleSubmit(async (values) => {
   } catch (error) {
     submitError.value = 'Something went wrong. Please try again.'
     trackFormError(props.form.title || 'Unknown Form', 'Submission failed')
+    toast.error('Something went wrong. Please try again.')
     console.error('Form submission error:', error)
   }
 })
