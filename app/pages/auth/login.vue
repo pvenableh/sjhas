@@ -12,6 +12,7 @@ useSeoMeta({
 })
 
 const { login, user } = useDirectusAuth()
+const { trackLogin } = useAnalytics()
 const router = useRouter()
 const route = useRoute()
 
@@ -23,6 +24,7 @@ const handleLogin = async (credentials: { email: string; password: string }) => 
 
   try {
     await login(credentials)
+    trackLogin()
     toast.success('Welcome back!')
 
     // Allow the session cookie and reactive state to fully settle

@@ -10,6 +10,8 @@ const props = defineProps<{
   bookingUrl?: string
 }>()
 
+const { trackNavClick, trackBookingClick } = useAnalytics()
+
 const { y } = useWindowScroll()
 const isScrolled = computed(() => y.value > 20)
 const isMobileMenuOpen = ref(false)
@@ -123,6 +125,7 @@ onMounted(() => {
               target="_blank"
               rel="noopener noreferrer"
               class="px-5 py-2 text-[13px] tracking-[0.02em] t-text-secondary hover:t-text-accent transition-colors rounded-xl t-hover-bg"
+              @click="trackNavClick(link.label, link.href)"
             >
               {{ link.label }}
             </a>
@@ -130,6 +133,7 @@ onMounted(() => {
               v-else
               :to="link.href"
               class="px-5 py-2 text-[13px] tracking-[0.02em] t-text-secondary hover:t-text-accent transition-colors rounded-xl t-hover-bg"
+              @click="trackNavClick(link.label, link.href)"
             >
               {{ link.label }}
             </NuxtLink>
@@ -139,7 +143,7 @@ onMounted(() => {
         <!-- CTA Button & Dark Mode (Desktop) -->
         <div class="hidden lg:flex items-center gap-4">
           <LayoutDarkModeToggle />
-          <Button v-if="bookingUrl" as="a" :href="bookingUrl" target="_blank" size="sm" class="tracking-wide">
+          <Button v-if="bookingUrl" as="a" :href="bookingUrl" target="_blank" size="sm" class="tracking-wide" @click="trackBookingClick('header')">
             Book Appointment
           </Button>
         </div>
@@ -199,7 +203,7 @@ onMounted(() => {
               target="_blank"
               rel="noopener noreferrer"
               class="mobile-nav-link block px-5 py-3.5 text-[15px] tracking-wide t-text-secondary hover:t-text-accent t-hover-bg rounded-xl transition-colors"
-              @click="closeMobileMenu"
+              @click="trackNavClick(link.label, link.href); closeMobileMenu()"
             >
               {{ link.label }}
             </a>
@@ -207,7 +211,7 @@ onMounted(() => {
               v-else
               :to="link.href"
               class="mobile-nav-link block px-5 py-3.5 text-[15px] tracking-wide t-text-secondary hover:t-text-accent t-hover-bg rounded-xl transition-colors"
-              @click="closeMobileMenu"
+              @click="trackNavClick(link.label, link.href); closeMobileMenu()"
             >
               {{ link.label }}
             </NuxtLink>
@@ -218,6 +222,7 @@ onMounted(() => {
               :href="bookingUrl"
               target="_blank"
               class="w-full tracking-wide"
+              @click="trackBookingClick('header_mobile')"
             >
               Book Appointment
             </Button>

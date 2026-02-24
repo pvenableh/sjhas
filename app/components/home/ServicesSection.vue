@@ -11,6 +11,8 @@ const props = defineProps<{
   bookingUrl?: string
 }>()
 
+const { trackCtaClick, trackBookingClick } = useAnalytics()
+
 const hasContent = computed(() => props.title || props.subtitle || props.services?.length)
 
 const sectionRef = ref<HTMLElement | null>(null)
@@ -105,6 +107,7 @@ onMounted(() => {
             v-if="service.cta_link"
             :to="service.cta_link"
             class="inline-flex items-center gap-2.5 t-text-accent font-medium text-sm tracking-wide t-link transition-colors"
+            @click="trackCtaClick(service.cta_text || 'Learn more', service.cta_link, 'services_section')"
           >
             {{ service.cta_text || 'Learn more' }}
             <Icon name="lucide:arrow-right" class="w-4 h-4 transition-transform group-hover:translate-x-1" />
@@ -119,7 +122,7 @@ onMounted(() => {
 
       <!-- Bottom CTA -->
       <div v-if="bookingUrl" class="mt-20 text-center">
-        <Button as="a" :href="bookingUrl" target="_blank" size="lg" class="tracking-wide">
+        <Button as="a" :href="bookingUrl" target="_blank" size="lg" class="tracking-wide" @click="trackBookingClick('services_section')">
           Book an Appointment
           <Icon name="lucide:calendar" class="w-4 h-4" />
         </Button>

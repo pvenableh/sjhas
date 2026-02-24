@@ -101,6 +101,8 @@ const { handleSubmit, isSubmitting, resetForm, validate } = useForm({
   validationSchema,
 })
 
+const { trackFormSubmission, trackFormStepComplete, trackFormError, trackFormView } = useAnalytics()
+
 const formRef = ref<HTMLFormElement | null>(null)
 const isSuccess = ref(false)
 const submitError = ref<string | null>(null)
@@ -146,6 +148,11 @@ const goToNextStep = async () => {
   if (hasStepErrors) return
 
   if (!isLastStep.value) {
+    trackFormStepComplete(
+      props.form.title || 'Unknown Form',
+      currentStep.value + 1,
+      props.steps?.[currentStep.value]?.label,
+    )
     currentStep.value++
     emit('update:currentStep', currentStep.value)
     animateStepTransition()
@@ -209,6 +216,7 @@ const onSubmit = handleSubmit(async (values) => {
 
     if (response.success) {
       isSuccess.value = true
+      trackFormSubmission(props.form.title || 'Unknown Form', props.form.id)
       emit('submitted', values)
 
       // Animate success state
@@ -229,6 +237,7 @@ const onSubmit = handleSubmit(async (values) => {
     }
   } catch (error) {
     submitError.value = 'Something went wrong. Please try again.'
+    trackFormError(props.form.title || 'Unknown Form', 'Submission failed')
     console.error('Form submission error:', error)
   }
 })
@@ -249,8 +258,10 @@ const handleReset = () => {
   }
 }
 
-// Animate form on mount
+// Animate form on mount + track form view
 onMounted(() => {
+  trackFormView(props.form.title || 'Unknown Form', props.form.id)
+
   if (formRef.value) {
     gsap.fromTo(
       formRef.value.querySelectorAll('.form-field'),

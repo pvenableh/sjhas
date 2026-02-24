@@ -2,6 +2,7 @@
 import { ref } from 'vue'
 
 const { user, logout, loggedIn } = useDirectusAuth()
+const { trackLogout } = useAnalytics()
 const router = useRouter()
 
 const isSidebarOpen = ref(false)
@@ -20,6 +21,7 @@ const formLinks = [
 
 const handleLogout = async () => {
   try {
+    trackLogout()
     await logout()
     router.push('/auth/login')
   } catch (error) {

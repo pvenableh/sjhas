@@ -4,6 +4,8 @@ import { gsap } from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import type { SiteSettings } from '~/types/directus'
 
+const { trackCtaClick, trackBookingClick } = useAnalytics()
+
 const props = defineProps<{
   title?: string
   subtitle?: string
@@ -92,6 +94,7 @@ onMounted(() => {
           v-if="contactInfo.email"
           :href="`mailto:${contactInfo.email}`"
           class="contact-card group rounded-2xl p-10 lg:p-12 border t-section-card t-section-card-hover hover:shadow-lg transition-all duration-500 text-center"
+          @click="trackCtaClick('Email Contact', `mailto:${contactInfo.email}`, 'contact_section')"
         >
           <div class="w-16 h-16 rounded-2xl t-icon-box t-icon-box-group-hover flex items-center justify-center mx-auto mb-8 transition-colors duration-300">
             <Icon name="lucide:mail" class="w-7 h-7 t-icon-color-group-hover transition-colors duration-300" />
@@ -105,6 +108,7 @@ onMounted(() => {
           v-if="contactInfo.phone"
           :href="`tel:${contactInfo.phone.replace(/[^0-9]/g, '')}`"
           class="contact-card group rounded-2xl p-10 lg:p-12 border t-section-card t-section-card-hover hover:shadow-lg transition-all duration-500 text-center"
+          @click="trackCtaClick('Phone Contact', `tel:${contactInfo.phone}`, 'contact_section')"
         >
           <div class="w-16 h-16 rounded-2xl t-icon-box t-icon-box-group-hover flex items-center justify-center mx-auto mb-8 transition-colors duration-300">
             <Icon name="lucide:phone" class="w-7 h-7 t-icon-color-group-hover transition-colors duration-300" />
@@ -168,6 +172,7 @@ onMounted(() => {
               target="_blank"
               variant="secondary"
               class="w-full justify-center tracking-wide"
+              @click="trackBookingClick('contact_section')"
             >
               <Icon name="lucide:calendar" class="w-4 h-4" />
               Book an Appointment
@@ -177,7 +182,7 @@ onMounted(() => {
               class="w-full justify-center tracking-wide"
               style="background-color: rgba(255, 255, 255, 0.08); color: var(--theme-hero-text); border-color: rgba(255, 255, 255, 0.15);"
             >
-              <NuxtLink to="/upload">
+              <NuxtLink to="/upload" @click="trackCtaClick('Upload Documents', '/upload', 'contact_section')">
                 <Icon name="lucide:upload" class="w-4 h-4" />
                 Upload Documents
               </NuxtLink>

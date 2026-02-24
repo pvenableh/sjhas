@@ -18,7 +18,13 @@ export default defineNuxtConfig({
     "@vite-pwa/nuxt",
     "shadcn-nuxt",
     "nuxt-auth-utils",
+    "nuxt-gtag",
   ],
+
+  gtag: {
+    id: process.env.NUXT_PUBLIC_GTAG_ID || "",
+    enabled: !!process.env.NUXT_PUBLIC_GTAG_ID,
+  },
 
   css: ["~/assets/css/main.css"],
 
