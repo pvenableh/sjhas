@@ -19,7 +19,7 @@ onMounted(() => {
     gsap.registerPlugin(ScrollTrigger)
 
     gsap.fromTo(
-      sectionRef.value.querySelector('.testimonial-card'),
+      sectionRef.value.querySelector('.testimonials-carousel'),
       { opacity: 0, y: 20 },
       {
         opacity: 1,
@@ -64,65 +64,71 @@ onMounted(() => {
         </p>
       </div>
 
-      <!-- Testimonials -->
-      <div v-if="testimonials?.length" class="max-w-4xl mx-auto">
-        <div
-          v-for="testimonial in testimonials"
-          :key="testimonial.author_name"
-          class="testimonial-card relative t-bg-elevated rounded-3xl p-10 md:p-16 t-shadow-lg"
-        >
-          <!-- Quote icon -->
-          <div class="absolute -top-6 left-10 w-12 h-12 rounded-2xl flex items-center justify-center shadow-lg" style="background-color: var(--theme-accent-primary);">
-            <Icon name="lucide:quote" class="w-6 h-6" style="color: var(--theme-text-inverse);" />
-          </div>
+      <!-- Testimonials Carousel -->
+      <div v-if="testimonials?.length" class="testimonials-carousel max-w-4xl mx-auto">
+        <Carousel class="w-full" :opts="{ loop: true }">
+          <CarouselContent>
+            <CarouselItem v-for="testimonial in testimonials" :key="testimonial.id">
+              <div
+                class="relative t-bg-elevated rounded-3xl p-10 md:p-16 t-shadow-lg"
+              >
+                <!-- Quote icon -->
+                <div class="absolute -top-6 left-10 w-12 h-12 rounded-2xl flex items-center justify-center shadow-lg" style="background-color: var(--theme-accent-primary);">
+                  <Icon name="lucide:quote" class="w-6 h-6" style="color: var(--theme-text-inverse);" />
+                </div>
 
-          <!-- Quote -->
-          <blockquote class="text-lg md:text-xl t-text-secondary leading-[1.85] mb-12 italic">
-            "{{ testimonial.quote }}"
-          </blockquote>
+                <!-- Quote -->
+                <blockquote class="text-lg md:text-xl t-text-secondary leading-[1.85] mb-12 italic">
+                  "{{ testimonial.quote }}"
+                </blockquote>
 
-          <!-- Divider -->
-          <div class="w-16 h-px mb-8" style="background-color: var(--theme-accent-primary); opacity: 0.3;" />
+                <!-- Divider -->
+                <div class="w-16 h-px mb-8" style="background-color: var(--theme-accent-primary); opacity: 0.3;" />
 
-          <!-- Author -->
-          <div class="flex items-center gap-5">
-            <div
-              v-if="testimonial.author_image"
-              class="w-14 h-14 rounded-full overflow-hidden"
-            >
-              <img
-                :src="typeof testimonial.author_image === 'string' ? testimonial.author_image : ''"
-                :alt="testimonial.author_name"
-                class="w-full h-full object-cover"
-              />
-            </div>
-            <div
-              v-else
-              class="w-14 h-14 rounded-full t-icon-box flex items-center justify-center"
-            >
-              <span class="text-xl t-heading">
-                {{ testimonial.author_name?.charAt(0) }}
-              </span>
-            </div>
-            <div>
-              <p class="font-medium t-text tracking-wide">{{ testimonial.author_name }}</p>
-              <p v-if="testimonial.author_title" class="text-sm t-text-muted tracking-wide mt-0.5">
-                {{ testimonial.author_title }}
-              </p>
-            </div>
-          </div>
+                <!-- Author -->
+                <div class="flex items-center gap-5">
+                  <div
+                    v-if="testimonial.author_image"
+                    class="w-14 h-14 rounded-full overflow-hidden"
+                  >
+                    <img
+                      :src="typeof testimonial.author_image === 'string' ? testimonial.author_image : ''"
+                      :alt="testimonial.author_name"
+                      class="w-full h-full object-cover"
+                    />
+                  </div>
+                  <div
+                    v-else
+                    class="w-14 h-14 rounded-full t-icon-box flex items-center justify-center"
+                  >
+                    <span class="text-xl t-heading">
+                      {{ testimonial.author_name?.charAt(0) }}
+                    </span>
+                  </div>
+                  <div>
+                    <p class="font-medium t-text tracking-wide">{{ testimonial.author_name }}</p>
+                    <p v-if="testimonial.author_title" class="text-sm t-text-muted tracking-wide mt-0.5">
+                      {{ testimonial.author_title }}
+                    </p>
+                  </div>
+                </div>
 
-          <!-- Decorative stars -->
-          <div class="absolute top-12 right-12 flex gap-1.5">
-            <Icon
-              v-for="i in 5"
-              :key="i"
-              name="lucide:star"
-              class="w-4 h-4 t-text-accent"
-              style="fill: var(--theme-accent-primary);"
-            />
-          </div>
-        </div>
+                <!-- Decorative stars -->
+                <div class="absolute top-12 right-12 flex gap-1.5">
+                  <Icon
+                    v-for="i in 5"
+                    :key="i"
+                    name="lucide:star"
+                    class="w-4 h-4 t-text-accent"
+                    style="fill: var(--theme-accent-primary);"
+                  />
+                </div>
+              </div>
+            </CarouselItem>
+          </CarouselContent>
+          <CarouselPrevious />
+          <CarouselNext />
+        </Carousel>
       </div>
     </div>
   </section>
