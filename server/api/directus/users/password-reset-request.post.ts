@@ -23,7 +23,7 @@ export default defineEventHandler(async (event) => {
     const config = useRuntimeConfig();
 
     await directus.request(
-      passwordRequest(email, reset_url || `${config.public.siteUrl}/auth/reset-password`)
+      passwordRequest(email, reset_url || `${config.public.siteUrl}/auth/password-reset`)
     );
 
     return {
