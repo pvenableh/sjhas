@@ -1,5 +1,6 @@
 // server/api/chat/close-session.post.ts
-// Admin endpoint to close a chat session and notify connected visitors via WS
+// Admin endpoint to close a chat session
+// Directus WebSocket subscribers are notified automatically when session status changes
 
 export default defineEventHandler(async (event) => {
   const session = await getUserSession(event)
@@ -28,9 +29,6 @@ export default defineEventHandler(async (event) => {
         status: 'closed',
       })
     )
-
-    // Broadcast session_closed to any connected visitor WS peers
-    broadcastSessionClosed(sessionId)
 
     return { success: true }
   } catch (error: any) {

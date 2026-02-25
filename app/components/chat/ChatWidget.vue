@@ -2,12 +2,9 @@
 /**
  * ChatWidget - Floating chat widget for visitor engagement
  *
- * Features:
- * - Session persistence via localStorage (survives page navigation / browser close)
- * - Real-time admin online/offline status via WebSocket (no page refresh needed)
- * - Typing indicators (iMessage-style bouncing dots) for both sides
- * - When Stephen is online: Real-time messaging via Nitro WebSocket
- * - When offline: Captures visitor name, email, phone + stores message
+ * Real-time via Directus WebSocket (direct browser → Directus connection).
+ * Falls back to HTTP polling if WS is unavailable.
+ * Writes (send message, start session) go through Vercel Nuxt API.
  */
 
 const STORAGE_KEY = "sjh-chat-session";
@@ -43,25 +40,29 @@ const messagesContainer = ref<HTMLElement | null>(null);
 const hasUnread = ref(false);
 const messages = ref<any[]>([]);
 
-// Nitro WebSocket for live messaging + typing indicators + status updates
+// ─── Real-time composable (Directus WS + polling fallback) ────
 const {
   isConnected,
+  adminOnline: rtAdminOnline,
   adminTyping,
-  adminOnline: wsAdminOnline,
-  connect: wsConnect,
-  joinSession: wsJoinSession,
-  disconnect: wsDisconnect,
+  connectionMode,
+  connect: rtConnect,
+  joinSession: rtJoinSession,
+  leaveSession: rtLeaveSession,
   sendTyping,
-  onNewMessage: onWsNewMessage,
-  onStatusChange: onWsStatusChange,
-  onSessionClosed: onWsSessionClosed,
-} = useChatWebSocket();
+  disconnect: rtDisconnect,
+  onNewMessage,
+  onStatusChange,
+  onSessionClosed,
+} = useChatRealtime();
 
-// Polling fallback in case WS doesn't connect
-let pollInterval: ReturnType<typeof setInterval> | null = null;
+// Sync real-time admin status → local ref
+watch(rtAdminOnline, (online) => {
+  adminOnline.value = online;
+});
 
-// Append new messages from WebSocket
-onWsNewMessage((msg) => {
+// Merge new messages from real-time
+onNewMessage((msg) => {
   const exists = messages.value.some((m: any) => m.id === (msg as any).id);
   if (!exists) {
     messages.value = [...messages.value, msg as any];
@@ -72,24 +73,22 @@ onWsNewMessage((msg) => {
   }
 });
 
-// Listen for real-time admin status changes
-onWsStatusChange(async (online) => {
+// Admin comes online/goes offline
+onStatusChange(async (online) => {
   adminOnline.value = online;
-  // If admin comes online and we have a stored session but no active session, restore it
   if (online && !sessionId.value && !sessionClosed.value) {
     await restoreSession();
   }
 });
 
-// Listen for session closed by admin
-onWsSessionClosed(() => {
+// Session closed by admin
+onSessionClosed(() => {
   sessionClosed.value = true;
   clearPersistedSession();
 });
 
-/**
- * Save session data to localStorage for persistence
- */
+// ─── Session persistence ──────────────────────────────────────
+
 function persistSession(sid: number) {
   try {
     localStorage.setItem(
@@ -102,25 +101,15 @@ function persistSession(sid: number) {
         timestamp: Date.now(),
       }),
     );
-  } catch {
-    // localStorage unavailable (e.g. private browsing)
-  }
+  } catch {}
 }
 
-/**
- * Clear persisted session data
- */
 function clearPersistedSession() {
   try {
     localStorage.removeItem(STORAGE_KEY);
-  } catch {
-    // Ignore
-  }
+  } catch {}
 }
 
-/**
- * Attempt to restore a persisted session on mount
- */
 async function restoreSession(): Promise<boolean> {
   try {
     const stored = localStorage.getItem(STORAGE_KEY);
@@ -129,14 +118,12 @@ async function restoreSession(): Promise<boolean> {
     const data = JSON.parse(stored);
     if (!data.sessionId) return false;
 
-    // Sessions older than 24 hours are stale
     const ageMs = Date.now() - (data.timestamp || 0);
     if (ageMs > 24 * 60 * 60 * 1000) {
       clearPersistedSession();
       return false;
     }
 
-    // Validate the session is still active on the server
     const result = await $fetch("/api/chat/session", {
       method: "GET",
       params: { id: data.sessionId },
@@ -147,22 +134,13 @@ async function restoreSession(): Promise<boolean> {
       return false;
     }
 
-    // Restore session state
     sessionId.value = data.sessionId;
     visitorName.value = data.visitorName || "";
     visitorEmail.value = data.visitorEmail || "";
     visitorPhone.value = data.visitorPhone || "";
 
-    // Load messages and connect WS
     await loadMessages(data.sessionId);
-    wsJoinSession(data.sessionId);
-
-    // Start polling fallback if WS doesn't connect within 3s
-    setTimeout(() => {
-      if (!isConnected.value) {
-        startPolling(data.sessionId);
-      }
-    }, 3000);
+    rtJoinSession(data.sessionId);
 
     return true;
   } catch {
@@ -171,10 +149,10 @@ async function restoreSession(): Promise<boolean> {
   }
 }
 
-// Fetch chat status and restore session on mount
+// ─── Lifecycle ────────────────────────────────────────────────
+
 onMounted(async () => {
-  // Connect WS early for real-time status updates (no session needed)
-  wsConnect();
+  rtConnect();
 
   try {
     const status = await $fetch("/api/chat/status");
@@ -190,7 +168,6 @@ onMounted(async () => {
     statusLoaded.value = true;
   }
 
-  // Try to restore a previous chat session (works whether admin is online or offline)
   sessionRestoring.value = true;
   try {
     await restoreSession();
@@ -200,9 +177,10 @@ onMounted(async () => {
 });
 
 onUnmounted(() => {
-  wsDisconnect();
-  if (pollInterval) clearInterval(pollInterval);
+  rtDisconnect();
 });
+
+// ─── UI Actions ───────────────────────────────────────────────
 
 function toggleChat() {
   if (isOpen.value) {
@@ -221,9 +199,6 @@ function minimizeChat() {
   isOpen.value = false;
 }
 
-/**
- * Load existing messages for the session via server API
- */
 async function loadMessages(sid: number) {
   try {
     const result = await $fetch("/api/chat/messages", {
@@ -231,59 +206,9 @@ async function loadMessages(sid: number) {
       body: { sessionId: sid, operation: "list" },
     });
     messages.value = result as any[];
-  } catch {
-    // Non-critical — messages will appear via subscription
-  }
+  } catch {}
 }
 
-/**
- * Start realtime updates for chat messages.
- * Joins the session on the already-connected WebSocket.
- * Falls back to polling if WS doesn't connect.
- */
-function startRealtimeMessages(sid: number) {
-  // Join the session on the existing WS connection
-  wsJoinSession(sid);
-
-  // Start polling fallback if WS doesn't connect within 3s
-  setTimeout(() => {
-    if (!isConnected.value) {
-      startPolling(sid);
-    }
-  }, 3000);
-}
-
-/**
- * Polling fallback for environments where WS is unavailable
- */
-function startPolling(sid: number) {
-  if (pollInterval) clearInterval(pollInterval);
-  pollInterval = setInterval(async () => {
-    try {
-      const result = await $fetch("/api/chat/messages", {
-        method: "POST",
-        body: { sessionId: sid, operation: "list" },
-      });
-      const fetched = result as any[];
-      if (fetched.length > messages.value.length) {
-        const newMsgs = fetched.slice(messages.value.length);
-        messages.value = fetched;
-        if (newMsgs.length > 0) {
-          scrollToBottom();
-          if (!isOpen.value) {
-            hasUnread.value = true;
-          }
-        }
-      }
-    } catch {
-      // Silently ignore poll errors
-    }
-  }, 3000);
-}
-
-/**
- * Submit visitor info form (offline mode or start of online chat)
- */
 async function submitVisitorInfo() {
   formError.value = "";
 
@@ -319,12 +244,9 @@ async function submitVisitorInfo() {
     trackChatSessionStart(adminOnline.value ? "online" : "offline");
 
     if (adminOnline.value) {
-      // Persist session for future page loads
       persistSession(result.sessionId);
-
-      // Load existing messages + subscribe to realtime updates
       await loadMessages(result.sessionId);
-      startRealtimeMessages(result.sessionId);
+      rtJoinSession(result.sessionId);
     } else {
       formSubmitted.value = true;
     }
@@ -336,9 +258,6 @@ async function submitVisitorInfo() {
   }
 }
 
-/**
- * Send a chat message via server endpoint
- */
 async function sendMessage() {
   if (!newMessage.value.trim() || !sessionId.value || sendingMessage.value)
     return;
@@ -358,7 +277,6 @@ async function sendMessage() {
         operation: "send",
       },
     });
-    // Add to local list immediately (WS dedup prevents duplicates)
     const msg = result as any;
     const exists = messages.value.some((m: any) => m.id === msg.id);
     if (!exists) {
@@ -366,7 +284,7 @@ async function sendMessage() {
     }
     trackChatMessageSent();
   } catch {
-    newMessage.value = messageText; // Restore on failure
+    newMessage.value = messageText;
   } finally {
     sendingMessage.value = false;
   }
@@ -374,9 +292,6 @@ async function sendMessage() {
   scrollToBottom();
 }
 
-/**
- * Start a new chat after the previous one was closed by admin
- */
 function startNewChat() {
   sessionClosed.value = false;
   sessionId.value = null;
@@ -386,6 +301,7 @@ function startNewChat() {
   visitorPhone.value = "";
   initialMessage.value = "";
   formSubmitted.value = false;
+  rtLeaveSession();
 }
 
 function scrollToBottom() {
@@ -401,7 +317,6 @@ function handleKeydown(e: KeyboardEvent) {
     e.preventDefault();
     sendMessage();
   } else {
-    // Send typing indicator
     sendTyping(true);
   }
 }
@@ -411,7 +326,6 @@ function formatTime(dateStr: string) {
   return date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
 }
 
-// Whether we're in live chat mode (session created + admin online + not closed)
 const isLiveChat = computed(
   () => sessionId.value !== null && adminOnline.value && !sessionClosed.value,
 );
@@ -841,41 +755,65 @@ const isLiveChat = computed(
             </div>
           </div>
 
-          <!-- Message Input -->
-          <div
-            class="border-t px-4 py-3"
-            style="border-color: var(--theme-border)"
-          >
-            <div class="flex items-end gap-2">
-              <textarea
-                v-model="newMessage"
-                placeholder="Type a message..."
-                rows="1"
-                class="t-input flex-1 resize-none rounded-xl px-3 py-2.5 text-sm"
-                @keydown="handleKeydown"
-              />
-              <button
-                :disabled="!newMessage.trim() || sendingMessage"
-                class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full transition-all duration-200 disabled:opacity-40"
-                style="background: var(--theme-accent); color: white"
-                @click="sendMessage"
+          <!-- Session Closed State -->
+          <template v-if="sessionClosed">
+            <div class="border-t px-4 py-4 text-center" style="border-color: var(--theme-border)">
+              <div
+                class="mb-3 flex items-center justify-center gap-2 text-sm"
+                style="color: var(--theme-text-secondary)"
               >
-                <svg
-                  class="h-4 w-4"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                  stroke-width="2"
-                >
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"
-                  />
+                <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
+                This conversation has been closed.
+              </div>
+              <button
+                class="rounded-lg px-4 py-2 text-sm font-medium text-white transition-colors hover:opacity-90"
+                style="background: var(--theme-accent)"
+                @click="startNewChat"
+              >
+                Start New Chat
               </button>
             </div>
-          </div>
+          </template>
+
+          <!-- Normal Message Input -->
+          <template v-else>
+            <div
+              class="border-t px-4 py-3"
+              style="border-color: var(--theme-border)"
+            >
+              <div class="flex items-end gap-2">
+                <textarea
+                  v-model="newMessage"
+                  placeholder="Type a message..."
+                  rows="1"
+                  class="t-input flex-1 resize-none rounded-xl px-3 py-2.5 text-sm"
+                  @keydown="handleKeydown"
+                />
+                <button
+                  :disabled="!newMessage.trim() || sendingMessage"
+                  class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full transition-all duration-200 disabled:opacity-40"
+                  style="background: var(--theme-accent); color: white"
+                  @click="sendMessage"
+                >
+                  <svg
+                    class="h-4 w-4"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                    stroke-width="2"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"
+                    />
+                  </svg>
+                </button>
+              </div>
+            </div>
+          </template>
         </template>
       </div>
     </div>
