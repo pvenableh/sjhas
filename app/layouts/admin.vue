@@ -17,6 +17,12 @@ const newSubmissions = ref<any[]>([])
 const activeChatSessions = ref<any[]>([])
 const notifLoading = ref(true)
 
+// Directus Realtime for live notification updates
+const {
+  subscribe,
+  connect: rtConnect,
+} = useDirectusRealtime()
+
 const notificationCount = computed(() =>
   newSubmissions.value.length + activeChatSessions.value.length
 )
@@ -46,12 +52,55 @@ async function fetchNotifications() {
   }
 }
 
-let notifInterval: ReturnType<typeof setInterval>
-onMounted(() => {
-  fetchNotifications()
-  notifInterval = setInterval(fetchNotifications, 30000)
+/**
+ * Mark a form submission as reviewed when clicked
+ */
+async function markSubmissionRead(sub: any) {
+  try {
+    await submissions.update(sub.id, { status: 'reviewed' } as any)
+    newSubmissions.value = newSubmissions.value.filter((s: any) => s.id !== sub.id)
+  } catch {
+    // Non-critical — navigation still happens
+  }
+  isNotificationsOpen.value = false
+  router.push('/admin/submissions')
+}
+
+/**
+ * Navigate to chat when clicking a chat notification
+ */
+function handleChatNotificationClick() {
+  isNotificationsOpen.value = false
+  router.push('/admin/chat')
+}
+
+onMounted(async () => {
+  await fetchNotifications()
+
+  // Connect to Directus realtime for live notification updates
+  try {
+    await rtConnect()
+
+    // Subscribe to form submission changes
+    await subscribe('form_submissions', () => {
+      fetchNotifications()
+    }, {
+      fields: ['id', 'submitter_name', 'submitter_email', 'date_created', 'form', 'status'],
+    })
+
+    // Subscribe to chat session changes
+    await subscribe('chat_sessions', () => {
+      fetchNotifications()
+    }, {
+      fields: ['id', 'visitor_name', 'last_message_at', 'status'],
+    })
+  } catch (error) {
+    // Fallback: poll every 30 seconds if realtime fails
+    console.warn('Realtime notifications unavailable, falling back to polling:', error)
+    const notifInterval = setInterval(fetchNotifications, 30000)
+    onUnmounted(() => clearInterval(notifInterval))
+  }
 })
-onUnmounted(() => clearInterval(notifInterval))
 
 const navigation = [
   { name: 'Dashboard', href: '/admin', icon: 'lucide:layout-dashboard' },
@@ -188,7 +237,6 @@ const closeSidebar = () => {
                 <div
                   v-if="isNotificationsOpen"
                   class="absolute right-0 mt-2 w-80 bg-white rounded-lg shadow-lg border border-slate-200 z-50 overflow-hidden"
-                  @click="isNotificationsOpen = false"
                 >
                   <div class="px-4 py-3 border-b border-slate-100 flex items-center justify-between">
                     <p class="text-sm font-semibold text-slate-900">Notifications</p>
@@ -205,12 +253,12 @@ const closeSidebar = () => {
                   </div>
 
                   <div v-else class="max-h-72 overflow-y-auto divide-y divide-slate-100">
-                    <!-- New submissions -->
-                    <NuxtLink
+                    <!-- New submissions — clicking marks as read -->
+                    <button
                       v-for="sub in newSubmissions"
                       :key="'sub-' + sub.id"
-                      to="/admin/submissions"
-                      class="flex items-start gap-3 px-4 py-3 hover:bg-slate-50 transition-colors"
+                      class="flex w-full items-start gap-3 px-4 py-3 hover:bg-slate-50 transition-colors text-left"
+                      @click="markSubmissionRead(sub)"
                     >
                       <div class="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-blue-100">
                         <Icon name="lucide:inbox" class="w-3.5 h-3.5 text-blue-600" />
@@ -221,14 +269,14 @@ const closeSidebar = () => {
                         </p>
                         <p class="text-xs text-slate-500">Form submission</p>
                       </div>
-                    </NuxtLink>
+                    </button>
 
                     <!-- Active chat sessions -->
-                    <NuxtLink
+                    <button
                       v-for="chat in activeChatSessions"
                       :key="'chat-' + chat.id"
-                      to="/admin/chat"
-                      class="flex items-start gap-3 px-4 py-3 hover:bg-slate-50 transition-colors"
+                      class="flex w-full items-start gap-3 px-4 py-3 hover:bg-slate-50 transition-colors text-left"
+                      @click="handleChatNotificationClick"
                     >
                       <div class="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-green-100">
                         <Icon name="lucide:message-circle" class="w-3.5 h-3.5 text-green-600" />
@@ -239,13 +287,14 @@ const closeSidebar = () => {
                         </p>
                         <p class="text-xs text-slate-500">Live conversation</p>
                       </div>
-                    </NuxtLink>
+                    </button>
                   </div>
 
                   <div class="px-4 py-2.5 border-t border-slate-100 bg-slate-50">
                     <NuxtLink
                       to="/admin/submissions"
                       class="text-xs font-medium text-primary-600 hover:text-primary-700"
+                      @click="isNotificationsOpen = false"
                     >
                       View all submissions →
                     </NuxtLink>
