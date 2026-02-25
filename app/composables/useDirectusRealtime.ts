@@ -56,8 +56,9 @@ export function useDirectusRealtime(options: RealtimeOptions = {}) {
     if (requireAuth) {
       const { loggedIn } = useUserSession();
       if (!loggedIn.value) {
-        connectionError.value = "Authentication required";
-        return;
+        const err = new Error("Authentication required");
+        connectionError.value = err.message;
+        throw err;
       }
     }
 
@@ -69,6 +70,14 @@ export function useDirectusRealtime(options: RealtimeOptions = {}) {
       const wsUrl =
         (config.public.directus as any).websocketUrl ||
         config.public.directus.url.replace("http", "ws");
+
+      const connectWithTimeout = (c: any) =>
+        Promise.race([
+          c.connect(),
+          new Promise((_, reject) =>
+            setTimeout(() => reject(new Error("Connection timeout")), 5000)
+          ),
+        ]);
 
       if (requireAuth) {
         // Authenticated connection
@@ -83,12 +92,12 @@ export function useDirectusRealtime(options: RealtimeOptions = {}) {
           .with(rest())
           .with(authentication("json"));
 
-        await client.connect();
+        await connectWithTimeout(client);
         await client.sendMessage({ type: "auth", access_token: token });
       } else {
         // Public connection — uses Directus public role permissions
         client = createDirectus(wsUrl).with(realtime());
-        await client.connect();
+        await connectWithTimeout(client);
       }
 
       isConnected.value = true;
@@ -98,14 +107,9 @@ export function useDirectusRealtime(options: RealtimeOptions = {}) {
     } catch (error: any) {
       isConnecting.value = false;
       connectionError.value = error.message || "Connection failed";
-      console.error("WebSocket connection error:", error);
-
-      // Attempt reconnection
-      if (reconnectAttempts.value < maxReconnectAttempts) {
-        const delay = Math.min(1000 * Math.pow(2, reconnectAttempts.value), 30000);
-        reconnectAttempts.value++;
-        setTimeout(connect, delay);
-      }
+      client = null;
+      // Throw so callers can handle fallback (e.g. polling)
+      throw error;
     }
   }
 

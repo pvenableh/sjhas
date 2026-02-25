@@ -168,6 +168,8 @@ function statusBadgeClass(status: string) {
   }
 }
 
+let pollInterval: ReturnType<typeof setInterval> | null = null
+
 onMounted(async () => {
   await fetchAll()
 
@@ -182,10 +184,14 @@ onMounted(async () => {
       fields: ['id', 'visitor_name', 'last_message_at', 'date_created', 'status'],
     })
   } catch {
-    // Fallback polling
-    const interval = setInterval(fetchAll, 30000)
-    onUnmounted(() => clearInterval(interval))
+    // Realtime unavailable — fall back to polling
+    console.warn('[notifications] Realtime unavailable, using polling fallback')
+    pollInterval = setInterval(fetchAll, 30000)
   }
+})
+
+onUnmounted(() => {
+  if (pollInterval) clearInterval(pollInterval)
 })
 </script>
 
