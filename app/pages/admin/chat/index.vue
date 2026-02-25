@@ -37,6 +37,11 @@ const messages = ref<any[]>([])
 let sessionPollInterval: ReturnType<typeof setInterval> | null = null
 let messagePollInterval: ReturnType<typeof setInterval> | null = null
 
+// Auto-scroll when visitor starts typing so indicator is visible
+watch(visitorTyping, (typing) => {
+  if (typing) scrollToBottom()
+})
+
 // Append new messages from WebSocket
 onNewMessage((msg) => {
   const exists = messages.value.some((m: any) => m.id === msg.id)

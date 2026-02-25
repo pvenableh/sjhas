@@ -61,6 +61,11 @@ watch(rtAdminOnline, (online) => {
   adminOnline.value = online;
 });
 
+// Auto-scroll when admin starts typing so indicator is visible
+watch(adminTyping, (typing) => {
+  if (typing) scrollToBottom();
+});
+
 // Merge new messages from real-time
 onNewMessage((msg) => {
   const exists = messages.value.some((m: any) => m.id === (msg as any).id);
