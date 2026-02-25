@@ -5,13 +5,17 @@
  * Protocol:
  * Client sends:
  *   { type: "join", sessionId: number }
+ *   { type: "subscribe_status" }           -- subscribe to admin online/offline changes
+ *   { type: "status_change", online: boolean } -- admin broadcasts status change
  *   { type: "message", sessionId: number, message: string }
  *   { type: "typing", sessionId: number, isTyping: boolean }
  *
  * Server sends:
  *   { type: "messages", messages: ChatMessage[] }
  *   { type: "new_message", message: ChatMessage }
- *   { type: "typing", sender: "admin", isTyping: boolean }
+ *   { type: "typing", sender: "admin"|"visitor", isTyping: boolean }
+ *   { type: "status_change", online: boolean }
+ *   { type: "session_closed", sessionId: number }
  *   { type: "error", message: string }
  */
 
@@ -29,17 +33,11 @@ interface ChatPeer {
   lastMessageCount: number
 }
 
-// Track connected peers and their sessions
+// Track connected peers and their sessions (local to this handler)
 const peerSessions = new Map<any, ChatPeer>()
-
-// Track admin typing state per session (set by admin via a separate mechanism)
-const adminTyping = new Map<number, boolean>()
 
 // Track active session poll intervals
 const sessionPolls = new Map<number, ReturnType<typeof setInterval>>()
-
-// Peers per session for broadcasting
-const sessionPeers = new Map<number, Set<any>>()
 
 function getDirectusClient() {
   const config = useRuntimeConfig()
@@ -65,12 +63,9 @@ function startSessionPoll(sessionId: number) {
   let lastKnownCount = 0
 
   const interval = setInterval(async () => {
-    const peers = sessionPeers.get(sessionId)
-    if (!peers || peers.size === 0) {
-      // No more connected peers, stop polling
+    if (!hasSessionPeers(sessionId)) {
       clearInterval(interval)
       sessionPolls.delete(sessionId)
-      sessionPeers.delete(sessionId)
       return
     }
 
@@ -79,8 +74,7 @@ function startSessionPoll(sessionId: number) {
       if (messages.length > lastKnownCount) {
         lastKnownCount = messages.length
 
-        // Broadcast new messages to all peers in this session
-        const newMessages = messages.slice(-Math.max(messages.length - lastKnownCount + (messages.length - lastKnownCount), 1))
+        const peers = getSessionPeers(sessionId)
         for (const peer of peers) {
           try {
             peer.send(JSON.stringify({
@@ -95,7 +89,7 @@ function startSessionPoll(sessionId: number) {
     } catch (error) {
       console.error(`[ws/chat] Poll error for session ${sessionId}:`, error)
     }
-  }, 1500) // Poll every 1.5s server-side (faster than client-side polling)
+  }, 1500)
 
   sessionPolls.set(sessionId, interval)
 }
@@ -103,6 +97,7 @@ function startSessionPoll(sessionId: number) {
 export default defineWebSocketHandler({
   open(peer) {
     peerSessions.set(peer, { sessionId: null, lastMessageCount: 0 })
+    addChatPeer(peer)
   },
 
   async message(peer, msg) {
@@ -118,6 +113,17 @@ export default defineWebSocketHandler({
     if (!peerState) return
 
     switch (data.type) {
+      case 'subscribe_status': {
+        // Peer wants status updates only — already tracked via addChatPeer() in open()
+        break
+      }
+
+      case 'status_change': {
+        // Admin broadcasting a status change via WS
+        broadcastStatusChange(!!data.online, peer)
+        break
+      }
+
       case 'join': {
         const sessionId = Number(data.sessionId)
         if (!sessionId) {
@@ -125,13 +131,13 @@ export default defineWebSocketHandler({
           return
         }
 
-        peerState.sessionId = sessionId
-
-        // Track peer in session group
-        if (!sessionPeers.has(sessionId)) {
-          sessionPeers.set(sessionId, new Set())
+        // Remove from old session if switching
+        if (peerState.sessionId && peerState.sessionId !== sessionId) {
+          removePeerFromSession(peerState.sessionId, peer)
         }
-        sessionPeers.get(sessionId)!.add(peer)
+
+        peerState.sessionId = sessionId
+        addPeerToSession(sessionId, peer)
 
         // Send existing messages
         try {
@@ -179,18 +185,16 @@ export default defineWebSocketHandler({
           )
 
           // Broadcast to all peers in this session
-          const peers = sessionPeers.get(sessionId)
-          if (peers) {
-            const msgPayload = JSON.stringify({
-              type: 'new_message',
-              message: newMessage,
-            })
-            for (const p of peers) {
-              try {
-                p.send(msgPayload)
-              } catch {
-                // Peer disconnected
-              }
+          const peers = getSessionPeers(sessionId)
+          const msgPayload = JSON.stringify({
+            type: 'new_message',
+            message: newMessage,
+          })
+          for (const p of peers) {
+            try {
+              p.send(msgPayload)
+            } catch {
+              // Peer disconnected
             }
           }
         } catch (error) {
@@ -204,21 +208,18 @@ export default defineWebSocketHandler({
         const sessionId = peerState.sessionId
         if (!sessionId) return
 
-        // Broadcast typing indicator to other peers in the session
-        const peers = sessionPeers.get(sessionId)
-        if (peers) {
-          const typingPayload = JSON.stringify({
-            type: 'typing',
-            sender: data.sender || 'visitor',
-            isTyping: !!data.isTyping,
-          })
-          for (const p of peers) {
-            if (p !== peer) {
-              try {
-                p.send(typingPayload)
-              } catch {
-                // Peer disconnected
-              }
+        const peers = getSessionPeers(sessionId)
+        const typingPayload = JSON.stringify({
+          type: 'typing',
+          sender: data.sender || 'visitor',
+          isTyping: !!data.isTyping,
+        })
+        for (const p of peers) {
+          if (p !== peer) {
+            try {
+              p.send(typingPayload)
+            } catch {
+              // Peer disconnected
             }
           }
         }
@@ -230,27 +231,19 @@ export default defineWebSocketHandler({
   close(peer) {
     const peerState = peerSessions.get(peer)
     if (peerState?.sessionId) {
-      const peers = sessionPeers.get(peerState.sessionId)
-      if (peers) {
-        peers.delete(peer)
-        if (peers.size === 0) {
-          sessionPeers.delete(peerState.sessionId)
-          // Poll cleanup happens automatically in the interval
-        }
-      }
+      removePeerFromSession(peerState.sessionId, peer)
     }
     peerSessions.delete(peer)
+    removeChatPeer(peer)
   },
 
   error(peer, error) {
     console.error('[ws/chat] WebSocket error:', error)
     const peerState = peerSessions.get(peer)
     if (peerState?.sessionId) {
-      const peers = sessionPeers.get(peerState.sessionId)
-      if (peers) {
-        peers.delete(peer)
-      }
+      removePeerFromSession(peerState.sessionId, peer)
     }
     peerSessions.delete(peer)
+    removeChatPeer(peer)
   },
 })

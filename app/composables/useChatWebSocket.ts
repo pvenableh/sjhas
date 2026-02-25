@@ -3,10 +3,10 @@
  * useChatWebSocket - Real-time chat via Nitro WebSocket
  *
  * Connects to the server-side WebSocket handler which relays
- * Directus messages. Supports typing indicators.
+ * Directus messages. Supports typing indicators and live status updates.
  *
  * Usage:
- * const { connect, sendMessage, messages, adminTyping, isConnected } = useChatWebSocket()
+ * const { connect, sendMessage, messages, adminTyping, adminOnline, isConnected } = useChatWebSocket()
  */
 
 interface ChatMessage {
@@ -17,14 +17,15 @@ interface ChatMessage {
   read: boolean
 }
 
-type MessageHandler = (messages: ChatMessage[]) => void
-type TypingHandler = (sender: string, isTyping: boolean) => void
 type NewMessageHandler = (message: ChatMessage) => void
+type StatusChangeHandler = (online: boolean) => void
+type SessionClosedHandler = () => void
 
 export function useChatWebSocket() {
   const isConnected = ref(false)
   const isConnecting = ref(false)
   const adminTyping = ref(false)
+  const adminOnline = ref<boolean | null>(null)
   const messages = ref<ChatMessage[]>([])
   const connectionError = ref<string | null>(null)
 
@@ -38,6 +39,8 @@ export function useChatWebSocket() {
 
   // Custom event handlers
   const onNewMessageCallbacks: NewMessageHandler[] = []
+  const onStatusChangeCallbacks: StatusChangeHandler[] = []
+  const onSessionClosedCallbacks: SessionClosedHandler[] = []
 
   function getWsUrl() {
     const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:'
@@ -45,11 +48,13 @@ export function useChatWebSocket() {
   }
 
   /**
-   * Connect to the chat WebSocket and join a session
+   * Connect to the chat WebSocket.
+   * If sessionId is provided, joins the session for messaging.
+   * If no sessionId, connects for status updates only.
    */
-  function connect(sessionId: number) {
+  function connect(sessionId?: number) {
     if (isConnected.value || isConnecting.value) return
-    currentSessionId = sessionId
+    currentSessionId = sessionId ?? null
     isConnecting.value = true
     connectionError.value = null
 
@@ -62,11 +67,19 @@ export function useChatWebSocket() {
         reconnectAttempts = 0
         connectionError.value = null
 
-        // Join the session
-        ws!.send(JSON.stringify({
-          type: 'join',
-          sessionId,
-        }))
+        // Check currentSessionId at open time (may have been set by joinSession
+        // while the WS handshake was in progress)
+        if (currentSessionId) {
+          ws!.send(JSON.stringify({
+            type: 'join',
+            sessionId: currentSessionId,
+          }))
+        } else {
+          // Subscribe to status updates only
+          ws!.send(JSON.stringify({
+            type: 'subscribe_status',
+          }))
+        }
       }
 
       ws.onmessage = (event) => {
@@ -93,6 +106,19 @@ export function useChatWebSocket() {
     } catch (error: any) {
       isConnecting.value = false
       connectionError.value = error.message || 'Failed to connect'
+    }
+  }
+
+  /**
+   * Join a session on an already-connected WebSocket
+   */
+  function joinSession(sessionId: number) {
+    currentSessionId = sessionId
+    if (ws && ws.readyState === WebSocket.OPEN) {
+      ws.send(JSON.stringify({
+        type: 'join',
+        sessionId,
+      }))
     }
   }
 
@@ -127,6 +153,17 @@ export function useChatWebSocket() {
             }, 3000)
           }
         }
+        break
+
+      case 'status_change':
+        // Admin online/offline status changed
+        adminOnline.value = !!data.online
+        onStatusChangeCallbacks.forEach((cb) => cb(!!data.online))
+        break
+
+      case 'session_closed':
+        // Admin closed this chat session
+        onSessionClosedCallbacks.forEach((cb) => cb())
         break
 
       case 'error':
@@ -196,8 +233,22 @@ export function useChatWebSocket() {
     onNewMessageCallbacks.push(callback)
   }
 
+  /**
+   * Register a callback for admin online/offline status changes
+   */
+  function onStatusChange(callback: StatusChangeHandler) {
+    onStatusChangeCallbacks.push(callback)
+  }
+
+  /**
+   * Register a callback for when the admin closes this session
+   */
+  function onSessionClosed(callback: SessionClosedHandler) {
+    onSessionClosedCallbacks.push(callback)
+  }
+
   function attemptReconnect() {
-    if (reconnectAttempts >= maxReconnectAttempts || !currentSessionId) return
+    if (reconnectAttempts >= maxReconnectAttempts) return
 
     const delay = Math.min(1000 * Math.pow(2, reconnectAttempts), 15000)
     reconnectAttempts++
@@ -205,6 +256,9 @@ export function useChatWebSocket() {
     reconnectTimer = setTimeout(() => {
       if (currentSessionId) {
         connect(currentSessionId)
+      } else {
+        // Reconnect for status-only mode
+        connect()
       }
     }, delay)
   }
@@ -247,12 +301,16 @@ export function useChatWebSocket() {
     connectionError: readonly(connectionError),
     messages: readonly(messages),
     adminTyping: readonly(adminTyping),
+    adminOnline: readonly(adminOnline),
 
     // Actions
     connect,
+    joinSession,
     disconnect,
     sendMessage,
     sendTyping,
     onNewMessage,
+    onStatusChange,
+    onSessionClosed,
   }
 }
