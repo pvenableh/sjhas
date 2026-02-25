@@ -206,7 +206,7 @@ async function sendNotificationEmail(
 
   await sgMail.default.send({
     to: notifyTo,
-    from: config.sendgridFromEmail,
+    from: { email: config.sendgridFromEmail, name: 'SJH Accounting' },
     subject: `New Submission: ${formTitle} — from ${submitterName}`,
     html: htmlContent,
     replyTo: submitterEmail as string,
@@ -235,7 +235,7 @@ async function sendConfirmationEmail(
 
   await sgMail.default.send({
     to: recipientEmail,
-    from: config.sendgridFromEmail,
+    from: { email: config.sendgridFromEmail, name: 'SJH Accounting' },
     replyTo: config.notificationEmail,
     subject: `Confirmation: ${formTitle} — SJHAS, Inc.`,
     html: htmlContent,

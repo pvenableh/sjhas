@@ -66,7 +66,7 @@ export default defineEventHandler(async (event) => {
 
     await sgMail.default.send({
       to: recipientEmail,
-      from: config.sendgridFromEmail,
+      from: { email: config.sendgridFromEmail, name: 'SJH Accounting' },
       replyTo: config.notificationEmail,
       subject: `Action Required: ${form.title} — SJHAS, Inc.`,
       html: htmlContent,
