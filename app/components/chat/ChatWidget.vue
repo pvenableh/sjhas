@@ -2,9 +2,9 @@
 /**
  * ChatWidget - Floating chat widget for visitor engagement
  *
- * When Stephen is online: Real-time messaging via Nitro WebSocket (relays Directus)
+ * When Stephen is online: Real-time messaging via Directus WebSocket subscription
  * When offline: Captures visitor name, email, phone + stores message
- * Supports typing indicators in both directions.
+ * Messages are sent/received via server API and Directus realtime subscriptions.
  */
 
 const { trackChatOpen, trackChatSessionStart, trackChatMessageSent } =
@@ -34,26 +34,18 @@ const newMessage = ref("");
 const sendingMessage = ref(false);
 const messagesContainer = ref<HTMLElement | null>(null);
 const hasUnread = ref(false);
+const messages = ref<any[]>([]);
 
-// WebSocket composable for real-time messaging
+// Directus realtime (public — no auth required for visitors)
 const {
-  connect: wsConnect,
-  disconnect: wsDisconnect,
-  sendMessage: wsSendMessage,
-  sendTyping,
-  messages,
-  adminTyping,
+  subscribe,
   isConnected,
-  onNewMessage,
-} = useChatWebSocket();
+  connect: rtConnect,
+  disconnect: rtDisconnect,
+} = useDirectusRealtime({ requireAuth: false });
 
-// Scroll + unread dot on new messages
-onNewMessage(() => {
-  scrollToBottom();
-  if (!isOpen.value) {
-    hasUnread.value = true;
-  }
-});
+// Polling fallback in case WS doesn't connect
+let pollInterval: ReturnType<typeof setInterval> | null = null;
 
 // Fetch chat status on mount
 onMounted(async () => {
@@ -73,7 +65,8 @@ onMounted(async () => {
 });
 
 onUnmounted(() => {
-  wsDisconnect();
+  rtDisconnect();
+  if (pollInterval) clearInterval(pollInterval);
 });
 
 function toggleChat() {
@@ -91,6 +84,82 @@ function toggleChat() {
 function minimizeChat() {
   isMinimized.value = true;
   isOpen.value = false;
+}
+
+/**
+ * Load existing messages for the session via server API
+ */
+async function loadMessages(sid: number) {
+  try {
+    const result = await $fetch("/api/chat/messages", {
+      method: "POST",
+      body: { sessionId: sid, operation: "list" },
+    });
+    messages.value = result as any[];
+  } catch {
+    // Non-critical — messages will appear via subscription
+  }
+}
+
+/**
+ * Start realtime subscription for chat messages.
+ * Falls back to polling if the WS connection fails.
+ */
+async function startRealtimeMessages(sid: number) {
+  try {
+    await rtConnect();
+    await subscribe("chat_messages", (event, data) => {
+      if (event === "create") {
+        const newMessages = Array.isArray(data) ? data : [data];
+        for (const msg of newMessages) {
+          if (msg.session === sid || msg.session?.id === sid) {
+            const exists = messages.value.some((m: any) => m.id === msg.id);
+            if (!exists) {
+              messages.value = [...messages.value, msg];
+              scrollToBottom();
+              if (!isOpen.value) {
+                hasUnread.value = true;
+              }
+            }
+          }
+        }
+      }
+    }, {
+      fields: ["id", "session", "sender", "message", "date_created", "read"],
+      filter: { session: { _eq: sid } },
+    });
+  } catch {
+    // Fallback: poll for messages every 3 seconds
+    startPolling(sid);
+  }
+}
+
+/**
+ * Polling fallback for environments where Directus WS is unavailable
+ */
+function startPolling(sid: number) {
+  if (pollInterval) clearInterval(pollInterval);
+  pollInterval = setInterval(async () => {
+    try {
+      const result = await $fetch("/api/chat/messages", {
+        method: "POST",
+        body: { sessionId: sid, operation: "list" },
+      });
+      const fetched = result as any[];
+      if (fetched.length > messages.value.length) {
+        const newMsgs = fetched.slice(messages.value.length);
+        messages.value = fetched;
+        if (newMsgs.length > 0) {
+          scrollToBottom();
+          if (!isOpen.value) {
+            hasUnread.value = true;
+          }
+        }
+      }
+    } catch {
+      // Silently ignore poll errors
+    }
+  }, 3000);
 }
 
 /**
@@ -131,8 +200,9 @@ async function submitVisitorInfo() {
     trackChatSessionStart(adminOnline.value ? "online" : "offline");
 
     if (adminOnline.value) {
-      // Connect to WebSocket for live chat
-      wsConnect(result.sessionId);
+      // Load existing messages + subscribe to realtime updates
+      await loadMessages(result.sessionId);
+      await startRealtimeMessages(result.sessionId);
     } else {
       formSubmitted.value = true;
     }
@@ -145,9 +215,9 @@ async function submitVisitorInfo() {
 }
 
 /**
- * Send a chat message via WebSocket
+ * Send a chat message via server endpoint
  */
-function sendMessage() {
+async function sendMessage() {
   if (!newMessage.value.trim() || !sessionId.value || sendingMessage.value)
     return;
 
@@ -155,26 +225,24 @@ function sendMessage() {
   newMessage.value = "";
   sendingMessage.value = true;
 
-  wsSendMessage(messageText);
-  sendTyping(false);
-  trackChatMessageSent();
-
-  setTimeout(() => {
+  try {
+    await $fetch("/api/chat/messages", {
+      method: "POST",
+      body: {
+        sessionId: sessionId.value,
+        sender: "visitor",
+        message: messageText,
+        operation: "send",
+      },
+    });
+    trackChatMessageSent();
+  } catch {
+    newMessage.value = messageText; // Restore on failure
+  } finally {
     sendingMessage.value = false;
-  }, 200);
+  }
 
   scrollToBottom();
-}
-
-/**
- * Handle input for typing indicator
- */
-function handleInput() {
-  if (newMessage.value.trim()) {
-    sendTyping(true);
-  } else {
-    sendTyping(false);
-  }
 }
 
 function scrollToBottom() {
@@ -291,9 +359,7 @@ const isLiveChat = computed(
               :class="adminOnline ? 'bg-green-400' : 'bg-gray-300'"
             />
             <span class="text-xs opacity-90">
-              {{
-                adminTyping ? "Typing..." : adminOnline ? "Online" : "Offline"
-              }}
+              {{ adminOnline ? "Online" : "Offline" }}
             </span>
           </div>
         </div>
@@ -542,27 +608,6 @@ const isLiveChat = computed(
                 </p>
               </div>
             </div>
-
-            <!-- Admin typing indicator (bouncing dots) -->
-            <div v-if="adminTyping" class="flex justify-start">
-              <div
-                class="flex items-center gap-1.5 rounded-2xl rounded-bl-md px-4 py-3"
-                style="background: var(--theme-bg-secondary)"
-              >
-                <span
-                  class="inline-block h-2 w-2 animate-bounce rounded-full opacity-60 [animation-delay:0ms]"
-                  style="background: var(--theme-text-muted)"
-                />
-                <span
-                  class="inline-block h-2 w-2 animate-bounce rounded-full opacity-60 [animation-delay:150ms]"
-                  style="background: var(--theme-text-muted)"
-                />
-                <span
-                  class="inline-block h-2 w-2 animate-bounce rounded-full opacity-60 [animation-delay:300ms]"
-                  style="background: var(--theme-text-muted)"
-                />
-              </div>
-            </div>
           </div>
 
           <!-- Message Input -->
@@ -577,7 +622,6 @@ const isLiveChat = computed(
                 rows="1"
                 class="t-input flex-1 resize-none rounded-xl px-3 py-2.5 text-sm"
                 @keydown="handleKeydown"
-                @input="handleInput"
               />
               <button
                 :disabled="!newMessage.trim() || sendingMessage"

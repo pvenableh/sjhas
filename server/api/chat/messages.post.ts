@@ -3,7 +3,7 @@
 
 export default defineEventHandler(async (event) => {
   const body = await readBody(event)
-  const { sessionId, message, operation } = body
+  const { sessionId, message, sender, operation } = body
 
   if (!sessionId) {
     throw createError({
@@ -24,10 +24,12 @@ export default defineEventHandler(async (event) => {
         })
       }
 
+      const validSender = sender === 'admin' ? 'admin' : 'visitor'
+
       const newMessage = await directus.request(
         createItem('chat_messages' as any, {
           session: sessionId,
-          sender: 'visitor',
+          sender: validSender,
           message,
           read: false,
         })

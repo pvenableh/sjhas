@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { format, formatDistanceToNow } from 'date-fns'
 import { toast } from 'vue-sonner'
-import type { ChatSession, ChatSettings } from '~/types/directus'
+import type { ChatSession } from '~/types/directus'
 
 definePageMeta({
   middleware: 'auth',
@@ -14,6 +14,13 @@ useSeoMeta({
 
 const sessions = useDirectusItems<ChatSession>('chat_sessions')
 
+// Directus Realtime for live message + session updates
+const {
+  subscribe,
+  isConnected,
+  connect: rtConnect,
+} = useDirectusRealtime()
+
 // State
 const sessionsList = ref<ChatSession[]>([])
 const isLoading = ref(true)
@@ -23,22 +30,9 @@ const togglingStatus = ref(false)
 const replyText = ref('')
 const messagesContainer = ref<HTMLElement | null>(null)
 const statusFilter = ref<'active' | 'closed' | 'all'>('active')
+const messages = ref<any[]>([])
 
-// WebSocket for admin messaging
-const {
-  connect: wsConnect,
-  sendMessage: wsSendMessage,
-  sendTyping,
-  messages,
-  visitorTyping,
-  isConnected,
-  onNewMessage,
-} = useAdminChatWebSocket()
-
-// Auto-scroll on new messages
-onNewMessage(() => {
-  scrollToBottom()
-})
+let messageUnsubscribe: (() => void) | null = null
 
 // Selected session object
 const selectedSession = computed(() =>
@@ -71,6 +65,65 @@ async function fetchSessions() {
   }
 }
 
+// Fetch messages for a session via server endpoint
+async function fetchMessages(sessionId: number) {
+  try {
+    const result = await $fetch('/api/chat/messages', {
+      method: 'POST',
+      body: { sessionId, operation: 'list' },
+    })
+    messages.value = result as any[]
+  } catch (error) {
+    console.error('Failed to fetch messages:', error)
+    toast.error('Failed to load messages')
+  }
+}
+
+// Subscribe to new messages for the selected session
+async function subscribeToMessages(sessionId: number) {
+  // Unsubscribe from previous session's messages
+  if (messageUnsubscribe) {
+    messageUnsubscribe()
+    messageUnsubscribe = null
+  }
+
+  try {
+    messageUnsubscribe = await subscribe('chat_messages', (event, data) => {
+      if (event === 'create') {
+        const newMessages = Array.isArray(data) ? data : [data]
+        for (const msg of newMessages) {
+          // Only add messages for the current session
+          if (msg.session === sessionId || msg.session?.id === sessionId) {
+            const exists = messages.value.some((m: any) => m.id === msg.id)
+            if (!exists) {
+              messages.value = [...messages.value, msg]
+              scrollToBottom()
+            }
+          }
+        }
+      }
+    }, {
+      fields: ['id', 'session', 'sender', 'message', 'date_created', 'read'],
+      filter: { session: { _eq: sessionId } },
+    })
+  } catch (error) {
+    console.error('Failed to subscribe to messages:', error)
+  }
+}
+
+// Subscribe to session changes for the session list
+async function subscribeToSessions() {
+  try {
+    await subscribe('chat_sessions', () => {
+      fetchSessions()
+    }, {
+      fields: ['id', 'visitor_name', 'visitor_email', 'visitor_phone', 'status', 'date_created', 'last_message_at'],
+    })
+  } catch (error) {
+    console.error('Failed to subscribe to sessions:', error)
+  }
+}
+
 // Fetch chat settings (online status)
 async function fetchChatStatus() {
   try {
@@ -100,28 +153,36 @@ async function toggleOnlineStatus() {
   }
 }
 
-// Select a session
-function selectSession(sessionId: number) {
+// Select a session — load messages + subscribe to realtime updates
+async function selectSession(sessionId: number) {
   selectedSessionId.value = sessionId
-  wsConnect(sessionId)
+  messages.value = []
+  await fetchMessages(sessionId)
+  await subscribeToMessages(sessionId)
   nextTick(() => scrollToBottom())
 }
 
-// Send admin reply
-function sendReply() {
+// Send admin reply via server endpoint
+async function sendReply() {
   if (!replyText.value.trim() || !selectedSessionId.value) return
-  wsSendMessage(replyText.value.trim())
-  sendTyping(false)
-  replyText.value = ''
-  scrollToBottom()
-}
 
-// Handle typing for indicator
-function handleReplyInput() {
-  if (replyText.value.trim()) {
-    sendTyping(true)
-  } else {
-    sendTyping(false)
+  const messageText = replyText.value.trim()
+  replyText.value = ''
+
+  try {
+    await $fetch('/api/chat/messages', {
+      method: 'POST',
+      body: {
+        sessionId: selectedSessionId.value,
+        sender: 'admin',
+        message: messageText,
+        operation: 'send',
+      },
+    })
+    scrollToBottom()
+  } catch (error) {
+    toast.error('Failed to send message')
+    replyText.value = messageText
   }
 }
 
@@ -140,6 +201,7 @@ async function closeSession(sessionId: number) {
     await fetchSessions()
     if (selectedSessionId.value === sessionId) {
       selectedSessionId.value = null
+      messages.value = []
     }
   } catch {
     toast.error('Failed to close session')
@@ -182,13 +244,17 @@ function getInitials(name: string) {
     .slice(0, 2)
 }
 
-// Load data on mount
+// Load data on mount, then connect to Directus realtime
 onMounted(async () => {
   await Promise.all([fetchSessions(), fetchChatStatus()])
 
-  // Refresh session list periodically
-  const refreshInterval = setInterval(fetchSessions, 15000)
-  onUnmounted(() => clearInterval(refreshInterval))
+  // Connect to Directus realtime and subscribe to session changes
+  try {
+    await rtConnect()
+    await subscribeToSessions()
+  } catch (error) {
+    console.error('Failed to connect to realtime:', error)
+  }
 })
 </script>
 
@@ -337,7 +403,7 @@ onMounted(async () => {
               <span
                 class="inline-block h-2 w-2 rounded-full"
                 :class="isConnected ? 'bg-green-500' : 'bg-yellow-500 animate-pulse'"
-                :title="isConnected ? 'Connected' : 'Reconnecting...'"
+                :title="isConnected ? 'Realtime connected' : 'Connecting...'"
               />
 
               <!-- Close/Reopen -->
@@ -393,25 +459,10 @@ onMounted(async () => {
                 </p>
               </div>
             </div>
-
-            <!-- Visitor typing indicator -->
-            <div v-if="visitorTyping" class="flex justify-start">
-              <div class="flex items-center gap-1.5 rounded-2xl rounded-bl-md bg-slate-100 px-4 py-3">
-                <span class="inline-block h-2 w-2 animate-bounce rounded-full bg-slate-400 [animation-delay:0ms]" />
-                <span class="inline-block h-2 w-2 animate-bounce rounded-full bg-slate-400 [animation-delay:150ms]" />
-                <span class="inline-block h-2 w-2 animate-bounce rounded-full bg-slate-400 [animation-delay:300ms]" />
-              </div>
-            </div>
           </div>
 
           <!-- Reply Input -->
           <div class="border-t border-slate-200 px-5 py-3">
-            <div
-              v-if="visitorTyping"
-              class="mb-2 text-xs text-slate-500"
-            >
-              {{ selectedSession.visitor_name }} is typing...
-            </div>
             <div class="flex items-end gap-3">
               <Textarea
                 v-model="replyText"
@@ -419,7 +470,6 @@ onMounted(async () => {
                 rows="2"
                 class="flex-1 resize-none text-sm"
                 @keydown="handleReplyKeydown"
-                @input="handleReplyInput"
               />
               <Button
                 :disabled="!replyText.trim()"

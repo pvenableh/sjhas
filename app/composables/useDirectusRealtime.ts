@@ -6,9 +6,14 @@
  * - Automatic reconnection with exponential backoff
  * - Connection state management
  * - Token refresh before connection
+ * - Optional public (no-auth) mode for visitor-facing features
  *
  * Usage:
- * const { subscribe, unsubscribe, isConnected, connect, disconnect } = useDirectusRealtime()
+ * // Authenticated (admin):
+ * const { subscribe, isConnected, connect, disconnect } = useDirectusRealtime()
+ *
+ * // Public (visitor widget):
+ * const { subscribe, isConnected, connect, disconnect } = useDirectusRealtime({ requireAuth: false })
  */
 
 import { createDirectus, realtime, rest, authentication } from "@directus/sdk";
@@ -23,9 +28,13 @@ type SubscriptionCallback<T = any> = (
   data: T | T[]
 ) => void;
 
-export function useDirectusRealtime() {
+interface RealtimeOptions {
+  requireAuth?: boolean;
+}
+
+export function useDirectusRealtime(options: RealtimeOptions = {}) {
+  const { requireAuth = true } = options;
   const config = useRuntimeConfig();
-  const { loggedIn } = useUserSession();
 
   // Connection state
   const isConnected = ref(false);
@@ -39,47 +48,53 @@ export function useDirectusRealtime() {
   const subscriptions = new Map<string, { unsubscribe: () => void }>();
 
   /**
-   * Connect to WebSocket with authentication
+   * Connect to WebSocket (authenticated or public)
    */
   async function connect() {
     if (isConnected.value || isConnecting.value) return;
 
-    if (!loggedIn.value) {
-      connectionError.value = "Authentication required";
-      return;
+    if (requireAuth) {
+      const { loggedIn } = useUserSession();
+      if (!loggedIn.value) {
+        connectionError.value = "Authentication required";
+        return;
+      }
     }
 
     isConnecting.value = true;
     connectionError.value = null;
 
     try {
-      // Get fresh token from server
-      const { token } = await $fetch<{ token: string }>("/api/websocket/token");
-
-      if (!token) {
-        throw new Error("No access token available");
-      }
-
-      // Create WebSocket client
+      // Derive WebSocket URL from Directus URL
       const wsUrl =
-        config.public.directus.websocketUrl ||
+        (config.public.directus as any).websocketUrl ||
         config.public.directus.url.replace("http", "ws");
 
-      client = createDirectus(wsUrl)
-        .with(realtime())
-        .with(rest())
-        .with(authentication("json"));
+      if (requireAuth) {
+        // Authenticated connection
+        const { token } = await $fetch<{ token: string }>("/api/websocket/token");
 
-      // Connect and authenticate
-      await client.connect();
-      await client.sendMessage({ type: "auth", access_token: token });
+        if (!token) {
+          throw new Error("No access token available");
+        }
+
+        client = createDirectus(wsUrl)
+          .with(realtime())
+          .with(rest())
+          .with(authentication("json"));
+
+        await client.connect();
+        await client.sendMessage({ type: "auth", access_token: token });
+      } else {
+        // Public connection — uses Directus public role permissions
+        client = createDirectus(wsUrl).with(realtime());
+        await client.connect();
+      }
 
       isConnected.value = true;
       isConnecting.value = false;
       reconnectAttempts.value = 0;
       connectionError.value = null;
-
-      console.log("WebSocket connected");
     } catch (error: any) {
       isConnecting.value = false;
       connectionError.value = error.message || "Connection failed";
@@ -99,13 +114,16 @@ export function useDirectusRealtime() {
    */
   async function disconnect() {
     if (client) {
-      // Unsubscribe from all subscriptions
       for (const [uid, sub] of subscriptions) {
         sub.unsubscribe();
       }
       subscriptions.clear();
 
-      await client.disconnect();
+      try {
+        await client.disconnect();
+      } catch {
+        // Ignore disconnect errors
+      }
       client = null;
     }
 
@@ -130,7 +148,7 @@ export function useDirectusRealtime() {
       throw new Error("WebSocket not connected");
     }
 
-    const uid = `${collection}-${Date.now()}`;
+    const uid = `${collection}-${Date.now()}-${Math.random().toString(36).slice(2)}`;
 
     // Subscribe to collection
     const { subscription } = await client.subscribe(collection, {
