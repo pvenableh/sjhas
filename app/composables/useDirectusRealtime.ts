@@ -67,9 +67,18 @@ export function useDirectusRealtime(options: RealtimeOptions = {}) {
 
     try {
       // Derive WebSocket URL from Directus URL
-      const wsUrl =
-        (config.public.directus as any).websocketUrl ||
-        config.public.directus.url.replace("http", "ws");
+      const publicWsUrl = (config.public.directus as any).websocketUrl;
+      let wsUrl: string;
+
+      if (publicWsUrl) {
+        wsUrl = publicWsUrl;
+      } else {
+        // Auto-derive: replace protocol and append /websocket path
+        const baseUrl = config.public.directus.url;
+        const protocol = baseUrl.startsWith("https") ? "wss://" : "ws://";
+        const host = baseUrl.replace(/^https?:\/\//, "").replace(/\/$/, "");
+        wsUrl = `${protocol}${host}/websocket`;
+      }
 
       const connectWithTimeout = (c: any) =>
         Promise.race([
