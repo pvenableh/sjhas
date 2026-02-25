@@ -29,6 +29,8 @@ export interface ChatSession {
 	visitor_email: string;
 	/** @description Auto-updated on new messages */
 	last_message_at?: string | null;
+	admin_typing_at?: string | null;
+	visitor_typing_at?: string | null;
 }
 
 export interface ChatSettings {
@@ -435,6 +437,16 @@ export interface DirectusSettings {
 	ai_openai_api_key?: string | null;
 	ai_anthropic_api_key?: string | null;
 	ai_system_prompt?: string | null;
+	ai_google_api_key?: string | null;
+	ai_openai_compatible_api_key?: string | null;
+	ai_openai_compatible_base_url?: string | null;
+	ai_openai_compatible_name?: string | null;
+	ai_openai_compatible_models?: Array<{ id: string; name: string; context: number; output: number; attachment: boolean; reasoning: boolean; providerOptions: Record<string, any> }> | null;
+	ai_openai_compatible_headers?: Array<{ header: string; value: string }> | null;
+	ai_openai_allowed_models?: Array<`gpt-4o-mini` | `gpt-4.1-nano` | `gpt-4.1-mini` | `gpt-4.1` | `gpt-5-nano` | `gpt-5-mini` | `gpt-5` | `gpt-5.2` | `gpt-5.2-chat-latest` | `gpt-5.2-pro`> | null;
+	ai_anthropic_allowed_models?: Array<`claude-haiku-4-5` | `claude-sonnet-4-5` | `claude-opus-4-5`> | null;
+	ai_google_allowed_models?: Array<`gemini-3-pro-preview` | `gemini-3-flash-preview` | `gemini-2.5-pro` | `gemini-2.5-flash`> | null;
+	collaborative_editing_enabled?: boolean;
 }
 
 export interface DirectusUser {
@@ -597,6 +609,38 @@ export interface DirectusExtension {
 	bundle?: string | null;
 }
 
+export interface DirectusDeployment {
+	/** @primaryKey */
+	id: string;
+	provider?: string;
+	credentials?: string | null;
+	options?: 'json' | null;
+	date_created?: string | null;
+	user_created?: DirectusUser | string | null;
+	projects?: DirectusDeploymentProject[] | string[];
+}
+
+export interface DirectusDeploymentProject {
+	/** @primaryKey */
+	id: string;
+	deployment?: DirectusDeployment | string;
+	external_id?: string;
+	name?: string;
+	date_created?: string | null;
+	user_created?: DirectusUser | string | null;
+	runs?: DirectusDeploymentRun[] | string[];
+}
+
+export interface DirectusDeploymentRun {
+	/** @primaryKey */
+	id: string;
+	project?: DirectusDeploymentProject | string;
+	external_id?: string;
+	target?: string;
+	date_created?: string | null;
+	user_created?: DirectusUser | string | null;
+}
+
 export interface Schema {
 	chat_messages: ChatMessage[];
 	chat_sessions: ChatSession[];
@@ -634,6 +678,9 @@ export interface Schema {
 	directus_translations: DirectusTranslation[];
 	directus_versions: DirectusVersion[];
 	directus_extensions: DirectusExtension[];
+	directus_deployments: DirectusDeployment[];
+	directus_deployment_projects: DirectusDeploymentProject[];
+	directus_deployment_runs: DirectusDeploymentRun[];
 }
 
 export enum CollectionNames {
@@ -672,5 +719,8 @@ export enum CollectionNames {
 	directus_operations = 'directus_operations',
 	directus_translations = 'directus_translations',
 	directus_versions = 'directus_versions',
-	directus_extensions = 'directus_extensions'
+	directus_extensions = 'directus_extensions',
+	directus_deployments = 'directus_deployments',
+	directus_deployment_projects = 'directus_deployment_projects',
+	directus_deployment_runs = 'directus_deployment_runs'
 }
