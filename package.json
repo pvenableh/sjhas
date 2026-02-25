@@ -9,7 +9,8 @@
     "preview": "nuxt preview",
     "postinstall": "nuxt prepare",
     "generate:types": "dotenv -- sh -c 'directus-sdk-typegen -u $DIRECTUS_URL -t $DIRECTUS_STATIC_TOKEN -o ./types/directus-schema.ts'",
-    "generate:icons": "node scripts/generate-icons.js"
+    "generate:icons": "node scripts/generate-icons.js",
+    "email:compile": "tsx emails/compile.ts"
   },
   "dependencies": {
     "@directus/sdk": "^20.2.0",
@@ -51,10 +52,12 @@
   },
   "devDependencies": {
     "@sendgrid/mail": "^8.1.5",
+    "@types/mjml": "^4.7.4",
     "@types/node": "^24.10.1",
     "directus-sdk-typegen": "^0.2.1",
     "dotenv": "^17.2.3",
     "dotenv-cli": "^8.0.0",
+    "mjml": "^4.18.0",
     "postcss": "^8.5.5",
     "postcss-nested": "^7.0.2",
     "prettier": "^3.5.3",
