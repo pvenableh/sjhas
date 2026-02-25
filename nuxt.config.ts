@@ -229,6 +229,7 @@ export default defineNuxtConfig({
     public: {
       directus: {
         url: process.env.DIRECTUS_URL || "http://localhost:8055",
+        websocketUrl: process.env.DIRECTUS_WEBSOCKET_URL || "",
       },
       siteUrl: process.env.SITE_URL || "https://sjhas.com",
       clientRoleId: process.env.CLIENT_ROLE_ID || "",

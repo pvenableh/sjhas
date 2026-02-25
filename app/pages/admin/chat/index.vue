@@ -14,12 +14,15 @@ useSeoMeta({
 
 const sessions = useDirectusItems<ChatSession>('chat_sessions')
 
-// Directus Realtime for live message + session updates
+// Nitro WebSocket for live messaging + typing indicators
 const {
-  subscribe,
   isConnected,
-  connect: rtConnect,
-} = useDirectusRealtime()
+  visitorTyping,
+  connect: wsConnect,
+  disconnect: wsDisconnect,
+  sendTyping,
+  onNewMessage,
+} = useAdminChatWebSocket()
 
 // State
 const sessionsList = ref<ChatSession[]>([])
@@ -32,7 +35,19 @@ const messagesContainer = ref<HTMLElement | null>(null)
 const statusFilter = ref<'active' | 'closed' | 'all'>('active')
 const messages = ref<any[]>([])
 
-let messageUnsubscribe: (() => void) | null = null
+let sessionPollInterval: ReturnType<typeof setInterval> | null = null
+let messagePollInterval: ReturnType<typeof setInterval> | null = null
+
+// Append new messages from WebSocket
+onNewMessage((msg) => {
+  const exists = messages.value.some((m: any) => m.id === msg.id)
+  if (!exists) {
+    messages.value = [...messages.value, msg]
+    scrollToBottom()
+    // Refresh session list to update last_message_at
+    fetchSessions()
+  }
+})
 
 // Selected session object
 const selectedSession = computed(() =>
@@ -47,7 +62,8 @@ const filteredSessions = computed(() => {
 
 // Fetch sessions
 async function fetchSessions() {
-  isLoading.value = true
+  const wasLoading = isLoading.value
+  if (!sessionsList.value.length) isLoading.value = true
   try {
     const result = await sessions.list({
       sort: ['-last_message_at', '-date_created'],
@@ -58,8 +74,10 @@ async function fetchSessions() {
     })
     sessionsList.value = result
   } catch (error) {
-    console.error('Failed to fetch chat sessions:', error)
-    toast.error('Failed to load chat sessions')
+    if (wasLoading) {
+      console.error('Failed to fetch chat sessions:', error)
+      toast.error('Failed to load chat sessions')
+    }
   } finally {
     isLoading.value = false
   }
@@ -79,50 +97,31 @@ async function fetchMessages(sessionId: number) {
   }
 }
 
-// Subscribe to new messages for the selected session
-async function subscribeToMessages(sessionId: number) {
-  // Unsubscribe from previous session's messages
-  if (messageUnsubscribe) {
-    messageUnsubscribe()
-    messageUnsubscribe = null
-  }
+// Start polling messages as fallback when WS is unavailable
+function startMessagePolling(sessionId: number) {
+  stopMessagePolling()
+  messagePollInterval = setInterval(async () => {
+    if (selectedSessionId.value === sessionId) {
+      await fetchMessages(sessionId)
+    }
+  }, 5000)
+}
 
-  try {
-    messageUnsubscribe = await subscribe('chat_messages', (event, data) => {
-      if (event === 'create') {
-        const newMessages = Array.isArray(data) ? data : [data]
-        for (const msg of newMessages) {
-          // Only add messages for the current session
-          if (msg.session === sessionId || msg.session?.id === sessionId) {
-            const exists = messages.value.some((m: any) => m.id === msg.id)
-            if (!exists) {
-              messages.value = [...messages.value, msg]
-              scrollToBottom()
-            }
-          }
-        }
-      }
-    }, {
-      fields: ['id', 'session', 'sender', 'message', 'date_created', 'read'],
-      filter: { session: { _eq: sessionId } },
-    })
-  } catch (error) {
-    console.error('Failed to subscribe to messages:', error)
+function stopMessagePolling() {
+  if (messagePollInterval) {
+    clearInterval(messagePollInterval)
+    messagePollInterval = null
   }
 }
 
-// Subscribe to session changes for the session list
-async function subscribeToSessions() {
-  try {
-    await subscribe('chat_sessions', () => {
-      fetchSessions()
-    }, {
-      fields: ['id', 'visitor_name', 'visitor_email', 'visitor_phone', 'status', 'date_created', 'last_message_at'],
-    })
-  } catch (error) {
-    console.error('Failed to subscribe to sessions:', error)
+// If WS connects, stop message polling. If it disconnects, start polling.
+watch(isConnected, (connected) => {
+  if (connected) {
+    stopMessagePolling()
+  } else if (selectedSessionId.value) {
+    startMessagePolling(selectedSessionId.value)
   }
-}
+})
 
 // Fetch chat settings (online status)
 async function fetchChatStatus() {
@@ -153,12 +152,25 @@ async function toggleOnlineStatus() {
   }
 }
 
-// Select a session — load messages + subscribe to realtime updates
+// Select a session — load messages + connect WS for live updates
 async function selectSession(sessionId: number) {
   selectedSessionId.value = sessionId
   messages.value = []
+  stopMessagePolling()
+
+  // Load messages via REST
   await fetchMessages(sessionId)
-  await subscribeToMessages(sessionId)
+
+  // Connect WebSocket for live updates + typing
+  wsConnect(sessionId)
+
+  // Start polling fallback if WS doesn't connect within 3s
+  setTimeout(() => {
+    if (!isConnected.value && selectedSessionId.value === sessionId) {
+      startMessagePolling(sessionId)
+    }
+  }, 3000)
+
   nextTick(() => scrollToBottom())
 }
 
@@ -168,9 +180,10 @@ async function sendReply() {
 
   const messageText = replyText.value.trim()
   replyText.value = ''
+  sendTyping(false)
 
   try {
-    await $fetch('/api/chat/messages', {
+    const newMessage = await $fetch('/api/chat/messages', {
       method: 'POST',
       body: {
         sessionId: selectedSessionId.value,
@@ -179,6 +192,12 @@ async function sendReply() {
         operation: 'send',
       },
     })
+    // Add to local list immediately (WS dedup prevents duplicates)
+    const msg = newMessage as any
+    const exists = messages.value.some((m: any) => m.id === msg.id)
+    if (!exists) {
+      messages.value = [...messages.value, msg]
+    }
     scrollToBottom()
   } catch (error) {
     toast.error('Failed to send message')
@@ -190,6 +209,9 @@ function handleReplyKeydown(e: KeyboardEvent) {
   if (e.key === 'Enter' && !e.shiftKey) {
     e.preventDefault()
     sendReply()
+  } else {
+    // Send typing indicator
+    sendTyping(true)
   }
 }
 
@@ -244,17 +266,18 @@ function getInitials(name: string) {
     .slice(0, 2)
 }
 
-// Load data on mount, then connect to Directus realtime
+// Load data on mount + start session list polling
 onMounted(async () => {
   await Promise.all([fetchSessions(), fetchChatStatus()])
 
-  // Connect to Directus realtime and subscribe to session changes
-  try {
-    await rtConnect()
-    await subscribeToSessions()
-  } catch (error) {
-    console.error('Failed to connect to realtime:', error)
-  }
+  // Poll session list for updates
+  sessionPollInterval = setInterval(fetchSessions, 10000)
+})
+
+onUnmounted(() => {
+  if (sessionPollInterval) clearInterval(sessionPollInterval)
+  stopMessagePolling()
+  wsDisconnect()
 })
 </script>
 
@@ -459,6 +482,17 @@ onMounted(async () => {
                 </p>
               </div>
             </div>
+
+            <!-- Visitor typing indicator -->
+            <div v-if="visitorTyping" class="flex justify-start">
+              <div class="rounded-2xl rounded-bl-md bg-slate-100 px-4 py-3">
+                <div class="flex items-center gap-1">
+                  <span class="typing-dot h-2 w-2 rounded-full bg-slate-400" />
+                  <span class="typing-dot h-2 w-2 rounded-full bg-slate-400" style="animation-delay: 0.2s" />
+                  <span class="typing-dot h-2 w-2 rounded-full bg-slate-400" style="animation-delay: 0.4s" />
+                </div>
+              </div>
+            </div>
           </div>
 
           <!-- Reply Input -->
@@ -486,3 +520,13 @@ onMounted(async () => {
     </div>
   </div>
 </template>
+
+<style scoped>
+@keyframes typing-bounce {
+  0%, 60%, 100% { transform: translateY(0); opacity: 0.4; }
+  30% { transform: translateY(-4px); opacity: 1; }
+}
+.typing-dot {
+  animation: typing-bounce 1.4s ease-in-out infinite;
+}
+</style>

@@ -36,16 +36,30 @@ const messagesContainer = ref<HTMLElement | null>(null);
 const hasUnread = ref(false);
 const messages = ref<any[]>([]);
 
-// Directus realtime (public — no auth required for visitors)
+// Nitro WebSocket for live messaging + typing indicators
 const {
-  subscribe,
   isConnected,
-  connect: rtConnect,
-  disconnect: rtDisconnect,
-} = useDirectusRealtime({ requireAuth: false });
+  adminTyping,
+  connect: wsConnect,
+  disconnect: wsDisconnect,
+  sendTyping,
+  onNewMessage: onWsNewMessage,
+} = useChatWebSocket();
 
 // Polling fallback in case WS doesn't connect
 let pollInterval: ReturnType<typeof setInterval> | null = null;
+
+// Append new messages from WebSocket
+onWsNewMessage((msg) => {
+  const exists = messages.value.some((m: any) => m.id === (msg as any).id);
+  if (!exists) {
+    messages.value = [...messages.value, msg as any];
+    scrollToBottom();
+    if (!isOpen.value) {
+      hasUnread.value = true;
+    }
+  }
+});
 
 // Fetch chat status on mount
 onMounted(async () => {
@@ -65,7 +79,7 @@ onMounted(async () => {
 });
 
 onUnmounted(() => {
-  rtDisconnect();
+  wsDisconnect();
   if (pollInterval) clearInterval(pollInterval);
 });
 
@@ -102,36 +116,20 @@ async function loadMessages(sid: number) {
 }
 
 /**
- * Start realtime subscription for chat messages.
- * Falls back to polling if the WS connection fails.
+ * Start realtime updates for chat messages.
+ * Connects to Nitro WebSocket for live messages + typing indicators.
+ * Falls back to polling if WS doesn't connect.
  */
-async function startRealtimeMessages(sid: number) {
-  try {
-    await rtConnect();
-    await subscribe("chat_messages", (event, data) => {
-      if (event === "create") {
-        const newMessages = Array.isArray(data) ? data : [data];
-        for (const msg of newMessages) {
-          if (msg.session === sid || msg.session?.id === sid) {
-            const exists = messages.value.some((m: any) => m.id === msg.id);
-            if (!exists) {
-              messages.value = [...messages.value, msg];
-              scrollToBottom();
-              if (!isOpen.value) {
-                hasUnread.value = true;
-              }
-            }
-          }
-        }
-      }
-    }, {
-      fields: ["id", "session", "sender", "message", "date_created", "read"],
-      filter: { session: { _eq: sid } },
-    });
-  } catch {
-    // Fallback: poll for messages every 3 seconds
-    startPolling(sid);
-  }
+function startRealtimeMessages(sid: number) {
+  // Connect to Nitro WS for live updates + typing
+  wsConnect(sid);
+
+  // Start polling fallback if WS doesn't connect within 3s
+  setTimeout(() => {
+    if (!isConnected.value) {
+      startPolling(sid);
+    }
+  }, 3000);
 }
 
 /**
@@ -224,9 +222,10 @@ async function sendMessage() {
   const messageText = newMessage.value.trim();
   newMessage.value = "";
   sendingMessage.value = true;
+  sendTyping(false);
 
   try {
-    await $fetch("/api/chat/messages", {
+    const result = await $fetch("/api/chat/messages", {
       method: "POST",
       body: {
         sessionId: sessionId.value,
@@ -235,6 +234,12 @@ async function sendMessage() {
         operation: "send",
       },
     });
+    // Add to local list immediately (WS dedup prevents duplicates)
+    const msg = result as any;
+    const exists = messages.value.some((m: any) => m.id === msg.id);
+    if (!exists) {
+      messages.value = [...messages.value, msg];
+    }
     trackChatMessageSent();
   } catch {
     newMessage.value = messageText; // Restore on failure
@@ -257,6 +262,9 @@ function handleKeydown(e: KeyboardEvent) {
   if (e.key === "Enter" && !e.shiftKey) {
     e.preventDefault();
     sendMessage();
+  } else {
+    // Send typing indicator
+    sendTyping(true);
   }
 }
 
@@ -608,6 +616,20 @@ const isLiveChat = computed(
                 </p>
               </div>
             </div>
+
+            <!-- Admin typing indicator -->
+            <div v-if="adminTyping" class="flex justify-start">
+              <div
+                class="rounded-2xl rounded-bl-md px-4 py-3"
+                style="background: var(--theme-bg-secondary)"
+              >
+                <div class="flex items-center gap-1">
+                  <span class="typing-dot h-2 w-2 rounded-full" style="background: var(--theme-text-secondary)" />
+                  <span class="typing-dot h-2 w-2 rounded-full" style="background: var(--theme-text-secondary); animation-delay: 0.2s" />
+                  <span class="typing-dot h-2 w-2 rounded-full" style="background: var(--theme-text-secondary); animation-delay: 0.4s" />
+                </div>
+              </div>
+            </div>
           </div>
 
           <!-- Message Input -->
@@ -650,3 +672,13 @@ const isLiveChat = computed(
     </div>
   </Transition>
 </template>
+
+<style scoped>
+@keyframes typing-bounce {
+  0%, 60%, 100% { transform: translateY(0); opacity: 0.4; }
+  30% { transform: translateY(-4px); opacity: 1; }
+}
+.typing-dot {
+  animation: typing-bounce 1.4s ease-in-out infinite;
+}
+</style>
