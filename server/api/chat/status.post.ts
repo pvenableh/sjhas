@@ -2,7 +2,7 @@
 // Admin endpoint to toggle online/offline status
 // Requires authentication (admin user)
 // Falls back to Nitro storage if Directus chat_settings collection is unavailable
-// Broadcasts status change to all connected WebSocket clients via shared chatBroadcast utility
+// Directus WebSocket subscribers are notified automatically when chat_settings changes
 
 export default defineEventHandler(async (event) => {
   const session = await getUserSession(event)
@@ -34,9 +34,6 @@ export default defineEventHandler(async (event) => {
       })
     )
 
-    // Broadcast status change to all connected WS clients
-    broadcastStatusChange(online)
-
     return { success: true, online }
   } catch (directusError: any) {
     // Directus collection may not exist — use Nitro storage as fallback
@@ -51,9 +48,6 @@ export default defineEventHandler(async (event) => {
         welcome_message: current.welcome_message || 'Hi! How can we help you today?',
         offline_message: current.offline_message || "Stephen is currently offline. Please leave your contact info and we'll get back to you shortly!",
       })
-
-      // Broadcast status change to all connected WS clients
-      broadcastStatusChange(online)
 
       return { success: true, online }
     } catch (storageError: any) {

@@ -14,15 +14,14 @@ useSeoMeta({
 
 const sessions = useDirectusItems<ChatSession>('chat_sessions')
 
-// Nitro WebSocket for live messaging + typing indicators
 const {
   isConnected,
   visitorTyping,
-  connect: wsConnect,
-  disconnect: wsDisconnect,
+  connect: rtConnect,
+  disconnect: rtDisconnect,
   sendTyping,
   onNewMessage,
-} = useAdminChatWebSocket()
+} = useAdminChatRealtime()
 
 // State
 const sessionsList = ref<ChatSession[]>([])
@@ -114,15 +113,6 @@ function stopMessagePolling() {
   }
 }
 
-// If WS connects, stop message polling. If it disconnects, start polling.
-watch(isConnected, (connected) => {
-  if (connected) {
-    stopMessagePolling()
-  } else if (selectedSessionId.value) {
-    startMessagePolling(selectedSessionId.value)
-  }
-})
-
 // Fetch chat settings (online status)
 async function fetchChatStatus() {
   try {
@@ -152,24 +142,13 @@ async function toggleOnlineStatus() {
   }
 }
 
-// Select a session — load messages + connect WS for live updates
 async function selectSession(sessionId: number) {
   selectedSessionId.value = sessionId
   messages.value = []
   stopMessagePolling()
 
-  // Load messages via REST
   await fetchMessages(sessionId)
-
-  // Connect WebSocket for live updates + typing
-  wsConnect(sessionId)
-
-  // Start polling fallback if WS doesn't connect within 3s
-  setTimeout(() => {
-    if (!isConnected.value && selectedSessionId.value === sessionId) {
-      startMessagePolling(sessionId)
-    }
-  }, 3000)
+  rtConnect(sessionId)
 
   nextTick(() => scrollToBottom())
 }
@@ -280,7 +259,7 @@ onMounted(async () => {
 onUnmounted(() => {
   if (sessionPollInterval) clearInterval(sessionPollInterval)
   stopMessagePolling()
-  wsDisconnect()
+  rtDisconnect()
 })
 </script>
 
