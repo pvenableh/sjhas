@@ -215,10 +215,13 @@ function handleReplyKeydown(e: KeyboardEvent) {
   }
 }
 
-// Close/archive a session
+// Close/archive a session (notifies visitor via WS)
 async function closeSession(sessionId: number) {
   try {
-    await sessions.update(sessionId, { status: 'closed' } as any)
+    await $fetch('/api/chat/close-session', {
+      method: 'POST',
+      body: { sessionId },
+    })
     toast.success('Session closed')
     await fetchSessions()
     if (selectedSessionId.value === sessionId) {

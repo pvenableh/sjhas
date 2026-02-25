@@ -2,16 +2,22 @@
 /**
  * ChatWidget - Floating chat widget for visitor engagement
  *
- * When Stephen is online: Real-time messaging via Directus WebSocket subscription
- * When offline: Captures visitor name, email, phone + stores message
- * Messages are sent/received via server API and Directus realtime subscriptions.
+ * Features:
+ * - Session persistence via localStorage (survives page navigation / browser close)
+ * - Real-time admin online/offline status via WebSocket (no page refresh needed)
+ * - Typing indicators (iMessage-style bouncing dots) for both sides
+ * - When Stephen is online: Real-time messaging via Nitro WebSocket
+ * - When offline: Captures visitor name, email, phone + stores message
  */
+
+const STORAGE_KEY = "sjh-chat-session";
 
 const { trackChatOpen, trackChatSessionStart, trackChatMessageSent } =
   useAnalytics();
 
 const isOpen = ref(false);
 const isMinimized = ref(false);
+const sessionRestoring = ref(false);
 
 // Chat status
 const adminOnline = ref(false);
@@ -30,20 +36,25 @@ const formSubmitted = ref(false);
 
 // Chat session
 const sessionId = ref<number | null>(null);
+const sessionClosed = ref(false);
 const newMessage = ref("");
 const sendingMessage = ref(false);
 const messagesContainer = ref<HTMLElement | null>(null);
 const hasUnread = ref(false);
 const messages = ref<any[]>([]);
 
-// Nitro WebSocket for live messaging + typing indicators
+// Nitro WebSocket for live messaging + typing indicators + status updates
 const {
   isConnected,
   adminTyping,
+  adminOnline: wsAdminOnline,
   connect: wsConnect,
+  joinSession: wsJoinSession,
   disconnect: wsDisconnect,
   sendTyping,
   onNewMessage: onWsNewMessage,
+  onStatusChange: onWsStatusChange,
+  onSessionClosed: onWsSessionClosed,
 } = useChatWebSocket();
 
 // Polling fallback in case WS doesn't connect
@@ -61,8 +72,110 @@ onWsNewMessage((msg) => {
   }
 });
 
-// Fetch chat status on mount
+// Listen for real-time admin status changes
+onWsStatusChange(async (online) => {
+  adminOnline.value = online;
+  // If admin comes online and we have a stored session but no active session, restore it
+  if (online && !sessionId.value && !sessionClosed.value) {
+    await restoreSession();
+  }
+});
+
+// Listen for session closed by admin
+onWsSessionClosed(() => {
+  sessionClosed.value = true;
+  clearPersistedSession();
+});
+
+/**
+ * Save session data to localStorage for persistence
+ */
+function persistSession(sid: number) {
+  try {
+    localStorage.setItem(
+      STORAGE_KEY,
+      JSON.stringify({
+        sessionId: sid,
+        visitorName: visitorName.value,
+        visitorEmail: visitorEmail.value,
+        visitorPhone: visitorPhone.value,
+        timestamp: Date.now(),
+      }),
+    );
+  } catch {
+    // localStorage unavailable (e.g. private browsing)
+  }
+}
+
+/**
+ * Clear persisted session data
+ */
+function clearPersistedSession() {
+  try {
+    localStorage.removeItem(STORAGE_KEY);
+  } catch {
+    // Ignore
+  }
+}
+
+/**
+ * Attempt to restore a persisted session on mount
+ */
+async function restoreSession(): Promise<boolean> {
+  try {
+    const stored = localStorage.getItem(STORAGE_KEY);
+    if (!stored) return false;
+
+    const data = JSON.parse(stored);
+    if (!data.sessionId) return false;
+
+    // Sessions older than 24 hours are stale
+    const ageMs = Date.now() - (data.timestamp || 0);
+    if (ageMs > 24 * 60 * 60 * 1000) {
+      clearPersistedSession();
+      return false;
+    }
+
+    // Validate the session is still active on the server
+    const result = await $fetch("/api/chat/session", {
+      method: "GET",
+      params: { id: data.sessionId },
+    });
+
+    if (!result.valid) {
+      clearPersistedSession();
+      return false;
+    }
+
+    // Restore session state
+    sessionId.value = data.sessionId;
+    visitorName.value = data.visitorName || "";
+    visitorEmail.value = data.visitorEmail || "";
+    visitorPhone.value = data.visitorPhone || "";
+
+    // Load messages and connect WS
+    await loadMessages(data.sessionId);
+    wsJoinSession(data.sessionId);
+
+    // Start polling fallback if WS doesn't connect within 3s
+    setTimeout(() => {
+      if (!isConnected.value) {
+        startPolling(data.sessionId);
+      }
+    }, 3000);
+
+    return true;
+  } catch {
+    clearPersistedSession();
+    return false;
+  }
+}
+
+// Fetch chat status and restore session on mount
 onMounted(async () => {
+  // Connect WS early for real-time status updates (no session needed)
+  wsConnect();
+
   try {
     const status = await $fetch("/api/chat/status");
     adminOnline.value = status.online;
@@ -75,6 +188,14 @@ onMounted(async () => {
       "Stephen is currently offline. Please leave your contact info and we'll get back to you shortly!";
   } finally {
     statusLoaded.value = true;
+  }
+
+  // Try to restore a previous chat session (works whether admin is online or offline)
+  sessionRestoring.value = true;
+  try {
+    await restoreSession();
+  } finally {
+    sessionRestoring.value = false;
   }
 });
 
@@ -117,12 +238,12 @@ async function loadMessages(sid: number) {
 
 /**
  * Start realtime updates for chat messages.
- * Connects to Nitro WebSocket for live messages + typing indicators.
+ * Joins the session on the already-connected WebSocket.
  * Falls back to polling if WS doesn't connect.
  */
 function startRealtimeMessages(sid: number) {
-  // Connect to Nitro WS for live updates + typing
-  wsConnect(sid);
+  // Join the session on the existing WS connection
+  wsJoinSession(sid);
 
   // Start polling fallback if WS doesn't connect within 3s
   setTimeout(() => {
@@ -133,7 +254,7 @@ function startRealtimeMessages(sid: number) {
 }
 
 /**
- * Polling fallback for environments where Directus WS is unavailable
+ * Polling fallback for environments where WS is unavailable
  */
 function startPolling(sid: number) {
   if (pollInterval) clearInterval(pollInterval);
@@ -198,9 +319,12 @@ async function submitVisitorInfo() {
     trackChatSessionStart(adminOnline.value ? "online" : "offline");
 
     if (adminOnline.value) {
+      // Persist session for future page loads
+      persistSession(result.sessionId);
+
       // Load existing messages + subscribe to realtime updates
       await loadMessages(result.sessionId);
-      await startRealtimeMessages(result.sessionId);
+      startRealtimeMessages(result.sessionId);
     } else {
       formSubmitted.value = true;
     }
@@ -250,6 +374,20 @@ async function sendMessage() {
   scrollToBottom();
 }
 
+/**
+ * Start a new chat after the previous one was closed by admin
+ */
+function startNewChat() {
+  sessionClosed.value = false;
+  sessionId.value = null;
+  messages.value = [];
+  visitorName.value = "";
+  visitorEmail.value = "";
+  visitorPhone.value = "";
+  initialMessage.value = "";
+  formSubmitted.value = false;
+}
+
 function scrollToBottom() {
   nextTick(() => {
     if (messagesContainer.value) {
@@ -273,9 +411,9 @@ function formatTime(dateStr: string) {
   return date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
 }
 
-// Whether we're in live chat mode (session created + admin online)
+// Whether we're in live chat mode (session created + admin online + not closed)
 const isLiveChat = computed(
-  () => sessionId.value !== null && adminOnline.value,
+  () => sessionId.value !== null && adminOnline.value && !sessionClosed.value,
 );
 </script>
 
@@ -363,7 +501,7 @@ const isLiveChat = computed(
           </p>
           <div class="flex items-center gap-1.5">
             <span
-              class="inline-block h-2 w-2 rounded-full"
+              class="inline-block h-2 w-2 rounded-full transition-colors duration-300"
               :class="adminOnline ? 'bg-green-400' : 'bg-gray-300'"
             />
             <span class="text-xs opacity-90">
@@ -405,9 +543,80 @@ const isLiveChat = computed(
 
       <!-- Body -->
       <div class="flex flex-1 flex-col overflow-hidden">
+        <!-- Session closed by admin -->
+        <div
+          v-if="sessionClosed"
+          class="flex flex-1 flex-col items-center justify-center px-5 py-8 text-center"
+        >
+          <div
+            class="mb-4 flex h-16 w-16 items-center justify-center rounded-full"
+            style="background: var(--theme-bg-secondary)"
+          >
+            <svg
+              class="h-8 w-8"
+              style="color: var(--theme-text-secondary)"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"
+              />
+            </svg>
+          </div>
+          <h3
+            class="mb-2 text-lg font-semibold t-heading"
+            style="color: var(--theme-text-primary)"
+          >
+            Chat Ended
+          </h3>
+          <p class="text-sm mb-4" style="color: var(--theme-text-secondary)">
+            This conversation has been closed. Thank you for chatting with us!
+          </p>
+          <button
+            class="t-btn rounded-lg px-4 py-2 text-sm font-medium"
+            @click="startNewChat"
+          >
+            Start New Chat
+          </button>
+        </div>
+
+        <!-- Restoring session spinner -->
+        <div
+          v-else-if="sessionRestoring"
+          class="flex flex-1 flex-col items-center justify-center px-5 py-8"
+        >
+          <svg
+            class="h-8 w-8 animate-spin mb-3"
+            style="color: var(--theme-accent)"
+            viewBox="0 0 24 24"
+            fill="none"
+          >
+            <circle
+              class="opacity-25"
+              cx="12"
+              cy="12"
+              r="10"
+              stroke="currentColor"
+              stroke-width="4"
+            />
+            <path
+              class="opacity-75"
+              fill="currentColor"
+              d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
+            />
+          </svg>
+          <p class="text-sm" style="color: var(--theme-text-secondary)">
+            Restoring your conversation...
+          </p>
+        </div>
+
         <!-- OFFLINE: Visitor Capture Form (before session created) -->
         <div
-          v-if="!isLiveChat && !formSubmitted"
+          v-else-if="!isLiveChat && !formSubmitted"
           class="flex-1 overflow-y-auto px-5 py-4"
         >
           <!-- Welcome/Offline message -->
