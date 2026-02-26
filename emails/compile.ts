@@ -19,7 +19,9 @@ for (const file of mjmlFiles) {
   const name = basename(file, '.mjml')
   const mjmlSource = readFileSync(resolve(emailsDir, file), 'utf-8')
 
+  const filePath = resolve(emailsDir, file)
   const { html, errors } = mjml2html(mjmlSource, {
+    filePath,
     minify: false,
     validationLevel: 'soft',
   })
