@@ -112,7 +112,7 @@ export const formInvitationTemplate = `<!doctype html>
             <td  style="width:80px;">
               
         <a
-           href="https://huestudios.company" target="_blank"
+           href="https://sjhas.com" target="_blank"
         >
           
       <img
@@ -513,4 +513,4 @@ export const formInvitationTemplate = `<!doctype html>
     
   </body>
 </html>
-  `
+  `;
