@@ -409,7 +409,7 @@ useSeoMeta({
 })
 
 defineOgImage({
-  component: 'NuxtSeo',
+  component: 'Sjhas',
   title: 'Tax Planning Questionnaire',
   description: 'SJHAS, Inc. - Accounting & Tax Services',
 })
