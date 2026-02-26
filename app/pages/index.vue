@@ -55,6 +55,10 @@ const seoTitle = settings.value?.site_name
 const seoDescription = settings.value?.site_description
   || 'SJHAS Inc. provides personalized tax returns, accounting, and payroll services throughout Ithaca, Elmira, and Central New York since 2000.'
 
+// Override title template to prevent @nuxtjs/seo from appending the site name
+// (the seoTitle already starts with "SJHAS, Inc.")
+useHead({ titleTemplate: '%s' })
+
 useSeoMeta({
   title: seoTitle,
   description: seoDescription,

@@ -30,29 +30,31 @@ const isAdmin = computed(() => {
 })
 
 const baseNavLinks = [
-  { label: 'Home', href: '/', external: false },
-  { label: 'Services', href: '/#services', external: false },
-  { label: 'About', href: '/#about', external: false },
-  { label: 'Contact', href: '/#contact', external: false },
-  { label: 'Portal', href: 'https://sjhas.clientportal.com/', external: true },
+  { label: 'Home', href: '/', external: false, xlOnly: false },
+  { label: 'Services', href: '/#services', external: false, xlOnly: true },
+  { label: 'About', href: '/#about', external: false, xlOnly: true },
+  { label: 'Upload Documents', href: '/upload', external: false, xlOnly: false },
+  { label: 'Tax Planning', href: '/tax-planning', external: false, xlOnly: false },
+  { label: 'Contact', href: '/#contact', external: false, xlOnly: false },
+  { label: 'Portal', href: 'https://sjhas.clientportal.com/', external: true, xlOnly: false },
 ]
 
 const navLinks = computed(() => {
   if (isAdmin.value) {
     return [
       ...baseNavLinks,
-      { label: 'Admin', href: '/admin', external: false },
+      { label: 'Admin', href: '/admin', external: false, xlOnly: false },
     ]
   }
   if (loggedIn.value) {
     return [
       ...baseNavLinks,
-      { label: 'My Account', href: '/forms', external: false },
+      { label: 'My Account', href: '/forms', external: false, xlOnly: false },
     ]
   }
   return [
     ...baseNavLinks,
-    { label: 'Login', href: '/auth/login', external: false },
+    { label: 'Login', href: '/auth/login', external: false, xlOnly: false },
   ]
 })
 
@@ -124,7 +126,10 @@ onMounted(() => {
               :href="link.href"
               target="_blank"
               rel="noopener noreferrer"
-              class="px-5 py-2 text-[13px] tracking-[0.02em] t-text-secondary hover:t-text-accent transition-colors rounded-xl t-hover-bg"
+              :class="[
+                'px-5 py-2 text-[13px] tracking-[0.02em] t-text-secondary hover:t-text-accent transition-colors rounded-xl t-hover-bg',
+                link.xlOnly ? 'hidden xl:inline-flex' : ''
+              ]"
               @click="trackNavClick(link.label, link.href)"
             >
               {{ link.label }}
@@ -132,7 +137,10 @@ onMounted(() => {
             <NuxtLink
               v-else
               :to="link.href"
-              class="px-5 py-2 text-[13px] tracking-[0.02em] t-text-secondary hover:t-text-accent transition-colors rounded-xl t-hover-bg"
+              :class="[
+                'px-5 py-2 text-[13px] tracking-[0.02em] t-text-secondary hover:t-text-accent transition-colors rounded-xl t-hover-bg',
+                link.xlOnly ? 'hidden xl:inline-flex' : ''
+              ]"
               @click="trackNavClick(link.label, link.href)"
             >
               {{ link.label }}
