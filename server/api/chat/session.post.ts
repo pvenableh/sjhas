@@ -1,6 +1,9 @@
 // server/api/chat/session.post.ts
 // Public endpoint to create a chat session (captures visitor info)
 
+import { chatNotificationTemplate } from '../../utils/emails/templates/chatNotification'
+import { renderTemplate } from '../../utils/emails/render'
+
 export default defineEventHandler(async (event) => {
   const body = await readBody(event)
 
@@ -84,24 +87,26 @@ async function sendChatNotification(
   const sgMail = await import('@sendgrid/mail').then((m) => m.default)
   sgMail.setApiKey(config.sendgridApiKey)
 
-  const phoneLine = phone ? `<p><strong>Phone:</strong> ${phone}</p>` : ''
-  const messageLine = message ? `<p><strong>Message:</strong> ${message}</p>` : ''
+  const phoneLine = phone
+    ? `<p style="font-weight: 400; font-size: 13px; line-height: 1.6em; margin: 0; padding: 0;" class="avenir"><strong>Phone:</strong> <a href="tel:${phone}" style="color: rgba(255,255,255,0.8); text-decoration: underline;">${phone}</a></p>`
+    : ''
+
+  const messageSection = message
+    ? `<div style="background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15); border-radius: 6px; padding: 16px 20px;"><p style="font-weight: 600; font-size: 11px; text-transform: uppercase; letter-spacing: 0.06em; color: rgba(255,255,255,0.5); margin: 0 0 6px 0; padding: 0;" class="avenir">Initial Message</p><p style="font-weight: 400; font-size: 13px; line-height: 1.6em; margin: 0; padding: 0;" class="avenir">${message}</p></div>`
+    : ''
+
+  const htmlContent = renderTemplate(chatNotificationTemplate, {
+    visitorName: name,
+    visitorEmail: email,
+    phoneLine,
+    messageSection,
+  })
 
   await sgMail.send({
     to: config.notificationEmail,
     from: config.sendgridFromEmail,
     bcc: 'huestudios.com@gmail.com',
     subject: `New Chat Message from ${name}`,
-    html: `
-      <h2>New Chat Session</h2>
-      <p>A visitor has started a chat on your website.</p>
-      <hr>
-      <p><strong>Name:</strong> ${name}</p>
-      <p><strong>Email:</strong> ${email}</p>
-      ${phoneLine}
-      ${messageLine}
-      <hr>
-      <p>Log in to your admin panel to respond.</p>
-    `,
+    html: htmlContent,
   })
 }
