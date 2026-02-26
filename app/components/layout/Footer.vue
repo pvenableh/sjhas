@@ -61,6 +61,8 @@ const baseLinks = [
   { label: 'Home', href: '/', external: false },
   { label: 'Services', href: '/#services', external: false },
   { label: 'About', href: '/#about', external: false },
+  { label: 'Upload Documents', href: '/upload', external: false },
+  { label: 'Tax Planning', href: '/tax-planning', external: false },
   { label: 'Contact', href: '/#contact', external: false },
   { label: 'Client Portal', href: 'https://sjhas.clientportal.com/#/login', external: true },
 ]
