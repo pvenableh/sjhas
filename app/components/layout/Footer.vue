@@ -255,12 +255,12 @@ const quickLinks = computed(() => {
       </div>
     </div>
     <div class="my-12 flex w-full flex-col items-center justify-center">
-      <h5 class="web-designer font-[var(--theme-body-font)]">
+      <h5 class="web-designer !font-[var(--theme-body-font)]">
         <a
           href="mailto:contact@huestudios.com"
           target="_blank"
           rel="noopener"
-          class="columns body-font shrink !text-white font-[var(--theme-body-font)]"
+          class="columns body-font shrink !text-white !font-[var(--theme-body-font)]"
         >
           designed by
           <svg
@@ -288,7 +288,7 @@ const quickLinks = computed(() => {
         </a>
       </h5>
       <h5
-        class="font-[var(--theme-body-font)] copyright tracking-widest uppercase mb-safe-offset-12 !text-white"
+        class="!font-[var(--theme-body-font)] copyright tracking-widest uppercase mb-safe-offset-12 !text-white"
       >
         &#169; {{ new Date().getFullYear() }} SJHAS, INC. All rights reserved.
       </h5>
