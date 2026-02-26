@@ -32,7 +32,11 @@
           </div>
         </mj-text>
       </mj-column>
-      {{messageSection}}
+      <mj-column width="100%">
+        <mj-text align="left" css-class="avenir" padding-top="15px">
+          {{messageSection}}
+        </mj-text>
+      </mj-column>
     </mj-section>
     <mj-section padding="0px 10px 50px" full-width="full-width">
       <mj-column width="100%">
