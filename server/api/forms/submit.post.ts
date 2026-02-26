@@ -183,15 +183,15 @@ async function sendNotificationEmail(
       const displayValue = typeof value === 'boolean'
         ? (value ? 'Yes' : 'No')
         : (value || 'Not provided')
-      return `<tr><td style="padding: 10px 12px; border-bottom: 1px solid #e2e8f0; font-weight: 500; color: #374151;">${label}</td><td style="padding: 10px 12px; border-bottom: 1px solid #e2e8f0; color: #64748b;">${displayValue}</td></tr>`
+      return `<tr><td style="padding: 10px 12px; border-bottom: 1px solid rgba(255,255,255,0.15); font-weight: 500; color: rgba(255,255,255,0.9);">${label}</td><td style="padding: 10px 12px; border-bottom: 1px solid rgba(255,255,255,0.15); color: rgba(255,255,255,0.7);">${displayValue}</td></tr>`
     })
     .join('')
 
   const filesSection = files.length > 0
     ? `
-      <h3 style="color: #0f172a; margin-top: 24px; margin-bottom: 12px; font-size: 14px; font-weight: 600;">Uploaded Files</h3>
-      <ul style="color: #64748b; padding-left: 20px;">
-        ${files.map((f) => `<li style="margin-bottom: 6px;">${f.filename} <a href="${config.directus.url}/assets/${f.fileId}" style="color: #243b55;">View</a></li>`).join('')}
+      <h3 style="color: rgba(255,255,255,0.9); margin-top: 24px; margin-bottom: 12px; font-size: 14px; font-weight: 600;">Uploaded Files</h3>
+      <ul style="color: rgba(255,255,255,0.7); padding-left: 20px;">
+        ${files.map((f) => `<li style="margin-bottom: 6px;">${f.filename} <a href="${config.directus.url}/assets/${f.fileId}" style="color: rgba(255,255,255,0.8); text-decoration: underline;">View</a></li>`).join('')}
       </ul>
     `
     : ''
