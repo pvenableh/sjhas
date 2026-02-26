@@ -98,12 +98,14 @@ const sendEmail = ref('')
 const sendName = ref('')
 const sendMessage = ref('')
 const isSending = ref(false)
+const sendError = ref<string | null>(null)
 
 const openSendDialog = (form: Form) => {
   sendFormTarget.value = form
   sendEmail.value = ''
   sendName.value = ''
   sendMessage.value = ''
+  sendError.value = null
   showSendDialog.value = true
 }
 
@@ -161,6 +163,8 @@ const createFromTemplate = async (templateKey: string) => {
 }
 
 const handleSendForm = async () => {
+  sendError.value = null
+
   if (!sendEmail.value || !sendFormTarget.value) {
     toast.error('Please enter a recipient email')
     return
@@ -180,7 +184,10 @@ const handleSendForm = async () => {
     toast.success(`Form sent to ${sendEmail.value}`)
     showSendDialog.value = false
   } catch (error: any) {
-    toast.error(error.data?.message || 'Failed to send email')
+    const msg = error.data?.message || error.message || 'Failed to send email'
+    sendError.value = msg
+    toast.error(msg)
+    console.error('Send form error:', error)
   } finally {
     isSending.value = false
   }
@@ -351,6 +358,15 @@ const handleSendForm = async () => {
             <p class="text-sm text-slate-500">
               Send <span class="font-medium text-slate-700">{{ sendFormTarget?.title }}</span> to a client via email.
             </p>
+
+            <!-- Inline error alert -->
+            <div
+              v-if="sendError"
+              class="p-3 rounded-lg bg-red-50 border border-red-200 text-red-700 text-sm flex items-start gap-2"
+            >
+              <Icon name="lucide:alert-circle" class="w-4 h-4 mt-0.5 flex-shrink-0" />
+              <span>{{ sendError }}</span>
+            </div>
 
             <div class="space-y-4">
               <div>

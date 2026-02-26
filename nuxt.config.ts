@@ -74,7 +74,6 @@ export default defineNuxtConfig({
       "/forms/**",
       "/f/**",
       "/auth/**",
-      "/accept-invite",
       "/upload",
       "/api/**",
     ],
@@ -82,7 +81,7 @@ export default defineNuxtConfig({
 
   // Robots configuration
   robots: {
-    disallow: ["/admin", "/forms", "/f", "/auth", "/accept-invite", "/upload", "/api"],
+    disallow: ["/admin", "/forms", "/f", "/auth", "/upload", "/api"],
   },
 
   // OG Image configuration
@@ -241,7 +240,7 @@ export default defineNuxtConfig({
     "/forms/**": { ssr: false },
     "/f/**": { ssr: false },
     "/admin/**": { ssr: false, robots: false },
-    "/accept-invite": { ssr: false },
+    "/auth/user-invite": { ssr: false },
     // Cache public pages for better performance
     "/": { swr: 3600 },
     "/tax-planning": { swr: 3600 },

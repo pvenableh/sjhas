@@ -83,7 +83,11 @@ const getStatusColor = (status: string) => {
   }
 }
 
+const inviteError = ref<string | null>(null)
+
 const handleInvite = async () => {
+  inviteError.value = null
+
   if (!inviteEmail.value) {
     toast.error('Please enter an email address')
     return
@@ -91,24 +95,39 @@ const handleInvite = async () => {
 
   const roleId = config.public.clientRoleId
   if (!roleId) {
-    toast.error('Client role is not configured. Set CLIENT_ROLE_ID in your environment.')
+    const msg = 'Client role is not configured. Set CLIENT_ROLE_ID in your environment.'
+    inviteError.value = msg
+    toast.error(msg)
     return
   }
 
   isInviting.value = true
   try {
-    await inviteUser(inviteEmail.value, roleId as string, {
+    const result = await inviteUser(inviteEmail.value, roleId as string, {
       first_name: inviteFirstName.value || undefined,
       last_name: inviteLastName.value || undefined,
-    })
-    toast.success(`Invitation sent to ${inviteEmail.value}`)
+    }) as any
+
+    // Check if Directus fell back to its default invite URL
+    if (result?.usedCustomUrl === false) {
+      toast.success(`Invitation sent to ${inviteEmail.value}`, {
+        description: 'Note: The invite email links to the Directus panel. Configure USER_INVITE_URL_ALLOW_LIST on Directus to use a custom URL.',
+        duration: 8000,
+      })
+    } else {
+      toast.success(`Invitation sent to ${inviteEmail.value}`)
+    }
+
     showInviteDialog.value = false
     inviteEmail.value = ''
     inviteFirstName.value = ''
     inviteLastName.value = ''
     await fetchClients()
   } catch (error: any) {
-    toast.error(error.data?.message || 'Failed to send invitation')
+    const msg = error.data?.message || error.message || 'Failed to send invitation'
+    inviteError.value = msg
+    toast.error(msg)
+    console.error('Invite error:', error)
   } finally {
     isInviting.value = false
   }
@@ -129,7 +148,7 @@ const getInitials = (user: any) => {
         <h1 class="text-2xl font-semibold text-slate-900">Clients</h1>
         <p class="text-slate-600 mt-1">Manage your client accounts</p>
       </div>
-      <Button @click="showInviteDialog = true">
+      <Button @click="showInviteDialog = true; inviteError = null">
         <Icon name="lucide:user-plus" class="w-4 h-4" />
         Invite Client
       </Button>
@@ -216,6 +235,24 @@ const getInitials = (user: any) => {
             <p class="text-sm text-slate-500">
               Send an invitation email to a new client. They'll be able to create an account and access the client portal.
             </p>
+
+            <!-- Inline error alert -->
+            <Transition
+              enter-active-class="transition duration-200 ease-out"
+              enter-from-class="opacity-0 -translate-y-1"
+              enter-to-class="opacity-100 translate-y-0"
+              leave-active-class="transition duration-150 ease-in"
+              leave-from-class="opacity-100 translate-y-0"
+              leave-to-class="opacity-0 -translate-y-1"
+            >
+              <div
+                v-if="inviteError"
+                class="p-3 rounded-lg bg-red-50 border border-red-200 text-red-700 text-sm flex items-start gap-2"
+              >
+                <Icon name="lucide:alert-circle" class="w-4 h-4 mt-0.5 flex-shrink-0" />
+                <span>{{ inviteError }}</span>
+              </div>
+            </Transition>
 
             <div class="space-y-4">
               <div>
