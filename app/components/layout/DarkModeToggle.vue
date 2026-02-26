@@ -1,5 +1,5 @@
 <script setup lang="ts">
-const { isDark, toggleDarkMode } = useTheme()
+const { isDark, toggleDarkMode } = useTheme();
 </script>
 
 <template>
@@ -14,12 +14,12 @@ const { isDark, toggleDarkMode } = useTheme()
       @click="toggleDarkMode()"
     >
       <span
-        class="pointer-events-none flex h-4 w-4 items-center justify-center rounded-full bg-white shadow-lg ring-0 transition-transform"
+        class="pointer-events-none flex h-4 w-4 items-center justify-center rounded-full bg-white shadow-lg ring-0 transition-transform p-0.5"
         :class="isDark ? 'translate-x-4' : 'translate-x-0'"
       >
         <Icon
           :name="isDark ? 'lucide:moon' : 'lucide:sun'"
-          class="h-2.5 w-2.5 text-slate-500"
+          class="h-2.5 w-2.5 text-slate-400"
         />
       </span>
     </button>

@@ -1,48 +1,72 @@
 <script setup lang="ts">
-import { onMounted, ref } from 'vue'
-import { gsap } from 'gsap'
+import { onMounted, ref } from "vue";
+import { gsap } from "gsap";
 
-const { trackCtaClick, trackBookingClick } = useAnalytics()
+const { trackCtaClick, trackBookingClick } = useAnalytics();
 
 const props = defineProps<{
-  title?: string
-  subtitle?: string
-  ctaText?: string
-  ctaLink?: string
-  badgeText?: string
-  bookingUrl?: string
-}>()
+  title?: string;
+  subtitle?: string;
+  ctaText?: string;
+  ctaLink?: string;
+  badgeText?: string;
+  bookingUrl?: string;
+}>();
 
-const heroRef = ref<HTMLElement | null>(null)
+const heroRef = ref<HTMLElement | null>(null);
 
 onMounted(() => {
   if (heroRef.value) {
-    const tl = gsap.timeline()
-    const el = heroRef.value
+    const tl = gsap.timeline();
+    const el = heroRef.value;
 
-    const badge = el.querySelector('.hero-badge')
-    const title = el.querySelector('.hero-title')
-    const subtitle = el.querySelector('.hero-subtitle')
-    const cta = el.querySelector('.hero-cta')
-    const visual = el.querySelector('.hero-visual')
+    const badge = el.querySelector(".hero-badge");
+    const title = el.querySelector(".hero-title");
+    const subtitle = el.querySelector(".hero-subtitle");
+    const cta = el.querySelector(".hero-cta");
+    const visual = el.querySelector(".hero-visual");
 
     if (badge) {
-      tl.fromTo(badge, { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.6, ease: 'power2.out' })
+      tl.fromTo(
+        badge,
+        { opacity: 0, y: 20 },
+        { opacity: 1, y: 0, duration: 0.6, ease: "power2.out" },
+      );
     }
     if (title) {
-      tl.fromTo(title, { opacity: 0, y: 40 }, { opacity: 1, y: 0, duration: 0.8, ease: 'power3.out' }, badge ? '-=0.2' : 0)
+      tl.fromTo(
+        title,
+        { opacity: 0, y: 40 },
+        { opacity: 1, y: 0, duration: 0.8, ease: "power3.out" },
+        badge ? "-=0.2" : 0,
+      );
     }
     if (subtitle) {
-      tl.fromTo(subtitle, { opacity: 0, y: 30 }, { opacity: 1, y: 0, duration: 0.7, ease: 'power2.out' }, '-=0.4')
+      tl.fromTo(
+        subtitle,
+        { opacity: 0, y: 30 },
+        { opacity: 1, y: 0, duration: 0.7, ease: "power2.out" },
+        "-=0.4",
+      );
     }
     if (cta) {
-      tl.fromTo(cta, { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.5, ease: 'power2.out' }, '-=0.3')
+      tl.fromTo(
+        cta,
+        { opacity: 0, y: 20 },
+        { opacity: 1, y: 0, duration: 0.5, ease: "power2.out" },
+        "-=0.3",
+      );
     }
     if (visual) {
-      tl.fromTo(visual, { opacity: 0, scale: 0.97 }, { opacity: 1, scale: 1, duration: 0.9, ease: 'power2.out' }, '-=0.5')
+      tl.fromTo(
+        visual,
+        { opacity: 0, scale: 0.97 },
+        { opacity: 1, scale: 1, duration: 0.9, ease: "power2.out" },
+        "-=0.5",
+      );
     }
   }
-})
+});
 </script>
 
 <template>
@@ -51,25 +75,54 @@ onMounted(() => {
     class="relative min-h-[92vh] flex items-center overflow-hidden t-section"
   >
     <!-- Subtle gradient background -->
-    <div class="absolute inset-0" style="background: linear-gradient(170deg, var(--theme-bg-secondary) 0%, var(--theme-bg-elevated) 40%, var(--theme-bg-secondary) 100%);" />
+    <div
+      class="absolute inset-0"
+      style="
+        background: linear-gradient(
+          170deg,
+          var(--theme-bg-secondary) 0%,
+          var(--theme-bg-elevated) 40%,
+          var(--theme-bg-secondary) 100%
+        );
+      "
+    />
 
     <!-- Refined decorative line -->
-    <div class="absolute top-0 left-0 right-0 h-px" style="background: linear-gradient(to right, transparent, var(--theme-border-primary), transparent);" />
+    <div
+      class="absolute top-0 left-0 right-0 h-px"
+      style="
+        background: linear-gradient(
+          to right,
+          transparent,
+          var(--theme-border-primary),
+          transparent
+        );
+      "
+    />
 
-    <div class="relative container-wide section-padding py-28 lg:py-40">
+    <div class="relative container-wide section-padding py-16 lg:py-32">
       <div class="grid lg:grid-cols-2 gap-16 lg:gap-24 items-center">
         <!-- Content -->
         <div class="max-w-xl">
-          <div v-if="badgeText" class="hero-badge inline-flex items-center gap-2.5 px-5 py-2.5 rounded-full t-badge text-xs font-medium tracking-[0.1em] uppercase mb-10">
+          <div
+            v-if="badgeText"
+            class="hero-badge inline-flex items-center gap-2.5 px-5 py-2.5 rounded-full t-badge text-xs font-medium tracking-[0.1em] uppercase mb-10"
+          >
             <Icon name="lucide:building-2" class="w-3.5 h-3.5" />
             <span>{{ badgeText }}</span>
           </div>
 
-          <h1 v-if="title" class="hero-title text-4xl sm:text-5xl lg:text-[3.5rem] xl:text-[4rem] t-heading t-text leading-[1.08] tracking-tight mb-8">
+          <h1
+            v-if="title"
+            class="hero-title text-4xl sm:text-5xl lg:text-[3.5rem] xl:text-[4rem] t-heading t-text leading-[1.08] tracking-tight mb-8"
+          >
             {{ title }}
           </h1>
 
-          <p v-if="subtitle" class="hero-subtitle text-lg sm:text-xl t-text-secondary leading-[1.7] mb-12 max-w-md">
+          <p
+            v-if="subtitle"
+            class="hero-subtitle text-lg sm:text-xl t-text-secondary leading-[1.7] mb-12 max-w-md"
+          >
             {{ subtitle }}
           </p>
 
@@ -83,8 +136,11 @@ onMounted(() => {
               class="group"
               @click="trackBookingClick('hero')"
             >
-              {{ ctaText || 'Book a Consultation' }}
-              <Icon name="lucide:arrow-right" class="w-4 h-4 transition-transform group-hover:translate-x-1" />
+              {{ ctaText || "Book a Consultation" }}
+              <Icon
+                name="lucide:arrow-right"
+                class="w-4 h-4 transition-transform group-hover:translate-x-1"
+              />
             </Button>
             <Button
               as="a"
@@ -102,36 +158,65 @@ onMounted(() => {
         <div class="hero-visual relative pb-8 sm:pb-10">
           <div class="relative aspect-square max-w-lg mx-auto">
             <!-- Subtle decorative glow -->
-            <div class="absolute -top-8 -right-8 w-80 h-80 rounded-full blur-[80px]" style="background-color: var(--theme-accent-primary); opacity: 0.08;" />
-            <div class="absolute -bottom-8 -left-8 w-72 h-72 rounded-full blur-[80px]" style="background-color: var(--theme-accent-secondary); opacity: 0.06;" />
+            <div
+              class="absolute -top-8 -right-8 w-80 h-80 rounded-full blur-[80px]"
+              style="
+                background-color: var(--theme-accent-primary);
+                opacity: 0.08;
+              "
+            />
+            <div
+              class="absolute -bottom-8 -left-8 w-72 h-72 rounded-full blur-[80px]"
+              style="
+                background-color: var(--theme-accent-secondary);
+                opacity: 0.06;
+              "
+            />
 
             <!-- Main card -->
-            <div class="relative t-bg-elevated rounded-3xl t-shadow-lg border t-border p-8 sm:p-12 transform rotate-1 hover:rotate-0 transition-all duration-700 ease-out">
+            <div
+              class="relative t-bg-elevated rounded-3xl t-shadow-lg border t-border p-8 sm:p-12 transform rotate-1 hover:rotate-0 transition-all duration-700 ease-out"
+            >
               <div class="flex items-center gap-4 sm:gap-5 mb-8 sm:mb-10">
-                <div class="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl t-icon-box flex items-center justify-center flex-shrink-0">
-                  <Icon name="lucide:calculator" class="w-6 h-6 sm:w-7 sm:h-7" />
+                <div
+                  class="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl t-icon-box flex items-center justify-center flex-shrink-0"
+                >
+                  <Icon
+                    name="lucide:calculator"
+                    class="w-6 h-6 sm:w-7 sm:h-7"
+                  />
                 </div>
                 <div>
-                  <h3 class="font-medium t-text tracking-wide">Expert Tax Planning</h3>
-                  <p class="text-sm t-text-muted mt-1">Personalized strategies</p>
+                  <h3 class="font-medium t-text tracking-wide">
+                    Expert Tax Planning
+                  </h3>
+                  <p class="text-sm t-text-muted mt-1">
+                    Personalized strategies
+                  </p>
                 </div>
               </div>
 
               <div class="space-y-5 sm:space-y-6">
                 <div class="flex items-center gap-4">
-                  <div class="w-10 h-10 rounded-xl t-icon-box flex items-center justify-center flex-shrink-0">
+                  <div
+                    class="w-10 h-10 rounded-xl t-icon-box flex items-center justify-center flex-shrink-0"
+                  >
                     <Icon name="lucide:check" class="w-5 h-5" />
                   </div>
                   <span class="t-text-secondary">Personal Tax Preparation</span>
                 </div>
                 <div class="flex items-center gap-4">
-                  <div class="w-10 h-10 rounded-xl t-icon-box flex items-center justify-center flex-shrink-0">
+                  <div
+                    class="w-10 h-10 rounded-xl t-icon-box flex items-center justify-center flex-shrink-0"
+                  >
                     <Icon name="lucide:check" class="w-5 h-5" />
                   </div>
                   <span class="t-text-secondary">Business Tax Strategy</span>
                 </div>
                 <div class="flex items-center gap-4">
-                  <div class="w-10 h-10 rounded-xl t-icon-box flex items-center justify-center flex-shrink-0">
+                  <div
+                    class="w-10 h-10 rounded-xl t-icon-box flex items-center justify-center flex-shrink-0"
+                  >
                     <Icon name="lucide:check" class="w-5 h-5" />
                   </div>
                   <span class="t-text-secondary">Payroll Processing</span>
@@ -140,14 +225,24 @@ onMounted(() => {
             </div>
 
             <!-- Floating badge -->
-            <div class="absolute -bottom-4 left-4 sm:-bottom-6 sm:-left-6 t-bg-elevated rounded-2xl t-shadow-lg border t-border p-4 sm:p-6 transform -rotate-2">
+            <div
+              class="absolute -bottom-4 left-4 sm:-bottom-6 sm:-left-6 t-bg-elevated rounded-2xl t-shadow-lg border t-border p-4 sm:p-6 transform -rotate-2"
+            >
               <div class="flex items-center gap-3 sm:gap-4">
-                <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-full t-icon-box flex items-center justify-center">
+                <div
+                  class="w-10 h-10 sm:w-12 sm:h-12 rounded-full t-icon-box flex items-center justify-center"
+                >
                   <Icon name="lucide:star" class="w-5 h-5 sm:w-6 sm:h-6" />
                 </div>
                 <div>
-                  <p class="text-xl sm:text-2xl font-light t-heading t-text">26+</p>
-                  <p class="text-[10px] sm:text-xs t-text-muted tracking-[0.1em] uppercase">Years Experience</p>
+                  <p class="text-xl sm:text-2xl font-light t-heading t-text">
+                    26+
+                  </p>
+                  <p
+                    class="text-[10px] sm:text-xs t-text-muted tracking-[0.1em] uppercase"
+                  >
+                    Years Experience
+                  </p>
                 </div>
               </div>
             </div>

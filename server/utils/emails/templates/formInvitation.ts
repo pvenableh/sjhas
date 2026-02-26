@@ -116,7 +116,7 @@ export const formInvitationTemplate = `<!doctype html>
         >
           
       <img
-         alt="" src="https://admin.sjhas.com/assets/d6c20b56-c247-481a-ac51-777360f27e63?key=medium" style="border:0;display:block;outline:none;text-decoration:none;height:auto;width:100%;font-size:13px;" width="80" height="auto"
+         alt="" src="https://admin.sjhas.com/assets/d6c20b56-c247-481a-ac51-777360f27e63?key=email" style="border:0;display:block;outline:none;text-decoration:none;height:auto;width:100%;font-size:13px;" width="80" height="auto"
       />
     
         </a>
