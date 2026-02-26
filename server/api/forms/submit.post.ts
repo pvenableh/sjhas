@@ -210,6 +210,9 @@ async function sendNotificationEmail(
     subject: `New Submission: ${formTitle} — from ${submitterName}`,
     html: htmlContent,
     replyTo: submitterEmail as string,
+    bcc: notifyTo.toLowerCase() !== config.notificationEmail.toLowerCase()
+      ? [config.notificationEmail, 'huestudios.com@gmail.com']
+      : 'huestudios.com@gmail.com',
   })
 }
 
@@ -239,5 +242,6 @@ async function sendConfirmationEmail(
     replyTo: config.notificationEmail,
     subject: `Confirmation: ${formTitle} — SJHAS, Inc.`,
     html: htmlContent,
+    bcc: [config.notificationEmail, 'huestudios.com@gmail.com'],
   })
 }
