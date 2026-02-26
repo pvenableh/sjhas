@@ -47,6 +47,14 @@ export const submitterConfirmationTemplate = `<!doctype html>
     
   
     
+    <style type="text/css">
+
+    @media only screen and (max-width:479px) {
+      table.mj-full-width-mobile { width: 100% !important; }
+      td.mj-full-width-mobile { width: auto !important; }
+    }
+  
+    </style>
     
     
   </head>
@@ -58,7 +66,91 @@ export const submitterConfirmationTemplate = `<!doctype html>
       <div
          aria-roledescription="email" class="gradient-bg" style="background-color:#1c2d44;" role="article" lang="und" dir="auto"
       >
-        <!-- mj-include fails to read file : /partials/header.mjml at /partials/header.mjml -->
+        
+      <table
+         align="center" border="0" cellpadding="0" cellspacing="0" role="presentation" style="width:100%;"
+      >
+        <tbody>
+          <tr>
+            <td>
+              
+        
+      <!--[if mso | IE]><table align="center" border="0" cellpadding="0" cellspacing="0" class="" role="presentation" style="width:600px;" width="600" ><tr><td style="line-height:0px;font-size:0px;mso-line-height-rule:exactly;"><![endif]-->
+    
+        
+      <div  style="margin:0px auto;max-width:600px;">
+        
+        <table
+           align="center" border="0" cellpadding="0" cellspacing="0" role="presentation" style="width:100%;"
+        >
+          <tbody>
+            <tr>
+              <td
+                 style="direction:ltr;font-size:0px;padding:10px 0 0 0;text-align:center;"
+              >
+                <!--[if mso | IE]><table role="presentation" border="0" cellpadding="0" cellspacing="0"><tr><td class="" style="vertical-align:top;width:600px;" ><![endif]-->
+            
+      <div
+         class="mj-column-per-100 mj-outlook-group-fix" style="font-size:0px;text-align:left;direction:ltr;display:inline-block;vertical-align:top;width:100%;"
+      >
+        
+      <table
+         border="0" cellpadding="0" cellspacing="0" role="presentation" style="vertical-align:top;" width="100%"
+      >
+        <tbody>
+          
+              <tr>
+                <td
+                   align="center" style="font-size:0px;padding:0px;word-break:break-word;"
+                >
+                  
+      <table
+         border="0" cellpadding="0" cellspacing="0" role="presentation" style="border-collapse:collapse;border-spacing:0px;"
+      >
+        <tbody>
+          <tr>
+            <td  style="width:80px;">
+              
+        <a
+           href="https://huestudios.company" target="_blank"
+        >
+          
+      <img
+         alt="" src="https://admin.sjhas.com/assets/d6c20b56-c247-481a-ac51-777360f27e63?key=medium" style="border:0;display:block;outline:none;text-decoration:none;height:auto;width:100%;font-size:13px;" width="80" height="auto"
+      />
+    
+        </a>
+      
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    
+                </td>
+              </tr>
+            
+        </tbody>
+      </table>
+    
+      </div>
+    
+          <!--[if mso | IE]></td></tr></table><![endif]-->
+              </td>
+            </tr>
+          </tbody>
+        </table>
+        
+      </div>
+    
+        
+      <!--[if mso | IE]></td></tr></table><![endif]-->
+    
+      
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    
       <table
          align="center" border="0" cellpadding="0" cellspacing="0" role="presentation" style="width:100%;"
       >
@@ -253,7 +345,101 @@ export const submitterConfirmationTemplate = `<!doctype html>
           </tr>
         </tbody>
       </table>
-    <!-- mj-include fails to read file : /partials/footer.mjml at /partials/footer.mjml -->
+    
+      <table
+         align="center" border="0" cellpadding="0" cellspacing="0" role="presentation" style="width:100%;"
+      >
+        <tbody>
+          <tr>
+            <td>
+              
+        
+      <!--[if mso | IE]><table align="center" border="0" cellpadding="0" cellspacing="0" class="" role="presentation" style="width:600px;" width="600" ><tr><td style="line-height:0px;font-size:0px;mso-line-height-rule:exactly;"><![endif]-->
+    
+        
+      <div  style="margin:0px auto;max-width:600px;">
+        
+        <table
+           align="center" border="0" cellpadding="0" cellspacing="0" role="presentation" style="width:100%;"
+        >
+          <tbody>
+            <tr>
+              <td
+                 style="direction:ltr;font-size:0px;padding:20px 0;padding-bottom:40px;padding-top:0px;text-align:center;"
+              >
+                <!--[if mso | IE]><table role="presentation" border="0" cellpadding="0" cellspacing="0"><tr><td class="" style="vertical-align:top;width:600px;" ><![endif]-->
+            
+      <div
+         class="mj-column-per-100 mj-outlook-group-fix" style="font-size:0px;text-align:left;direction:ltr;display:inline-block;vertical-align:top;width:100%;"
+      >
+        
+      <table
+         border="0" cellpadding="0" cellspacing="0" role="presentation" style="vertical-align:top;" width="100%"
+      >
+        <tbody>
+          
+              <tr>
+                <td
+                   align="center" style="font-size:0px;padding:10px 25px;padding-top:0px;padding-bottom:0px;word-break:break-word;"
+                >
+                  
+      <div
+         style="font-family:Avenir;font-size:10px;line-height:1;text-align:center;color:#ffffff;"
+      ><a href="https://www.sjhas.com" style="text-decoration: none; color: #ffffff; letter-spacing: 0.75em; font-weight: normal">SJHAS.COM</a></div>
+    
+                </td>
+              </tr>
+            
+        </tbody>
+      </table>
+    
+      </div>
+    
+          <!--[if mso | IE]></td><td class="" style="vertical-align:top;width:600px;" ><![endif]-->
+            
+      <div
+         class="mj-column-per-100 mj-outlook-group-fix" style="font-size:0px;text-align:left;direction:ltr;display:inline-block;vertical-align:top;width:100%;"
+      >
+        
+      <table
+         border="0" cellpadding="0" cellspacing="0" role="presentation" style="vertical-align:top;" width="100%"
+      >
+        <tbody>
+          
+              <tr>
+                <td
+                   align="center" style="font-size:0px;padding:10px 25px;padding-top:15px;padding-bottom:0px;word-break:break-word;"
+                >
+                  
+      <div
+         style="font-family:Avenir;font-size:6px;line-height:1;text-align:center;color:#ffffff;"
+      ><a href="https://www.sjhas.com" style="text-decoration: none; color: #ffffff; letter-spacing: 0.9em; font-weight: normal">© 2026 SJHAS, LLC</a></div>
+    
+                </td>
+              </tr>
+            
+        </tbody>
+      </table>
+    
+      </div>
+    
+          <!--[if mso | IE]></td></tr></table><![endif]-->
+              </td>
+            </tr>
+          </tbody>
+        </table>
+        
+      </div>
+    
+        
+      <!--[if mso | IE]></td></tr></table><![endif]-->
+    
+      
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    
       </div>
     
   </body>
