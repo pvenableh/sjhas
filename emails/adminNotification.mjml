@@ -10,7 +10,7 @@
     <mj-preview>New Form Submission — {{formTitle}}</mj-preview>
   </mj-head>
   <mj-body css-class="gradient-bg" background-color="#1c2d44">
-    <mj-include path="./partials/header.mjml" />
+    <mj-include path="./../emails/partials/header.mjml" />
     <mj-section padding="20px 0px 20px" full-width="full-width">
       <mj-column width="100%">
         <mj-text align="center" css-class="avenir" font-size="15px" font-weight="100" letter-spacing="0.3em" padding-bottom="30px" text-transform="uppercase">
@@ -41,6 +41,6 @@
         </mj-text>
       </mj-column>
     </mj-section>
-    <mj-include path="./partials/footer.mjml" />
+    <mj-include path="./../emails/partials/footer.mjml" />
   </mj-body>
 </mjml>

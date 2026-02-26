@@ -58,7 +58,7 @@ export const adminNotificationTemplate = `<!doctype html>
       <div
          aria-roledescription="email" class="gradient-bg" style="background-color:#1c2d44;" role="article" lang="und" dir="auto"
       >
-        <!-- mj-include fails to read file : ./partials/header.mjml at /Users/peterhoffman/Sites/sjh/sjhas/partials/header.mjml -->
+        <!-- mj-include fails to read file : ./../emails/partials/header.mjml at /Users/peterhoffman/Sites/sjh/emails/partials/header.mjml -->
       <table
          align="center" border="0" cellpadding="0" cellspacing="0" role="presentation" style="width:100%;"
       >
@@ -293,7 +293,7 @@ export const adminNotificationTemplate = `<!doctype html>
           </tr>
         </tbody>
       </table>
-    <!-- mj-include fails to read file : ./partials/footer.mjml at /Users/peterhoffman/Sites/sjh/sjhas/partials/footer.mjml -->
+    <!-- mj-include fails to read file : ./../emails/partials/footer.mjml at /Users/peterhoffman/Sites/sjh/emails/partials/footer.mjml -->
       </div>
     
   </body>

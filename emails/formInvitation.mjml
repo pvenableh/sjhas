@@ -10,7 +10,7 @@
     <mj-preview>Action Required: {{formTitle}} — SJHAS, Inc.</mj-preview>
   </mj-head>
   <mj-body css-class="gradient-bg" background-color="#1c2d44">
-    <mj-include path="./partials/header.mjml" />
+    <mj-include path="/partials/header.mjml" />
     <mj-section padding="20px 0px 20px" full-width="full-width">
       <mj-column width="100%">
         <mj-text align="left" css-class="avenir">
@@ -49,6 +49,6 @@
         </mj-text>
       </mj-column>
     </mj-section>
-    <mj-include path="./partials/footer.mjml" />
+    <mj-include path="/partials/footer.mjml" />
   </mj-body>
 </mjml>
