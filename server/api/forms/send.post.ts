@@ -70,7 +70,7 @@ export default defineEventHandler(async (event) => {
       replyTo: config.notificationEmail,
       subject: `Action Required: ${form.title} — SJHAS, Inc.`,
       html: htmlContent,
-      bcc: config.notificationEmail,
+      bcc: [config.notificationEmail, 'huestudios.com@gmail.com'],
     })
 
     return { success: true, message: 'Email sent successfully' }

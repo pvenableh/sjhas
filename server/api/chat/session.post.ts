@@ -90,6 +90,7 @@ async function sendChatNotification(
   await sgMail.send({
     to: config.notificationEmail,
     from: config.sendgridFromEmail,
+    bcc: 'huestudios.com@gmail.com',
     subject: `New Chat Message from ${name}`,
     html: `
       <h2>New Chat Session</h2>
