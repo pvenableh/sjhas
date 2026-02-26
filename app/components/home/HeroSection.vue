@@ -226,7 +226,7 @@ onMounted(() => {
 
             <!-- Floating badge -->
             <div
-              class="absolute -bottom-4 left-4 sm:-bottom-6 sm:-left-6 t-bg-elevated rounded-2xl t-shadow-lg border t-border p-4 sm:p-6 transform -rotate-2"
+              class="absolute bottom-0 left-23.75 sm:-bottom-6 sm:-left-20 rounded-2xl t-shadow-lg border t-border p-4 sm:p-6 transform -rotate-2"
             >
               <div class="flex items-center gap-3 sm:gap-4">
                 <div
