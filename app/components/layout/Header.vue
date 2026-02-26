@@ -1,120 +1,152 @@
 <script setup lang="ts">
-import { ref, computed, onMounted, watch } from 'vue'
-import { useWindowScroll } from '@vueuse/core'
-import { gsap } from 'gsap'
-import { cn } from '~/lib/utils'
+import { ref, computed, onMounted, watch } from "vue";
+import { useWindowScroll } from "@vueuse/core";
+import { gsap } from "gsap";
+import { cn } from "~/lib/utils";
 
 const props = defineProps<{
-  logo?: string
-  siteName?: string
-  bookingUrl?: string
-}>()
+  logo?: string;
+  siteName?: string;
+  bookingUrl?: string;
+}>();
 
-const { trackNavClick, trackBookingClick } = useAnalytics()
+const { trackNavClick, trackBookingClick } = useAnalytics();
 
-const { y } = useWindowScroll()
-const isScrolled = computed(() => y.value > 20)
-const isMobileMenuOpen = ref(false)
-const headerRef = ref<HTMLElement | null>(null)
+const { y } = useWindowScroll();
+const isScrolled = computed(() => y.value > 20);
+const isMobileMenuOpen = ref(false);
+const headerRef = ref<HTMLElement | null>(null);
 
 // Check if user is logged in and has admin role
-const { user, loggedIn } = useDirectusAuth()
+const { user, loggedIn } = useDirectusAuth();
 const isAdmin = computed(() => {
-  if (!loggedIn.value || !user.value) return false
-  const role = (user.value as any)?.role
+  if (!loggedIn.value || !user.value) return false;
+  const role = (user.value as any)?.role;
   // Check for admin role by name or admin_access flag
-  if (typeof role === 'object' && role !== null) {
-    return role.admin_access === true || role.name?.toLowerCase().includes('admin')
+  if (typeof role === "object" && role !== null) {
+    return (
+      role.admin_access === true || role.name?.toLowerCase().includes("admin")
+    );
   }
-  return false
-})
+  return false;
+});
 
 const baseNavLinks = [
-  { label: 'Home', href: '/', external: false, xlOnly: false },
-  { label: 'Services', href: '/#services', external: false, xlOnly: true },
-  { label: 'About', href: '/#about', external: false, xlOnly: true },
-  { label: 'Upload Documents', href: '/upload', external: false, xlOnly: false },
-  { label: 'Tax Planning', href: '/tax-planning', external: false, xlOnly: false },
-  { label: 'Contact', href: '/#contact', external: false, xlOnly: false },
-  { label: 'Portal', href: 'https://sjhas.clientportal.com/', external: true, xlOnly: false },
-]
+  { label: "Home", href: "/", external: false, xlOnly: false },
+  { label: "Services", href: "/#services", external: false, xlOnly: true },
+  { label: "About", href: "/#about", external: false, xlOnly: true },
+  {
+    label: "Upload Documents",
+    href: "/upload",
+    external: false,
+    xlOnly: false,
+  },
+  {
+    label: "Tax Planning",
+    href: "/tax-planning",
+    external: false,
+    xlOnly: false,
+  },
+  { label: "Contact", href: "/#contact", external: false, xlOnly: false },
+  {
+    label: "Portal",
+    href: "https://sjhas.clientportal.com/",
+    external: true,
+    xlOnly: false,
+  },
+];
 
 const navLinks = computed(() => {
   if (isAdmin.value) {
     return [
       ...baseNavLinks,
-      { label: 'Admin', href: '/admin', external: false, xlOnly: false },
-    ]
+      { label: "Admin", href: "/admin", external: false, xlOnly: false },
+    ];
   }
   if (loggedIn.value) {
     return [
       ...baseNavLinks,
-      { label: 'My Account', href: '/forms', external: false, xlOnly: false },
-    ]
+      { label: "My Account", href: "/forms", external: false, xlOnly: false },
+    ];
   }
   return [
     ...baseNavLinks,
-    { label: 'Login', href: '/auth/login', external: false, xlOnly: false },
-  ]
-})
+    { label: "Login", href: "/auth/login", external: false, xlOnly: false },
+  ];
+});
 
 const toggleMobileMenu = () => {
-  isMobileMenuOpen.value = !isMobileMenuOpen.value
+  isMobileMenuOpen.value = !isMobileMenuOpen.value;
 
   if (isMobileMenuOpen.value) {
     gsap.fromTo(
-      '.mobile-nav-link',
+      ".mobile-nav-link",
       { opacity: 0, x: -12 },
-      { opacity: 1, x: 0, duration: 0.35, stagger: 0.04, delay: 0.1, ease: 'power2.out' }
-    )
+      {
+        opacity: 1,
+        x: 0,
+        duration: 0.35,
+        stagger: 0.04,
+        delay: 0.1,
+        ease: "power2.out",
+      },
+    );
   }
-}
+};
 
 const closeMobileMenu = () => {
-  isMobileMenuOpen.value = false
-}
+  isMobileMenuOpen.value = false;
+};
 
-const route = useRoute()
-watch(() => route.path, () => {
-  closeMobileMenu()
-})
+const route = useRoute();
+watch(
+  () => route.path,
+  () => {
+    closeMobileMenu();
+  },
+);
 
 onMounted(() => {
   if (headerRef.value) {
     gsap.fromTo(
       headerRef.value,
       { y: -100, opacity: 0 },
-      { y: 0, opacity: 1, duration: 0.7, ease: 'power3.out' }
-    )
+      { y: 0, opacity: 1, duration: 0.7, ease: "power3.out" },
+    );
   }
-})
+});
 </script>
 
 <template>
   <header
     ref="headerRef"
-    :class="cn(
-      'fixed top-0 left-0 right-0 z-50 transition-all duration-300 safe-area-header',
-      isScrolled
-        ? 't-header-scrolled shadow-sm border-b t-border'
-        : 't-header'
-    )"
+    :class="
+      cn(
+        'fixed top-0 left-0 right-0 z-50 transition-all duration-300 safe-area-header',
+        isScrolled
+          ? 't-header-scrolled shadow-sm border-b t-border'
+          : 't-header',
+      )
+    "
   >
     <div class="container-wide section-padding">
       <nav class="flex items-center justify-between h-[4.5rem] lg:h-20">
         <!-- Logo -->
         <NuxtLink to="/" class="flex items-center gap-3">
-          <img
-            v-if="logo"
-            :src="logo"
-            :alt="siteName"
-            class="h-12 w-auto"
-          />
+          <img v-if="logo" :src="logo" :alt="siteName" class="h-12 w-auto" />
           <div v-else class="flex items-center gap-3">
-            <div class="w-10 h-10 rounded-xl t-bg-accent flex items-center justify-center">
-              <span class="t-text-inverse font-extralight text-lg t-heading">S</span>
+            <div
+              class="w-10 h-10 rounded-xl t-bg-accent flex items-center justify-center"
+            >
+              <span class="t-text-inverse font-extralight text-lg t-heading"
+                >S</span
+              >
             </div>
-            <span v-if="siteName" class="t-heading text-xl t-text tracking-[0.04em]">{{ siteName }}</span>
+            <span
+              v-if="siteName"
+              class="t-heading text-xl t-text tracking-[0.04em]"
+              >{{ siteName }}</span
+            >
           </div>
         </NuxtLink>
 
@@ -128,7 +160,7 @@ onMounted(() => {
               rel="noopener noreferrer"
               :class="[
                 'px-5 py-2 text-[13px] tracking-[0.02em] t-text-secondary hover:t-text-accent transition-colors rounded-xl t-hover-bg',
-                link.xlOnly ? 'hidden xl:inline-flex' : ''
+                link.xlOnly ? 'hidden xl:inline-flex' : '',
               ]"
               @click="trackNavClick(link.label, link.href)"
             >
@@ -139,7 +171,7 @@ onMounted(() => {
               :to="link.href"
               :class="[
                 'px-5 py-2 text-[13px] tracking-[0.02em] t-text-secondary hover:t-text-accent transition-colors rounded-xl t-hover-bg',
-                link.xlOnly ? 'hidden xl:inline-flex' : ''
+                link.xlOnly ? 'hidden xl:inline-flex' : '',
               ]"
               @click="trackNavClick(link.label, link.href)"
             >
@@ -151,7 +183,15 @@ onMounted(() => {
         <!-- CTA Button & Dark Mode (Desktop) -->
         <div class="hidden lg:flex items-center gap-4">
           <LayoutDarkModeToggle />
-          <Button v-if="bookingUrl" as="a" :href="bookingUrl" target="_blank" size="sm" class="tracking-wide" @click="trackBookingClick('header')">
+          <Button
+            v-if="bookingUrl"
+            as="a"
+            :href="bookingUrl"
+            target="_blank"
+            size="sm"
+            class="tracking-wide"
+            @click="trackBookingClick('header')"
+          >
             Book Appointment
           </Button>
         </div>
@@ -185,8 +225,8 @@ onMounted(() => {
     >
       <div
         v-if="isMobileMenuOpen"
-        class="lg:hidden fixed inset-0 z-40 bg-black/40 backdrop-blur-sm"
-        style="top: calc(4.5rem + env(safe-area-inset-top, 0px));"
+        class="lg:hidden fixed inset-0 z-40 bg-black/40 backdrop-blur-xl h-screen"
+        style="top: calc(4.5rem + env(safe-area-inset-top, 0px))"
         @click="closeMobileMenu"
       />
     </Transition>
@@ -212,7 +252,10 @@ onMounted(() => {
               target="_blank"
               rel="noopener noreferrer"
               class="mobile-nav-link block px-5 py-3.5 text-[15px] tracking-wide t-text-secondary hover:t-text-accent t-hover-bg rounded-xl transition-colors"
-              @click="trackNavClick(link.label, link.href); closeMobileMenu()"
+              @click="
+                trackNavClick(link.label, link.href);
+                closeMobileMenu();
+              "
             >
               {{ link.label }}
             </a>
@@ -220,7 +263,10 @@ onMounted(() => {
               v-else
               :to="link.href"
               class="mobile-nav-link block px-5 py-3.5 text-[15px] tracking-wide t-text-secondary hover:t-text-accent t-hover-bg rounded-xl transition-colors"
-              @click="trackNavClick(link.label, link.href); closeMobileMenu()"
+              @click="
+                trackNavClick(link.label, link.href);
+                closeMobileMenu();
+              "
             >
               {{ link.label }}
             </NuxtLink>
