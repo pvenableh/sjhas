@@ -296,6 +296,7 @@ const quickLinks = computed(() => {
   </footer>
 </template>
 <style>
+@reference '~/assets/css/tailwind.css';
 h5.web-designer {
   margin-top: 0px;
   margin-bottom: 0px;
@@ -313,7 +314,7 @@ h5.web-designer {
       stroke: none;
       margin-top: -11px;
       margin-left: 1px;
-      @apply fill-gray-400 dark:fill-[var(--white)];
+      fill: #ffffff;
       path {
         transition: all 0.3s linear;
       }
