@@ -296,7 +296,6 @@ const quickLinks = computed(() => {
   </footer>
 </template>
 <style>
-@reference '~/assets/css/tailwind.css';
 h5.web-designer {
   margin-top: 0px;
   margin-bottom: 0px;
