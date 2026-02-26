@@ -99,17 +99,17 @@ onMounted(() => {
         </div>
 
         <!-- Visual -->
-        <div class="hero-visual relative">
+        <div class="hero-visual relative pb-8 sm:pb-10">
           <div class="relative aspect-square max-w-lg mx-auto">
             <!-- Subtle decorative glow -->
             <div class="absolute -top-8 -right-8 w-80 h-80 rounded-full blur-[80px]" style="background-color: var(--theme-accent-primary); opacity: 0.08;" />
             <div class="absolute -bottom-8 -left-8 w-72 h-72 rounded-full blur-[80px]" style="background-color: var(--theme-accent-secondary); opacity: 0.06;" />
 
             <!-- Main card -->
-            <div class="relative t-bg-elevated rounded-3xl t-shadow-lg border t-border p-12 transform rotate-1 hover:rotate-0 transition-all duration-700 ease-out">
-              <div class="flex items-center gap-5 mb-10">
-                <div class="w-16 h-16 rounded-2xl t-icon-box flex items-center justify-center">
-                  <Icon name="lucide:calculator" class="w-7 h-7" />
+            <div class="relative t-bg-elevated rounded-3xl t-shadow-lg border t-border p-8 sm:p-12 transform rotate-1 hover:rotate-0 transition-all duration-700 ease-out">
+              <div class="flex items-center gap-4 sm:gap-5 mb-8 sm:mb-10">
+                <div class="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl t-icon-box flex items-center justify-center flex-shrink-0">
+                  <Icon name="lucide:calculator" class="w-6 h-6 sm:w-7 sm:h-7" />
                 </div>
                 <div>
                   <h3 class="font-medium t-text tracking-wide">Expert Tax Planning</h3>
@@ -117,7 +117,7 @@ onMounted(() => {
                 </div>
               </div>
 
-              <div class="space-y-6">
+              <div class="space-y-5 sm:space-y-6">
                 <div class="flex items-center gap-4">
                   <div class="w-10 h-10 rounded-xl t-icon-box flex items-center justify-center flex-shrink-0">
                     <Icon name="lucide:check" class="w-5 h-5" />
@@ -140,14 +140,14 @@ onMounted(() => {
             </div>
 
             <!-- Floating badge -->
-            <div class="absolute -bottom-6 -left-6 t-bg-elevated rounded-2xl t-shadow-lg border t-border p-6 transform -rotate-2">
-              <div class="flex items-center gap-4">
-                <div class="w-12 h-12 rounded-full t-icon-box flex items-center justify-center">
-                  <Icon name="lucide:star" class="w-6 h-6" />
+            <div class="absolute -bottom-4 left-4 sm:-bottom-6 sm:-left-6 t-bg-elevated rounded-2xl t-shadow-lg border t-border p-4 sm:p-6 transform -rotate-2">
+              <div class="flex items-center gap-3 sm:gap-4">
+                <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-full t-icon-box flex items-center justify-center">
+                  <Icon name="lucide:star" class="w-5 h-5 sm:w-6 sm:h-6" />
                 </div>
                 <div>
-                  <p class="text-2xl font-light t-heading t-text">26+</p>
-                  <p class="text-xs t-text-muted tracking-[0.1em] uppercase">Years Experience</p>
+                  <p class="text-xl sm:text-2xl font-light t-heading t-text">26+</p>
+                  <p class="text-[10px] sm:text-xs t-text-muted tracking-[0.1em] uppercase">Years Experience</p>
                 </div>
               </div>
             </div>

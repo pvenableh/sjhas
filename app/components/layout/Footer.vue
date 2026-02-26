@@ -181,7 +181,7 @@ const quickLinks = computed(() => {
 
     <!-- Bottom bar -->
     <div class="border-t t-footer-border">
-      <div class="container-wide section-padding py-8 flex flex-col sm:flex-row items-center justify-between gap-4">
+      <div class="container-wide section-padding flex flex-col sm:flex-row items-center justify-between gap-4" style="padding-top: 2rem; padding-bottom: calc(2rem + env(safe-area-inset-bottom, 0px));">
         <p class="text-xs t-footer-text-muted tracking-[0.06em]">
           &copy; {{ currentYear }} SJHAS, Inc. All rights reserved.
         </p>

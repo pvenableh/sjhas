@@ -80,6 +80,26 @@ onMounted(() => {
                   <Icon name="lucide:quote" class="w-6 h-6" style="color: var(--theme-text-inverse);" />
                 </div>
 
+                <!-- Decorative stars (desktop: absolute, mobile: inline) -->
+                <div class="hidden md:flex absolute top-12 right-12 gap-1.5">
+                  <Icon
+                    v-for="i in 5"
+                    :key="i"
+                    name="lucide:star"
+                    class="w-4 h-4 t-text-accent"
+                    style="fill: var(--theme-accent-primary);"
+                  />
+                </div>
+                <div class="flex md:hidden gap-1 mb-5">
+                  <Icon
+                    v-for="i in 5"
+                    :key="i"
+                    name="lucide:star"
+                    class="w-3.5 h-3.5 t-text-accent"
+                    style="fill: var(--theme-accent-primary);"
+                  />
+                </div>
+
                 <!-- Quote -->
                 <blockquote class="text-lg md:text-xl t-text-secondary leading-[1.85] mb-12 italic">
                   "{{ testimonial.quote }}"
@@ -114,17 +134,6 @@ onMounted(() => {
                       {{ testimonial.author_title }}
                     </p>
                   </div>
-                </div>
-
-                <!-- Decorative stars -->
-                <div class="absolute top-12 right-12 flex gap-1.5">
-                  <Icon
-                    v-for="i in 5"
-                    :key="i"
-                    name="lucide:star"
-                    class="w-4 h-4 t-text-accent"
-                    style="fill: var(--theme-accent-primary);"
-                  />
                 </div>
               </div>
             </CarouselItem>
