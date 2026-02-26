@@ -484,4 +484,4 @@ export const adminNotificationTemplate = `<!doctype html>
     
   </body>
 </html>
-  `;
+  `

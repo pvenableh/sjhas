@@ -444,4 +444,4 @@ export const submitterConfirmationTemplate = `<!doctype html>
     
   </body>
 </html>
-  `;
+  `
