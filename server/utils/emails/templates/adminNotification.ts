@@ -34,14 +34,6 @@ export const adminNotificationTemplate = `<!doctype html>
     </style>
     <![endif]-->
     
-      <!--[if !mso]><!-->
-        <link href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700" rel="stylesheet" type="text/css">
-        <style type="text/css">
-          @import url(https://fonts.googleapis.com/css?family=Roboto:300,400,500,700);
-        </style>
-      <!--<![endif]-->
-
-    
     
     <style type="text/css">
       @media only screen and (min-width:480px) {
@@ -58,28 +50,37 @@ export const adminNotificationTemplate = `<!doctype html>
     
     
   </head>
-  <body style="word-spacing:normal;background-color:#f8fafc;">
+  <body style="word-spacing:normal;background-color:#1c2d44;">
     
+    <div style="display:none;font-size:1px;color:#ffffff;line-height:1px;max-height:0px;max-width:0px;opacity:0;overflow:hidden;">New Form Submission — {{formTitle}}</div>
+  
     
       <div
-         aria-roledescription="email" style="background-color:#f8fafc;" role="article" lang="und" dir="auto"
+         aria-roledescription="email" class="gradient-bg" style="background-color:#1c2d44;" role="article" lang="und" dir="auto"
       >
-        <!-- Header -->
-      
-      <!--[if mso | IE]><table align="center" border="0" cellpadding="0" cellspacing="0" class="" role="presentation" style="width:600px;" width="600" bgcolor="#141e30" ><tr><td style="line-height:0px;font-size:0px;mso-line-height-rule:exactly;"><![endif]-->
+        <!-- mj-include fails to read file : ./partials/header.mjml at /Users/peterhoffman/Sites/sjh/sjhas/partials/header.mjml -->
+      <table
+         align="center" border="0" cellpadding="0" cellspacing="0" role="presentation" style="width:100%;"
+      >
+        <tbody>
+          <tr>
+            <td>
+              
+        
+      <!--[if mso | IE]><table align="center" border="0" cellpadding="0" cellspacing="0" class="" role="presentation" style="width:600px;" width="600" ><tr><td style="line-height:0px;font-size:0px;mso-line-height-rule:exactly;"><![endif]-->
     
-      
-      <div  style="background:#141e30;background-color:#141e30;margin:0px auto;max-width:600px;border-radius:16px 16px 0 0;overflow:hidden;">
+        
+      <div  style="margin:0px auto;max-width:600px;">
         
         <table
-           align="center" border="0" cellpadding="0" cellspacing="0" role="presentation" style="background:#141e30;background-color:#141e30;width:100%;border-collapse:separate;"
+           align="center" border="0" cellpadding="0" cellspacing="0" role="presentation" style="width:100%;"
         >
           <tbody>
             <tr>
               <td
-                 style="border-radius:16px 16px 0 0;direction:ltr;font-size:0px;padding:28px 24px;text-align:center;"
+                 style="direction:ltr;font-size:0px;padding:20px 0px 20px;text-align:center;"
               >
-                <!--[if mso | IE]><table role="presentation" border="0" cellpadding="0" cellspacing="0"><tr><td class="" style="vertical-align:top;width:552px;" ><![endif]-->
+                <!--[if mso | IE]><table role="presentation" border="0" cellpadding="0" cellspacing="0"><tr><td class="" style="vertical-align:top;width:600px;" ><![endif]-->
             
       <div
          class="mj-column-per-100 mj-outlook-group-fix" style="font-size:0px;text-align:left;direction:ltr;display:inline-block;vertical-align:top;width:100%;"
@@ -92,23 +93,39 @@ export const adminNotificationTemplate = `<!doctype html>
           
               <tr>
                 <td
-                   align="left" style="font-size:0px;padding:0;word-break:break-word;"
+                   align="center" class="avenir" style="font-size:0px;padding:10px 25px;padding-bottom:30px;word-break:break-word;"
                 >
                   
       <div
-         style="font-family:-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;font-size:20px;font-weight:500;letter-spacing:0.02em;line-height:1.6;text-align:left;color:white;"
+         style="font-family:Avenir;font-size:15px;font-weight:100;letter-spacing:0.3em;line-height:1;text-align:center;text-transform:uppercase;color:#ffffff;"
       >New Submission</div>
     
                 </td>
               </tr>
             
+        </tbody>
+      </table>
+    
+      </div>
+    
+          <!--[if mso | IE]></td><td class="" style="vertical-align:top;width:600px;" ><![endif]-->
+            
+      <div
+         class="mj-column-per-100 mj-outlook-group-fix" style="font-size:0px;text-align:left;direction:ltr;display:inline-block;vertical-align:top;width:100%;"
+      >
+        
+      <table
+         border="0" cellpadding="0" cellspacing="0" role="presentation" style="vertical-align:top;" width="100%"
+      >
+        <tbody>
+          
               <tr>
                 <td
-                   align="left" style="font-size:0px;padding:6px 0 0 0;word-break:break-word;"
+                   align="left" class="avenir" style="font-size:0px;padding:10px 25px;padding-bottom:25px;word-break:break-word;"
                 >
                   
       <div
-         style="font-family:-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;font-size:14px;line-height:1.6;text-align:left;color:rgba(255,255,255,0.7);"
+         style="font-family:Avenir;font-size:13px;line-height:1;text-align:left;color:rgba(255,255,255,0.7);"
       >{{formTitle}} — from {{submitterName}}</div>
     
                 </td>
@@ -119,33 +136,7 @@ export const adminNotificationTemplate = `<!doctype html>
     
       </div>
     
-          <!--[if mso | IE]></td></tr></table><![endif]-->
-              </td>
-            </tr>
-          </tbody>
-        </table>
-        
-      </div>
-    
-      
-      <!--[if mso | IE]></td></tr></table><![endif]-->
-    
-    <!-- Body -->
-      
-      <!--[if mso | IE]><table align="center" border="0" cellpadding="0" cellspacing="0" class="" role="presentation" style="width:600px;" width="600" bgcolor="#ffffff" ><tr><td style="line-height:0px;font-size:0px;mso-line-height-rule:exactly;"><![endif]-->
-    
-      
-      <div  style="background:#ffffff;background-color:#ffffff;margin:0px auto;max-width:600px;border-radius:0 0 16px 16px;overflow:hidden;">
-        
-        <table
-           align="center" border="0" cellpadding="0" cellspacing="0" role="presentation" style="background:#ffffff;background-color:#ffffff;width:100%;border-collapse:separate;"
-        >
-          <tbody>
-            <tr>
-              <td
-                 style="border-radius:0 0 16px 16px;direction:ltr;font-size:0px;padding:28px 24px;text-align:center;"
-              >
-                <!--[if mso | IE]><table role="presentation" border="0" cellpadding="0" cellspacing="0"><tr><td class="" style="vertical-align:top;width:552px;" ><![endif]-->
+          <!--[if mso | IE]></td><td class="" style="vertical-align:top;width:600px;" ><![endif]-->
             
       <div
          class="mj-column-per-100 mj-outlook-group-fix" style="font-size:0px;text-align:left;direction:ltr;display:inline-block;vertical-align:top;width:100%;"
@@ -155,58 +146,45 @@ export const adminNotificationTemplate = `<!doctype html>
          border="0" cellpadding="0" cellspacing="0" role="presentation" style="vertical-align:top;" width="100%"
       >
         <tbody>
-          <!-- Data Table -->
+          
               <tr>
                 <td
-                   align="left" style="font-size:0px;padding:10px 25px;word-break:break-word;"
+                   align="left" class="avenir" style="font-size:0px;padding:10px 25px;word-break:break-word;"
                 >
                   
       <table
-         cellpadding="0" cellspacing="0" width="100%" border="0" style="color:#000000;font-family:-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;font-size:13px;line-height:22px;table-layout:auto;width:100%;border:none;"
+         cellpadding="8px" cellspacing="0" width="100%" border="0" style="color:#ffffff;font-family:Avenir;font-size:13px;line-height:22px;table-layout:auto;width:100%;border:none;"
       >
         {{dataRows}}
       </table>
     
                 </td>
               </tr>
-            <!-- Files Section (may be empty) -->
-              <tr>
-                <td
-                   align="left" style="font-size:0px;padding:0;word-break:break-word;"
-                >
-                  
-      <div
-         style="font-family:-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;font-size:13px;line-height:1.6;text-align:left;color:#374151;"
-      >{{filesSection}}</div>
+            
+        </tbody>
+      </table>
     
-                </td>
-              </tr>
-            <!-- Divider -->
-              <tr>
-                <td
-                   align="center" style="font-size:0px;padding:24px 0 16px 0;word-break:break-word;"
-                >
-                  
-      <p
-         style="border-top:solid 1px #e2e8f0;font-size:1px;margin:0px auto;width:100%;"
+      </div>
+    
+          <!--[if mso | IE]></td><td class="" style="vertical-align:top;width:600px;" ><![endif]-->
+            
+      <div
+         class="mj-column-per-100 mj-outlook-group-fix" style="font-size:0px;text-align:left;direction:ltr;display:inline-block;vertical-align:top;width:100%;"
       >
-      </p>
-      
-      <!--[if mso | IE]><table align="center" border="0" cellpadding="0" cellspacing="0" style="border-top:solid 1px #e2e8f0;font-size:1px;margin:0px auto;width:552px;" role="presentation" width="552px" ><tr><td style="height:0;line-height:0;"> &nbsp;
-</td></tr></table><![endif]-->
-    
-    
-                </td>
-              </tr>
-            <!-- Footer -->
+        
+      <table
+         border="0" cellpadding="0" cellspacing="0" role="presentation" style="vertical-align:top;" width="100%"
+      >
+        <tbody>
+          
               <tr>
                 <td
-                   align="left" style="font-size:0px;padding:0;word-break:break-word;"
+                   align="left" class="avenir" style="font-size:0px;padding:10px 25px;padding-top:10px;word-break:break-word;"
                 >
                   
       <div
-         style="font-family:-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;font-size:12px;line-height:1.6;text-align:left;color:#94a3b8;"
-      >Received on {{receivedDate}}</div>
+         style="font-family:Avenir;font-size:13px;line-height:1;text-align:left;color:#ffffff;"
+      >{{filesSection}}</div>
     
                 </td>
               </tr>
@@ -224,10 +202,98 @@ export const adminNotificationTemplate = `<!doctype html>
         
       </div>
     
-      
+        
       <!--[if mso | IE]></td></tr></table><![endif]-->
     
+      
+            </td>
+          </tr>
+        </tbody>
+      </table>
     
+      <table
+         align="center" border="0" cellpadding="0" cellspacing="0" role="presentation" style="width:100%;"
+      >
+        <tbody>
+          <tr>
+            <td>
+              
+        
+      <!--[if mso | IE]><table align="center" border="0" cellpadding="0" cellspacing="0" class="" role="presentation" style="width:600px;" width="600" ><tr><td style="line-height:0px;font-size:0px;mso-line-height-rule:exactly;"><![endif]-->
+    
+        
+      <div  style="margin:0px auto;max-width:600px;">
+        
+        <table
+           align="center" border="0" cellpadding="0" cellspacing="0" role="presentation" style="width:100%;"
+        >
+          <tbody>
+            <tr>
+              <td
+                 style="direction:ltr;font-size:0px;padding:0px 10px 50px;text-align:center;"
+              >
+                <!--[if mso | IE]><table role="presentation" border="0" cellpadding="0" cellspacing="0"><tr><td class="" style="vertical-align:top;width:580px;" ><![endif]-->
+            
+      <div
+         class="mj-column-per-100 mj-outlook-group-fix" style="font-size:0px;text-align:left;direction:ltr;display:inline-block;vertical-align:top;width:100%;"
+      >
+        
+      <table
+         border="0" cellpadding="0" cellspacing="0" role="presentation" style="vertical-align:top;" width="100%"
+      >
+        <tbody>
+          
+              <tr>
+                <td
+                   align="center" style="font-size:0px;padding:10px 0 20px 0;word-break:break-word;"
+                >
+                  
+      <p
+         style="border-top:solid 1px rgba(255,255,255,0.2);font-size:1px;margin:0px auto;width:100%;"
+      >
+      </p>
+      
+      <!--[if mso | IE]><table align="center" border="0" cellpadding="0" cellspacing="0" style="border-top:solid 1px rgba(255,255,255,0.2);font-size:1px;margin:0px auto;width:580px;" role="presentation" width="580px" ><tr><td style="height:0;line-height:0;"> &nbsp;
+</td></tr></table><![endif]-->
+    
+    
+                </td>
+              </tr>
+            
+              <tr>
+                <td
+                   align="left" class="avenir" style="font-size:0px;padding:0;word-break:break-word;"
+                >
+                  
+      <div
+         style="font-family:Avenir;font-size:11px;letter-spacing:0.05em;line-height:1;text-align:left;color:rgba(255,255,255,0.5);"
+      ><p style="font-weight: 400; font-size: 11px; line-height: 16px; padding: 0px; margin: 0px;" class="avenir">Received on {{receivedDate}}</p></div>
+    
+                </td>
+              </tr>
+            
+        </tbody>
+      </table>
+    
+      </div>
+    
+          <!--[if mso | IE]></td></tr></table><![endif]-->
+              </td>
+            </tr>
+          </tbody>
+        </table>
+        
+      </div>
+    
+        
+      <!--[if mso | IE]></td></tr></table><![endif]-->
+    
+      
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    <!-- mj-include fails to read file : ./partials/footer.mjml at /Users/peterhoffman/Sites/sjh/sjhas/partials/footer.mjml -->
       </div>
     
   </body>

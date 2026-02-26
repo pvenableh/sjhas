@@ -34,14 +34,6 @@ export const submitterConfirmationTemplate = `<!doctype html>
     </style>
     <![endif]-->
     
-      <!--[if !mso]><!-->
-        <link href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700" rel="stylesheet" type="text/css">
-        <style type="text/css">
-          @import url(https://fonts.googleapis.com/css?family=Roboto:300,400,500,700);
-        </style>
-      <!--<![endif]-->
-
-    
     
     <style type="text/css">
       @media only screen and (min-width:480px) {
@@ -58,28 +50,37 @@ export const submitterConfirmationTemplate = `<!doctype html>
     
     
   </head>
-  <body style="word-spacing:normal;background-color:#f8fafc;">
+  <body style="word-spacing:normal;background-color:#1c2d44;">
     
+    <div style="display:none;font-size:1px;color:#ffffff;line-height:1px;max-height:0px;max-width:0px;opacity:0;overflow:hidden;">Confirmation: {{formTitle}} — SJHAS, Inc.</div>
+  
     
       <div
-         aria-roledescription="email" style="background-color:#f8fafc;" role="article" lang="und" dir="auto"
+         aria-roledescription="email" class="gradient-bg" style="background-color:#1c2d44;" role="article" lang="und" dir="auto"
       >
-        <!-- Header -->
-      
-      <!--[if mso | IE]><table align="center" border="0" cellpadding="0" cellspacing="0" class="" role="presentation" style="width:600px;" width="600" bgcolor="#141e30" ><tr><td style="line-height:0px;font-size:0px;mso-line-height-rule:exactly;"><![endif]-->
+        <!-- mj-include fails to read file : ./partials/header.mjml at /Users/peterhoffman/Sites/sjh/sjhas/partials/header.mjml -->
+      <table
+         align="center" border="0" cellpadding="0" cellspacing="0" role="presentation" style="width:100%;"
+      >
+        <tbody>
+          <tr>
+            <td>
+              
+        
+      <!--[if mso | IE]><table align="center" border="0" cellpadding="0" cellspacing="0" class="" role="presentation" style="width:600px;" width="600" ><tr><td style="line-height:0px;font-size:0px;mso-line-height-rule:exactly;"><![endif]-->
     
-      
-      <div  style="background:#141e30;background-color:#141e30;margin:0px auto;max-width:600px;border-radius:16px 16px 0 0;overflow:hidden;">
+        
+      <div  style="margin:0px auto;max-width:600px;">
         
         <table
-           align="center" border="0" cellpadding="0" cellspacing="0" role="presentation" style="background:#141e30;background-color:#141e30;width:100%;border-collapse:separate;"
+           align="center" border="0" cellpadding="0" cellspacing="0" role="presentation" style="width:100%;"
         >
           <tbody>
             <tr>
               <td
-                 style="border-radius:16px 16px 0 0;direction:ltr;font-size:0px;padding:32px;text-align:center;"
+                 style="direction:ltr;font-size:0px;padding:20px 0px 20px;text-align:center;"
               >
-                <!--[if mso | IE]><table role="presentation" border="0" cellpadding="0" cellspacing="0"><tr><td class="" style="vertical-align:top;width:536px;" ><![endif]-->
+                <!--[if mso | IE]><table role="presentation" border="0" cellpadding="0" cellspacing="0"><tr><td class="" style="vertical-align:top;width:600px;" ><![endif]-->
             
       <div
          class="mj-column-per-100 mj-outlook-group-fix" style="font-size:0px;text-align:left;direction:ltr;display:inline-block;vertical-align:top;width:100%;"
@@ -92,24 +93,13 @@ export const submitterConfirmationTemplate = `<!doctype html>
           
               <tr>
                 <td
-                   align="left" style="font-size:0px;padding:0;word-break:break-word;"
+                   align="left" class="avenir" style="font-size:0px;padding:10px 25px;word-break:break-word;"
                 >
                   
       <div
-         style="font-family:-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;font-size:22px;font-weight:500;letter-spacing:0.02em;line-height:1.6;text-align:left;color:white;"
-      >SJHAS, Inc.</div>
-    
-                </td>
-              </tr>
-            
-              <tr>
-                <td
-                   align="left" style="font-size:0px;padding:6px 0 0 0;word-break:break-word;"
-                >
-                  
-      <div
-         style="font-family:-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;font-size:13px;letter-spacing:0.04em;line-height:1.6;text-align:left;color:rgba(255,255,255,0.7);"
-      >Accounting &amp; Tax Services</div>
+         style="font-family:Avenir;font-size:13px;line-height:1;text-align:left;color:#ffffff;"
+      ><p style="font-weight: 400; line-height: 1.4em;" class="avenir">Hi {{displayName}},</p>
+          <p style="font-weight: 400; line-height: 1.4em;" class="avenir">{{confirmationText}}</p></div>
     
                 </td>
               </tr>
@@ -119,33 +109,7 @@ export const submitterConfirmationTemplate = `<!doctype html>
     
       </div>
     
-          <!--[if mso | IE]></td></tr></table><![endif]-->
-              </td>
-            </tr>
-          </tbody>
-        </table>
-        
-      </div>
-    
-      
-      <!--[if mso | IE]></td></tr></table><![endif]-->
-    
-    <!-- Body -->
-      
-      <!--[if mso | IE]><table align="center" border="0" cellpadding="0" cellspacing="0" class="" role="presentation" style="width:600px;" width="600" bgcolor="#ffffff" ><tr><td style="line-height:0px;font-size:0px;mso-line-height-rule:exactly;"><![endif]-->
-    
-      
-      <div  style="background:#ffffff;background-color:#ffffff;margin:0px auto;max-width:600px;border-radius:0 0 16px 16px;overflow:hidden;">
-        
-        <table
-           align="center" border="0" cellpadding="0" cellspacing="0" role="presentation" style="background:#ffffff;background-color:#ffffff;width:100%;border-collapse:separate;"
-        >
-          <tbody>
-            <tr>
-              <td
-                 style="border-radius:0 0 16px 16px;direction:ltr;font-size:0px;padding:32px;text-align:center;"
-              >
-                <!--[if mso | IE]><table role="presentation" border="0" cellpadding="0" cellspacing="0"><tr><td class="" style="vertical-align:top;width:536px;" ><![endif]-->
+          <!--[if mso | IE]></td><td class="" style="vertical-align:top;width:600px;" ><![endif]-->
             
       <div
          class="mj-column-per-100 mj-outlook-group-fix" style="font-size:0px;text-align:left;direction:ltr;display:inline-block;vertical-align:top;width:100%;"
@@ -155,84 +119,47 @@ export const submitterConfirmationTemplate = `<!doctype html>
          border="0" cellpadding="0" cellspacing="0" role="presentation" style="vertical-align:top;" width="100%"
       >
         <tbody>
-          <!-- Greeting -->
+          
               <tr>
                 <td
-                   align="left" style="font-size:0px;padding:0 0 8px 0;word-break:break-word;"
+                   align="left" class="avenir" style="font-size:0px;padding:10px 25px;padding-top:5px;padding-bottom:5px;word-break:break-word;"
                 >
                   
       <div
-         style="font-family:-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;font-size:16px;font-weight:500;line-height:1.6;text-align:left;color:#0f172a;"
-      >Hi {{displayName}},</div>
-    
-                </td>
-              </tr>
-            
-              <tr>
-                <td
-                   align="left" style="font-size:0px;padding:0 0 24px 0;word-break:break-word;"
-                >
-                  
-      <div
-         style="font-family:-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;font-size:15px;line-height:1.7;text-align:left;color:#475569;"
-      >{{confirmationText}}</div>
-    
-                </td>
-              </tr>
-            <!-- Form Info Card -->
-              <tr>
-                <td
-                   align="left" style="font-size:0px;padding:0 0 28px 0;word-break:break-word;"
-                >
-                  
-      <div
-         style="font-family:-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;font-size:13px;line-height:1.6;text-align:left;color:#374151;"
-      ><div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 20px;">
-            <p style="color: #64748b; font-size: 13px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; margin: 0 0 6px 0;">Form Submitted</p>
-            <p style="color: #0f172a; font-size: 15px; font-weight: 500; margin: 0;">{{formTitle}}</p>
-            <p style="color: #94a3b8; font-size: 13px; margin: 6px 0 0 0;">{{submittedDate}}</p>
+         style="font-family:Avenir;font-size:13px;line-height:1;text-align:left;color:#ffffff;"
+      ><div style="background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15); border-radius: 6px; padding: 16px 20px;">
+            <p style="font-weight: 600; font-size: 11px; text-transform: uppercase; letter-spacing: 0.06em; color: rgba(255,255,255,0.5); margin: 0 0 6px 0; padding: 0;" class="avenir">Form Submitted</p>
+            <p style="font-weight: 500; font-size: 14px; line-height: 1.4em; margin: 0; padding: 0;" class="avenir">{{formTitle}}</p>
+            <p style="font-weight: 400; font-size: 12px; color: rgba(255,255,255,0.5); margin: 6px 0 0 0; padding: 0;" class="avenir">{{submittedDate}}</p>
           </div></div>
     
                 </td>
               </tr>
             
-              <tr>
-                <td
-                   align="left" style="font-size:0px;padding:0;word-break:break-word;"
-                >
-                  
-      <div
-         style="font-family:-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;font-size:14px;line-height:1.7;text-align:left;color:#475569;"
-      >If you have any questions, feel free to reply to this email or contact us at <a href="tel:6072168033" style="color: #243b55;">(607) 216-8033</a>.</div>
+        </tbody>
+      </table>
     
-                </td>
-              </tr>
-            <!-- Divider -->
-              <tr>
-                <td
-                   align="center" style="font-size:0px;padding:28px 0 20px 0;word-break:break-word;"
-                >
-                  
-      <p
-         style="border-top:solid 1px #e2e8f0;font-size:1px;margin:0px auto;width:100%;"
+      </div>
+    
+          <!--[if mso | IE]></td><td class="" style="vertical-align:top;width:600px;" ><![endif]-->
+            
+      <div
+         class="mj-column-per-100 mj-outlook-group-fix" style="font-size:0px;text-align:left;direction:ltr;display:inline-block;vertical-align:top;width:100%;"
       >
-      </p>
-      
-      <!--[if mso | IE]><table align="center" border="0" cellpadding="0" cellspacing="0" style="border-top:solid 1px #e2e8f0;font-size:1px;margin:0px auto;width:536px;" role="presentation" width="536px" ><tr><td style="height:0;line-height:0;"> &nbsp;
-</td></tr></table><![endif]-->
-    
-    
-                </td>
-              </tr>
-            <!-- Footer -->
+        
+      <table
+         border="0" cellpadding="0" cellspacing="0" role="presentation" style="vertical-align:top;" width="100%"
+      >
+        <tbody>
+          
               <tr>
                 <td
-                   align="left" style="font-size:0px;padding:0;word-break:break-word;"
+                   align="left" class="avenir" style="font-size:0px;padding:10px 25px;padding-top:20px;word-break:break-word;"
                 >
                   
       <div
-         style="font-family:-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;font-size:12px;line-height:1.6;text-align:left;color:#94a3b8;"
-      >SJHAS, Inc. &middot; P.O. Box 6623, Ithaca, NY 14850</div>
+         style="font-family:Avenir;font-size:13px;line-height:1;text-align:left;color:#ffffff;"
+      ><p style="font-weight: 400; line-height: 1.4em; font-size: 12px;" class="avenir">If you have any questions, feel free to reply to this email or contact us at <a href="tel:6072168033" style="color: rgba(255,255,255,0.8);">(607) 216-8033</a>.</p></div>
     
                 </td>
               </tr>
@@ -250,10 +177,83 @@ export const submitterConfirmationTemplate = `<!doctype html>
         
       </div>
     
-      
+        
       <!--[if mso | IE]></td></tr></table><![endif]-->
     
+      
+            </td>
+          </tr>
+        </tbody>
+      </table>
     
+      <table
+         align="center" border="0" cellpadding="0" cellspacing="0" role="presentation" style="width:100%;"
+      >
+        <tbody>
+          <tr>
+            <td>
+              
+        
+      <!--[if mso | IE]><table align="center" border="0" cellpadding="0" cellspacing="0" class="" role="presentation" style="width:600px;" width="600" ><tr><td style="line-height:0px;font-size:0px;mso-line-height-rule:exactly;"><![endif]-->
+    
+        
+      <div  style="margin:0px auto;max-width:600px;">
+        
+        <table
+           align="center" border="0" cellpadding="0" cellspacing="0" role="presentation" style="width:100%;"
+        >
+          <tbody>
+            <tr>
+              <td
+                 style="direction:ltr;font-size:0px;padding:0px 10px 40px;text-align:center;"
+              >
+                <!--[if mso | IE]><table role="presentation" border="0" cellpadding="0" cellspacing="0"><tr><td class="" style="vertical-align:top;width:580px;" ><![endif]-->
+            
+      <div
+         class="mj-column-per-100 mj-outlook-group-fix" style="font-size:0px;text-align:left;direction:ltr;display:inline-block;vertical-align:top;width:100%;"
+      >
+        
+      <table
+         border="0" cellpadding="0" cellspacing="0" role="presentation" style="vertical-align:top;" width="100%"
+      >
+        <tbody>
+          
+              <tr>
+                <td
+                   align="left" class="avenir" style="font-size:0px;padding:10px 25px;padding-bottom:0px;word-break:break-word;"
+                >
+                  
+      <div
+         style="font-family:Avenir;font-size:12px;letter-spacing:0.1em;line-height:1;text-align:left;color:#ffffff;"
+      ><p style="font-weight: 400; font-size: 12px; line-height: 16px; padding: 0px; margin: 0px;" class="avenir">We appreciate your business and look forward to working together. </p>
+          <p style="font-weight: 400; font-size: 12px; line-height: 16px; padding: 0px; margin: 20px 0px 5px;" class="avenir">Sincerely,</p>
+          <p style="font-weight: 400; font-size: 12px; line-height: 16px; padding: 0px; margin: 0px;" class="avenir">Stephen J Hoffman</p></div>
+    
+                </td>
+              </tr>
+            
+        </tbody>
+      </table>
+    
+      </div>
+    
+          <!--[if mso | IE]></td></tr></table><![endif]-->
+              </td>
+            </tr>
+          </tbody>
+        </table>
+        
+      </div>
+    
+        
+      <!--[if mso | IE]></td></tr></table><![endif]-->
+    
+      
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    <!-- mj-include fails to read file : ./partials/footer.mjml at /Users/peterhoffman/Sites/sjh/sjhas/partials/footer.mjml -->
       </div>
     
   </body>
