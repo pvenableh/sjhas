@@ -72,7 +72,7 @@ useSeoMeta({
 })
 
 defineOgImage({
-  component: 'NuxtSeo',
+  component: 'Sjhas',
   title: 'SJHAS, Inc.',
   description: 'Accounting & Tax Services in Ithaca, NY',
 })

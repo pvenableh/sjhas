@@ -87,10 +87,10 @@ export default defineNuxtConfig({
   // OG Image configuration
   ogImage: {
     defaults: {
-      component: "NuxtSeo",
+      component: "Sjhas",
       props: {
-        colorMode: "dark",
-        siteName: "SJHAS, Inc.",
+        title: "SJHAS, Inc.",
+        description: "Accounting & Tax Services in Ithaca, NY",
       },
     },
   },
