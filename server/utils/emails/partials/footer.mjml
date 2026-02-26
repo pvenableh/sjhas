@@ -1,0 +1,9 @@
+
+ <mj-section full-width="full-width" padding-top="0px" padding-bottom="40px">
+   <mj-column width="100%">
+     <mj-text align="center" color="#ffffff" font-size="10px" padding-bottom="0px" padding-top="0px"><a href="https://www.sjhas.com" style="text-decoration: none; color: #ffffff; letter-spacing: 0.75em; font-weight: normal">SJHAS.COM</a></mj-text>
+   </mj-column>
+   <mj-column width="100%">
+     <mj-text align="center" color="#ffffff" font-size="6px" padding-bottom="0px" padding-top="15px"><a href="https://www.sjhas.com" style="text-decoration: none; color: #ffffff; letter-spacing: 0.9em; font-weight: normal">© 2026 SJHAS, LLC</a></mj-text>
+   </mj-column>
+ </mj-section>
