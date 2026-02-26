@@ -9,16 +9,20 @@ const router = useRouter()
 const isSidebarOpen = ref(false)
 const isProfileMenuOpen = ref(false)
 const isNotificationsOpen = ref(false)
-
-// Notifications state
-const submissions = useDirectusItems('form_submissions')
-const chatSessions = useDirectusItems('chat_sessions')
-const newSubmissions = ref<any[]>([])
-const activeChatSessions = ref<any[]>([])
-const readSubmissions = ref<any[]>([])
-const closedChatSessions = ref<any[]>([])
-const notifLoading = ref(true)
 const notifTab = ref<'new' | 'read'>('new')
+
+// Shared notification bell state (also used by notifications page)
+const {
+  newSubmissions,
+  activeChatSessions,
+  readSubmissions,
+  closedChatSessions,
+  isLoading: notifLoading,
+  newCount: notificationCount,
+  readCount,
+  refresh: fetchNotifications,
+  markAsRead,
+} = useNotificationBell()
 
 // Directus Realtime for live notification updates
 const {
@@ -26,64 +30,11 @@ const {
   connect: rtConnect,
 } = useDirectusRealtime()
 
-const notificationCount = computed(() =>
-  newSubmissions.value.length + activeChatSessions.value.length
-)
-
-const readCount = computed(() =>
-  readSubmissions.value.length + closedChatSessions.value.length
-)
-
-async function fetchNotifications() {
-  try {
-    const [newSubs, activeChats, reviewedSubs, doneChats] = await Promise.all([
-      submissions.list({
-        filter: { status: { _eq: 'new' } },
-        sort: ['-date_created'],
-        limit: 5,
-        fields: ['id', 'submitter_name', 'submitter_email', 'date_created', 'form'],
-      }),
-      chatSessions.list({
-        filter: { status: { _eq: 'active' } },
-        sort: ['-last_message_at'],
-        limit: 5,
-        fields: ['id', 'visitor_name', 'last_message_at'],
-      }),
-      submissions.list({
-        filter: { status: { _eq: 'reviewed' } },
-        sort: ['-date_created'],
-        limit: 5,
-        fields: ['id', 'submitter_name', 'submitter_email', 'date_created', 'form'],
-      }),
-      chatSessions.list({
-        filter: { status: { _eq: 'closed' } },
-        sort: ['-last_message_at'],
-        limit: 5,
-        fields: ['id', 'visitor_name', 'last_message_at'],
-      }),
-    ])
-    newSubmissions.value = newSubs
-    activeChatSessions.value = activeChats
-    readSubmissions.value = reviewedSubs
-    closedChatSessions.value = doneChats
-  } catch {
-    // Silently fail — notifications are non-critical
-  } finally {
-    notifLoading.value = false
-  }
-}
-
 /**
  * Mark a form submission as reviewed when clicked
  */
 async function markSubmissionRead(sub: any) {
-  try {
-    await submissions.update(sub.id, { status: 'reviewed' } as any)
-    newSubmissions.value = newSubmissions.value.filter((s: any) => s.id !== sub.id)
-    readSubmissions.value = [sub, ...readSubmissions.value].slice(0, 5)
-  } catch {
-    // Non-critical — navigation still happens
-  }
+  await markAsRead(sub.id)
   isNotificationsOpen.value = false
   router.push('/admin/submissions')
 }
@@ -383,11 +334,11 @@ const closeSidebar = () => {
                           <p class="text-sm text-slate-600 truncate">
                             Submission{{ sub.submitter_name ? ' from ' + sub.submitter_name : '' }}
                           </p>
-                          <p class="text-xs text-slate-400">Reviewed</p>
+                          <p class="text-xs text-slate-400">{{ sub.status === 'archived' ? 'Archived' : 'Reviewed' }}</p>
                         </div>
                       </button>
 
-                      <!-- Closed chat sessions -->
+                      <!-- Closed / archived chat sessions -->
                       <button
                         v-for="chat in closedChatSessions"
                         :key="'rchat-' + chat.id"
@@ -401,7 +352,7 @@ const closeSidebar = () => {
                           <p class="text-sm text-slate-600 truncate">
                             Chat with {{ chat.visitor_name }}
                           </p>
-                          <p class="text-xs text-slate-400">Closed</p>
+                          <p class="text-xs text-slate-400">{{ chat.status === 'archived' ? 'Archived' : 'Closed' }}</p>
                         </div>
                       </button>
                     </div>
