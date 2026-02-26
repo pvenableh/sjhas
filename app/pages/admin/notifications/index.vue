@@ -14,6 +14,7 @@ useSeoMeta({
 const submissions = useDirectusItems('form_submissions')
 const chatSessions = useDirectusItems('chat_sessions')
 const router = useRouter()
+const { refresh: refreshBell } = useNotificationBell()
 
 // Directus Realtime
 const { subscribe, connect: rtConnect } = useDirectusRealtime()
@@ -110,6 +111,7 @@ async function markAsRead(notif: any) {
       const sub = allSubmissions.value.find((s: any) => s.id === notif.rawId)
       if (sub) sub.status = 'reviewed'
       toast.success('Marked as read')
+      refreshBell()
     } catch {
       toast.error('Failed to update')
     }
@@ -129,6 +131,7 @@ async function archiveNotif(notif: any) {
       if (chat) chat.status = 'archived'
     }
     toast.success('Archived')
+    refreshBell()
   } catch {
     toast.error('Failed to archive')
   }
