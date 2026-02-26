@@ -109,6 +109,8 @@ useSchemaOrg([
       :booking-url="settings?.booking_url"
     />
 
+    <HomeQuickAccessSection />
+
     <HomeServicesSection
       :title="homePage?.services_title"
       :subtitle="homePage?.services_subtitle"

@@ -92,7 +92,7 @@ onMounted(() => {
   <header
     ref="headerRef"
     :class="cn(
-      'fixed top-0 left-0 right-0 z-50 transition-all duration-300',
+      'fixed top-0 left-0 right-0 z-50 transition-all duration-300 safe-area-header',
       isScrolled
         ? 't-header-scrolled shadow-sm border-b t-border'
         : 't-header'
@@ -177,7 +177,8 @@ onMounted(() => {
     >
       <div
         v-if="isMobileMenuOpen"
-        class="lg:hidden fixed inset-0 top-[4.5rem] z-40 bg-black/40 backdrop-blur-sm"
+        class="lg:hidden fixed inset-0 z-40 bg-black/40 backdrop-blur-sm"
+        style="top: calc(4.5rem + env(safe-area-inset-top, 0px));"
         @click="closeMobileMenu"
       />
     </Transition>

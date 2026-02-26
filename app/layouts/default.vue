@@ -29,7 +29,7 @@ const logoUrl = computed(() => {
       :booking-url="settings?.booking_url"
     />
 
-    <main class="flex-1 pt-20">
+    <main class="flex-1" style="padding-top: calc(5rem + env(safe-area-inset-top, 0px));">
       <slot />
     </main>
 
