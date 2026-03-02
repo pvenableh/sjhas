@@ -95,12 +95,12 @@ const onSubmit = handleSubmit(async (values) => {
 
 <template>
   <div :class="cn('flex flex-col gap-6', props.class)">
-    <div class="bg-card text-card-foreground rounded-lg border shadow-sm">
+    <div class="bg-white dark:bg-secondary-800 text-slate-900 dark:text-slate-100 rounded-lg border border-slate-200 dark:border-slate-700 shadow-sm">
       <div class="flex flex-col space-y-1.5 p-6">
         <h3 class="text-2xl font-semibold leading-none tracking-tight">
           Accept invitation
         </h3>
-        <p class="text-sm text-muted-foreground">
+        <p class="text-sm text-slate-500 dark:text-slate-400">
           <template v-if="email">
             Complete your account setup for <strong>{{ email }}</strong>
           </template>
@@ -114,12 +114,12 @@ const onSubmit = handleSubmit(async (values) => {
           <div class="flex flex-col items-center justify-center py-8 text-center">
             <PartyPopper class="h-12 w-12 text-green-500 mb-4" />
             <h4 class="text-lg font-medium mb-2">Welcome aboard!</h4>
-            <p class="text-sm text-muted-foreground mb-6">
+            <p class="text-sm text-slate-500 dark:text-slate-400 mb-6">
               Your account has been set up successfully.
             </p>
             <button
               type="button"
-              class="inline-flex items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90"
+              class="inline-flex items-center justify-center rounded-md bg-primary-600 dark:bg-primary-500 px-4 py-2 text-sm font-medium text-white dark:text-secondary-900 hover:bg-primary-700 dark:hover:bg-primary-400"
               @click="emit('login')"
             >
               Continue to login
@@ -131,17 +131,17 @@ const onSubmit = handleSubmit(async (values) => {
             <div class="grid grid-cols-2 gap-4">
               <VeeField v-slot="{ field, errors }" name="firstName">
                 <div class="space-y-2">
-                  <label for="firstName" class="text-sm font-medium leading-none">
+                  <label for="firstName" class="text-sm font-medium leading-none text-slate-700 dark:text-slate-200">
                     First name
                   </label>
                   <input
                     id="firstName"
                     type="text"
                     v-bind="field"
-                    class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-                    :class="{ 'border-destructive': errors.length }"
+                    class="flex h-10 w-full rounded-md border border-slate-200 dark:border-slate-600 bg-white dark:bg-secondary-800 px-3 py-2 text-sm text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-600/15 dark:focus-visible:ring-primary-400/20 focus-visible:border-primary-600 dark:focus-visible:border-primary-400 disabled:cursor-not-allowed disabled:opacity-50"
+                    :class="{ 'border-red-500': errors.length }"
                   />
-                  <p v-if="errors.length" class="text-sm text-destructive">
+                  <p v-if="errors.length" class="text-sm text-red-500">
                     {{ errors[0] }}
                   </p>
                 </div>
@@ -149,17 +149,17 @@ const onSubmit = handleSubmit(async (values) => {
 
               <VeeField v-slot="{ field, errors }" name="lastName">
                 <div class="space-y-2">
-                  <label for="lastName" class="text-sm font-medium leading-none">
+                  <label for="lastName" class="text-sm font-medium leading-none text-slate-700 dark:text-slate-200">
                     Last name
                   </label>
                   <input
                     id="lastName"
                     type="text"
                     v-bind="field"
-                    class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-                    :class="{ 'border-destructive': errors.length }"
+                    class="flex h-10 w-full rounded-md border border-slate-200 dark:border-slate-600 bg-white dark:bg-secondary-800 px-3 py-2 text-sm text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-600/15 dark:focus-visible:ring-primary-400/20 focus-visible:border-primary-600 dark:focus-visible:border-primary-400 disabled:cursor-not-allowed disabled:opacity-50"
+                    :class="{ 'border-red-500': errors.length }"
                   />
-                  <p v-if="errors.length" class="text-sm text-destructive">
+                  <p v-if="errors.length" class="text-sm text-red-500">
                     {{ errors[0] }}
                   </p>
                 </div>
@@ -168,17 +168,17 @@ const onSubmit = handleSubmit(async (values) => {
 
             <VeeField v-slot="{ field, errors }" name="password">
               <div class="space-y-2">
-                <label for="password" class="text-sm font-medium leading-none">
+                <label for="password" class="text-sm font-medium leading-none text-slate-700 dark:text-slate-200">
                   Password
                 </label>
                 <input
                   id="password"
                   type="password"
                   v-bind="field"
-                  class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-                  :class="{ 'border-destructive': errors.length }"
+                  class="flex h-10 w-full rounded-md border border-slate-200 dark:border-slate-600 bg-white dark:bg-secondary-800 px-3 py-2 text-sm text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-600/15 dark:focus-visible:ring-primary-400/20 focus-visible:border-primary-600 dark:focus-visible:border-primary-400 disabled:cursor-not-allowed disabled:opacity-50"
+                  :class="{ 'border-red-500': errors.length }"
                 />
-                <p v-if="errors.length" class="text-sm text-destructive">
+                <p v-if="errors.length" class="text-sm text-red-500">
                   {{ errors[0] }}
                 </p>
 
@@ -190,7 +190,7 @@ const onSubmit = handleSubmit(async (values) => {
                         v-for="req in passwordRequirements"
                         :key="req.label"
                         class="flex items-center gap-1"
-                        :class="req.met ? 'text-green-600' : 'text-muted-foreground'"
+                        :class="req.met ? 'text-green-600 dark:text-green-400' : 'text-slate-500 dark:text-slate-400'"
                       >
                         <Check v-if="req.met" class="h-3 w-3" />
                         <X v-else class="h-3 w-3" />
@@ -204,17 +204,17 @@ const onSubmit = handleSubmit(async (values) => {
 
             <VeeField v-slot="{ field, errors }" name="confirmPassword">
               <div class="space-y-2">
-                <label for="confirmPassword" class="text-sm font-medium leading-none">
+                <label for="confirmPassword" class="text-sm font-medium leading-none text-slate-700 dark:text-slate-200">
                   Confirm Password
                 </label>
                 <input
                   id="confirmPassword"
                   type="password"
                   v-bind="field"
-                  class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-                  :class="{ 'border-destructive': errors.length }"
+                  class="flex h-10 w-full rounded-md border border-slate-200 dark:border-slate-600 bg-white dark:bg-secondary-800 px-3 py-2 text-sm text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-600/15 dark:focus-visible:ring-primary-400/20 focus-visible:border-primary-600 dark:focus-visible:border-primary-400 disabled:cursor-not-allowed disabled:opacity-50"
+                  :class="{ 'border-red-500': errors.length }"
                 />
-                <p v-if="errors.length" class="text-sm text-destructive">
+                <p v-if="errors.length" class="text-sm text-red-500">
                   {{ errors[0] }}
                 </p>
               </div>
@@ -224,7 +224,7 @@ const onSubmit = handleSubmit(async (values) => {
               <button
                 type="submit"
                 :disabled="isSubmitting"
-                class="inline-flex items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground ring-offset-background transition-colors hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50"
+                class="inline-flex items-center justify-center rounded-md bg-primary-600 dark:bg-primary-500 px-4 py-2 text-sm font-medium text-white dark:text-secondary-900 transition-colors hover:bg-primary-700 dark:hover:bg-primary-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-600/20 disabled:pointer-events-none disabled:opacity-50"
               >
                 <Loader2 v-if="isSubmitting" class="mr-2 h-4 w-4 animate-spin" />
                 {{ isSubmitting ? "Setting up..." : "Complete setup" }}

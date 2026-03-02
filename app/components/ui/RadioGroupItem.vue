@@ -15,8 +15,8 @@ const delegatedProps = computed(() => {
   <RadioGroupItem
     v-bind="delegatedProps"
     :class="cn(
-      'aspect-square h-5 w-5 rounded-full border border-slate-300 bg-white transition-colors duration-200',
-      'focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2',
+      'aspect-square h-5 w-5 rounded-full border border-slate-300 dark:border-slate-600 bg-white dark:bg-secondary-800 transition-colors duration-200',
+      'focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-secondary-900',
       'disabled:cursor-not-allowed disabled:opacity-50',
       'data-[state=checked]:border-primary-600',
       props.class

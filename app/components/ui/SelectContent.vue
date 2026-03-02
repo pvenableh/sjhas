@@ -29,7 +29,7 @@ const forwarded = useForwardPropsEmits(delegatedProps, emits)
     <SelectContent
       v-bind="{ ...forwarded, ...$attrs }"
       :class="cn(
-        'relative z-50 max-h-96 min-w-32 overflow-hidden rounded-lg border border-slate-200 bg-white text-slate-900 shadow-lg',
+        'relative z-50 max-h-96 min-w-32 overflow-hidden rounded-lg border border-slate-200 dark:border-slate-600 bg-white dark:bg-secondary-800 text-slate-900 dark:text-slate-100 shadow-lg',
         'data-[state=open]:animate-in data-[state=closed]:animate-out',
         'data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0',
         'data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95',
