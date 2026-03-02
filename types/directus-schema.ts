@@ -61,8 +61,7 @@ export interface Form {
 	allowed_file_types?: string | null;
 	/** @description JSON array of form field definitions */
 	fields?: Record<string, any> | null;
-	/** @description JSON array of multi-step configuration */
-	steps?: Record<string, any>[] | null;
+	steps?: Record<string, any> | null;
 }
 
 export interface FormSubmission {
