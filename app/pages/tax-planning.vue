@@ -1,15 +1,10 @@
 <script setup lang="ts">
 import type { FormStep } from '~/components/forms/DynamicForm.vue'
 
-// Fetch the tax planning form from Directus
-const { data: form, error } = await useAsyncData('tax-planning-form', async () => {
-  try {
-    return await useDirectusForm('tax-planning')
-  } catch (error) {
-    console.error('Failed to fetch tax planning form:', error)
-    return null
-  }
-})
+// The tax-planning page uses a hardcoded multi-step form with conditional
+// logic that can't be expressed in the CMS yet. The CMS form (slug: tax-planning)
+// only has the first step's fields. Once the form builder supports step/condition
+// configuration, this can be switched to a CMS-driven form.
 
 // Helper to create a field definition concisely
 const field = (
@@ -286,7 +281,7 @@ const defaultForm = {
   ],
 }
 
-const displayForm = computed(() => form.value || defaultForm)
+const displayForm = defaultForm
 
 // Multi-step configuration with conditional steps
 // Conditions reference individual checkbox field names matching the CMS structure

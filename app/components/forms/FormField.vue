@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed } from 'vue'
-import { useField } from 'vee-validate'
+import { useField, useFormValues } from 'vee-validate'
 import type { FormField } from '~/types/directus'
 import { cn } from '~/utils/cn'
 
@@ -17,6 +17,9 @@ const { value, errorMessage, handleBlur, handleChange } = useField(
   }
 )
 
+// Access all form values for conditional logic evaluation
+const formValues = useFormValues()
+
 const widthClass = computed(() => {
   switch (props.field.width) {
     case 'half':
@@ -29,11 +32,35 @@ const widthClass = computed(() => {
 })
 
 const isVisible = computed(() => {
-  if (!props.field.conditional_logic || !props.showConditional) {
+  const logic = props.field.conditional_logic as { field: string; operator: string; value: string } | null
+  if (!logic || !logic.field) {
     return true
   }
-  // Conditional logic would be evaluated here based on form state
-  return true
+
+  const sourceValue = formValues.value[logic.field]
+
+  switch (logic.operator) {
+    case 'equals':
+      if (typeof sourceValue === 'boolean') {
+        return sourceValue === (logic.value === 'true')
+      }
+      return sourceValue === logic.value
+    case 'not_equals':
+      if (typeof sourceValue === 'boolean') {
+        return sourceValue !== (logic.value === 'true')
+      }
+      return sourceValue !== logic.value
+    case 'includes':
+      if (Array.isArray(sourceValue)) {
+        return sourceValue.includes(logic.value)
+      }
+      if (typeof sourceValue === 'string') {
+        return sourceValue.includes(logic.value)
+      }
+      return false
+    default:
+      return true
+  }
 })
 </script>
 
