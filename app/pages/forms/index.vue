@@ -170,7 +170,7 @@ const getStatusColor = (status: string) => {
             <Icon name="lucide:clipboard-list" class="w-5 h-5 text-accent-600" />
           </div>
           <div>
-            <p class="font-medium text-slate-900">Tax Planning</p>
+            <p class="font-medium text-slate-900">Tax Services Questionnaire</p>
             <p class="text-sm text-slate-500">Complete questionnaire</p>
           </div>
         </NuxtLink>

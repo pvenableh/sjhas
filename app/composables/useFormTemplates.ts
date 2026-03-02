@@ -189,15 +189,15 @@ export const useFormTemplates = () => {
     },
     {
       key: 'tax-planning',
-      title: 'Tax Planning Questionnaire',
+      title: 'Tax Services Questionnaire',
       slug: `tax-planning-${Date.now()}`,
-      description: 'Comprehensive questionnaire to help plan your upcoming tax year.',
+      description: 'Comprehensive questionnaire to help with your tax and payroll service needs.',
       category: 'financial',
       icon: 'lucide:clipboard-list',
       iconColor: 'text-green-600',
       iconBg: 'bg-green-100',
       fields: [
-        { id: 'f_1', type: 'heading', label: 'Tax Planning Questionnaire', name: 'heading', placeholder: null, help_text: 'Help us understand your tax situation for the upcoming year.', required: false, validation_rules: null, options: null, conditional_logic: null, width: 'full', sort: 0 },
+        { id: 'f_1', type: 'heading', label: 'Tax Services Questionnaire', name: 'heading', placeholder: null, help_text: 'Help us understand your tax and payroll service needs.', required: false, validation_rules: null, options: null, conditional_logic: null, width: 'full', sort: 0 },
         { id: 'f_2', type: 'text', label: 'Full Name', name: 'full_name', placeholder: 'Enter your full name', help_text: null, required: true, validation_rules: null, options: null, conditional_logic: null, width: 'half', sort: 1 },
         { id: 'f_3', type: 'email', label: 'Email Address', name: 'email', placeholder: 'you@example.com', help_text: null, required: true, validation_rules: null, options: null, conditional_logic: null, width: 'half', sort: 2 },
         { id: 'f_4', type: 'phone', label: 'Phone Number', name: 'phone', placeholder: '(555) 555-5555', help_text: null, required: false, validation_rules: null, options: null, conditional_logic: null, width: 'half', sort: 3 },

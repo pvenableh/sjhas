@@ -224,6 +224,43 @@ const isVisible = computed(() => {
       <p v-if="errorMessage" class="mt-2 text-xs text-red-500">{{ errorMessage }}</p>
     </template>
 
+    <!-- Checkbox group (multi-select) -->
+    <template v-else-if="field.type === 'checkbox_group'">
+      <Label class="label-base">
+        {{ field.label }}
+        <span v-if="field.required" class="text-red-500 ml-0.5">*</span>
+      </Label>
+      <div class="mt-3 space-y-3">
+        <div
+          v-for="option in field.options"
+          :key="option.value"
+          class="flex items-start gap-3"
+        >
+          <Checkbox
+            :id="`${field.name}-${option.value}`"
+            :checked="Array.isArray(value) && (value as string[]).includes(option.value)"
+            @update:checked="(checked: boolean) => {
+              const current = Array.isArray(value) ? [...(value as string[])] : []
+              if (checked) {
+                current.push(option.value)
+              } else {
+                const idx = current.indexOf(option.value)
+                if (idx > -1) current.splice(idx, 1)
+              }
+              handleChange(current)
+            }"
+          />
+          <Label :for="`${field.name}-${option.value}`" class="text-sm text-slate-600 cursor-pointer">
+            {{ option.label }}
+          </Label>
+        </div>
+      </div>
+      <p v-if="field.help_text && !errorMessage" class="mt-2 text-xs text-slate-400 leading-relaxed">
+        {{ field.help_text }}
+      </p>
+      <p v-if="errorMessage" class="mt-2 text-xs text-red-500">{{ errorMessage }}</p>
+    </template>
+
     <!-- Radio group -->
     <template v-else-if="field.type === 'radio'">
       <Label class="label-base">

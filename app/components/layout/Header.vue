@@ -33,8 +33,6 @@ const isAdmin = computed(() => {
 
 const baseNavLinks = [
   { label: "Home", href: "/", external: false, xlOnly: false },
-  { label: "Services", href: "/#services", external: false, xlOnly: true },
-  { label: "About", href: "/#about", external: false, xlOnly: true },
   {
     label: "Upload Documents",
     href: "/upload",
@@ -42,7 +40,7 @@ const baseNavLinks = [
     xlOnly: false,
   },
   {
-    label: "Tax Planning",
+    label: "Tax Services Questionnaire",
     href: "/tax-planning",
     external: false,
     xlOnly: false,

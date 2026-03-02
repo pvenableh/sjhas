@@ -21,6 +21,7 @@ const fieldTypes = [
   { type: 'textarea', label: 'Long Text', icon: 'lucide:align-left' },
   { type: 'select', label: 'Dropdown', icon: 'lucide:chevron-down' },
   { type: 'checkbox', label: 'Checkbox', icon: 'lucide:check-square' },
+  { type: 'checkbox_group', label: 'Checkbox Group', icon: 'lucide:list-checks' },
   { type: 'radio', label: 'Radio Group', icon: 'lucide:circle-dot' },
   { type: 'file', label: 'File Upload', icon: 'lucide:upload' },
   { type: 'heading', label: 'Heading', icon: 'lucide:heading' },
@@ -79,7 +80,7 @@ const addField = (type: string, index?: number) => {
     help_text: null,
     required: false,
     validation_rules: null,
-    options: type === 'select' || type === 'radio' ? [
+    options: type === 'select' || type === 'radio' || type === 'checkbox_group' ? [
       { label: 'Option 1', value: 'option_1' },
       { label: 'Option 2', value: 'option_2' },
     ] : null,
@@ -304,6 +305,18 @@ const removeOption = (index: number) => {
                 <span class="text-sm text-slate-700">{{ field.label }}</span>
               </div>
 
+              <!-- Checkbox Group -->
+              <div v-else-if="field.type === 'checkbox_group'" class="space-y-2">
+                <div
+                  v-for="option in field.options"
+                  :key="option.value"
+                  class="flex items-center gap-2"
+                >
+                  <div class="w-5 h-5 rounded border border-slate-300 bg-slate-50" />
+                  <span class="text-sm text-slate-700">{{ option.label }}</span>
+                </div>
+              </div>
+
               <!-- Radio -->
               <div v-else-if="field.type === 'radio'" class="space-y-2">
                 <div
@@ -444,7 +457,7 @@ const removeOption = (index: number) => {
         </div>
 
         <!-- Options for select/radio -->
-        <div v-if="['select', 'radio'].includes(selectedField.type)">
+        <div v-if="['select', 'radio', 'checkbox_group'].includes(selectedField.type)">
           <Label class="text-xs text-slate-500 mb-2">Options</Label>
           <div class="space-y-2">
             <div

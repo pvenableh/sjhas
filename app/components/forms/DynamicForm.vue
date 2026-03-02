@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, watch } from 'vue'
 import { useForm } from 'vee-validate'
 import { toTypedSchema } from '@vee-validate/zod'
 import * as z from 'zod'
@@ -7,11 +7,22 @@ import { gsap } from 'gsap'
 import { toast } from 'vue-sonner'
 import type { Form, FormField } from '~/types/directus'
 
+export interface FormStepCondition {
+  /** The field name to check */
+  field: string
+  /** Operator for comparison */
+  operator: 'includes' | 'equals' | 'not_equals'
+  /** The value to compare against */
+  value: string
+}
+
 export interface FormStep {
   label: string
   icon?: string
   /** Sort range [min, max] inclusive — fields with sort values in this range belong to this step */
   fieldRange: [number, number]
+  /** Optional condition — step is only shown when the condition is met */
+  condition?: FormStepCondition
 }
 
 const props = defineProps<{
@@ -46,6 +57,9 @@ const buildValidationSchema = (fields: FormField[]) => {
         break
       case 'checkbox':
         fieldSchema = z.boolean()
+        break
+      case 'checkbox_group':
+        fieldSchema = z.array(z.string())
         break
       case 'file':
         fieldSchema = z.any()
@@ -82,6 +96,10 @@ const buildValidationSchema = (fields: FormField[]) => {
     // Make optional if not required
     if (!field.required) {
       fieldSchema = fieldSchema.optional()
+    } else if (field.type === 'checkbox_group') {
+      if (fieldSchema instanceof z.ZodArray) {
+        fieldSchema = fieldSchema.min(1, `${field.label} is required`)
+      }
     } else if (field.type !== 'checkbox') {
       if (fieldSchema instanceof z.ZodString) {
         fieldSchema = fieldSchema.min(1, `${field.label} is required`)
@@ -98,7 +116,7 @@ const validationSchema = computed(() => {
   return toTypedSchema(buildValidationSchema(props.form.fields || []))
 })
 
-const { handleSubmit, isSubmitting, resetForm, validate } = useForm({
+const { handleSubmit, isSubmitting, resetForm, validate, values: formValues } = useForm({
   validationSchema,
 })
 
@@ -115,15 +133,44 @@ const sortedFields = computed(() => {
   return [...fields].sort((a, b) => a.sort - b.sort)
 })
 
-// Multi-step support
-const isMultiStep = computed(() => !!props.steps && props.steps.length > 1)
-const totalSteps = computed(() => props.steps?.length || 1)
+// Evaluate whether a step condition is met based on current form values
+const evaluateCondition = (condition: FormStepCondition): boolean => {
+  const fieldValue = (formValues as Record<string, unknown>)[condition.field]
+  switch (condition.operator) {
+    case 'includes':
+      if (Array.isArray(fieldValue)) {
+        return fieldValue.includes(condition.value)
+      }
+      if (typeof fieldValue === 'string') {
+        return fieldValue.includes(condition.value)
+      }
+      return false
+    case 'equals':
+      return fieldValue === condition.value
+    case 'not_equals':
+      return fieldValue !== condition.value
+    default:
+      return true
+  }
+}
+
+// Multi-step support — compute the list of active (visible) steps
+const activeSteps = computed(() => {
+  if (!props.steps) return []
+  return props.steps.filter((step) => {
+    if (!step.condition) return true
+    return evaluateCondition(step.condition)
+  })
+})
+
+const isMultiStep = computed(() => activeSteps.value.length > 1)
+const totalSteps = computed(() => activeSteps.value.length || 1)
 const isLastStep = computed(() => currentStep.value >= totalSteps.value - 1)
 
 // Fields visible in the current step
 const visibleFields = computed(() => {
-  if (!isMultiStep.value) return sortedFields.value
-  const step = props.steps![currentStep.value]
+  if (!isMultiStep.value && activeSteps.value.length === 0) return sortedFields.value
+  const step = activeSteps.value[currentStep.value]
   if (!step) return sortedFields.value
   return sortedFields.value.filter(
     (f) => f.sort >= step.fieldRange[0] && f.sort <= step.fieldRange[1]
@@ -152,7 +199,7 @@ const goToNextStep = async () => {
     trackFormStepComplete(
       props.form.title || 'Unknown Form',
       currentStep.value + 1,
-      props.steps?.[currentStep.value]?.label,
+      activeSteps.value[currentStep.value]?.label,
     )
     currentStep.value++
     emit('update:currentStep', currentStep.value)
@@ -167,6 +214,14 @@ const goToPrevStep = () => {
     animateStepTransition()
   }
 }
+
+// Clamp currentStep if active steps shrink (e.g. user un-checks a service)
+watch(activeSteps, (steps) => {
+  if (currentStep.value >= steps.length && steps.length > 0) {
+    currentStep.value = steps.length - 1
+    emit('update:currentStep', currentStep.value)
+  }
+})
 
 const animateStepTransition = () => {
   nextTick(() => {
@@ -278,6 +333,11 @@ onMounted(() => {
       }
     )
   }
+})
+
+defineExpose({
+  activeSteps,
+  currentStep,
 })
 </script>
 

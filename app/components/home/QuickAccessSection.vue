@@ -21,8 +21,8 @@ const quickLinks = [
     external: true,
   },
   {
-    title: 'Services Questionnaire',
-    description: 'Complete our questionnaire to help us prepare for your tax planning session.',
+    title: 'Tax Services Questionnaire',
+    description: 'Complete our questionnaire so we can best serve your tax and payroll needs.',
     icon: 'lucide:clipboard-list',
     href: '/tax-planning',
     external: false,

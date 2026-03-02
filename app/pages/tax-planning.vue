@@ -11,115 +11,83 @@ const { data: form, error } = await useAsyncData('tax-planning-form', async () =
   }
 })
 
-// Comprehensive tax planning questionnaire if CMS form doesn't exist
+// Helper to create a field definition concisely
+const field = (
+  id: string,
+  type: string,
+  label: string,
+  sort: number,
+  overrides: Record<string, unknown> = {},
+) => ({
+  id,
+  type: type as any,
+  label,
+  name: id,
+  placeholder: null as string | null,
+  help_text: null as string | null,
+  required: false,
+  validation_rules: null,
+  options: null as Array<{ label: string; value: string }> | null,
+  conditional_logic: null,
+  width: 'full' as const,
+  sort,
+  ...overrides,
+})
+
+// Tax Services Questionnaire default form
 const defaultForm = {
   id: 0,
   status: 'published' as const,
-  title: 'Tax Planning Questionnaire',
+  title: 'Tax Services Questionnaire',
   slug: 'tax-planning',
-  description: 'Please complete this questionnaire to help us prepare for your tax planning session. All information is kept strictly confidential.',
-  success_message: 'Thank you for completing the Tax Planning Questionnaire! We will review your responses and contact you to schedule your planning session.',
+  description: 'Please complete this questionnaire so we can best serve your tax and payroll needs. All information is kept strictly confidential.',
+  success_message: 'Thank you for completing the Tax Services Questionnaire! We will review your responses and contact you shortly.',
   notify_email: 'sjh@sjhas.com',
   notify_on_submission: true,
   allow_file_uploads: true,
   max_file_size_mb: 10,
   allowed_file_types: '.pdf,.doc,.docx,.xls,.xlsx,.csv,.jpg,.jpeg,.png,.gif,.txt',
   fields: [
-    // Personal Information Section
-    {
-      id: 'section-personal',
-      type: 'heading' as const,
-      label: 'Personal Information',
-      name: 'section_personal',
-      placeholder: null,
+    // ── Step 1: Personal Info & Service Selection (sort 1–19) ──
+    field('section_personal', 'heading', 'Personal Information', 1, {
       help_text: 'Please provide your contact details.',
-      required: false,
-      validation_rules: null,
-      options: null,
-      conditional_logic: null,
-      width: 'full' as const,
-      sort: 1,
-    },
-    {
-      id: 'first_name',
-      type: 'text' as const,
-      label: 'First Name',
-      name: 'first_name',
-      placeholder: 'John',
-      help_text: null,
+    }),
+    field('first_name', 'text', 'First Name', 2, {
+      placeholder: 'John', required: true, width: 'half',
+    }),
+    field('last_name', 'text', 'Last Name', 3, {
+      placeholder: 'Smith', required: true, width: 'half',
+    }),
+    field('email', 'email', 'Email Address', 4, {
+      placeholder: 'john@example.com', required: true, width: 'half',
+    }),
+    field('phone', 'phone', 'Phone Number', 5, {
+      placeholder: '(607) 555-1234', required: true, width: 'half',
+    }),
+    field('section_services', 'heading', 'Service Selection', 10, {
+      help_text: 'Select all tax & payroll services you are interested in.',
+    }),
+    field('service_types', 'checkbox_group', 'What type of tax & payroll services are you interested in?', 11, {
       required: true,
-      validation_rules: null,
-      options: null,
-      conditional_logic: null,
-      width: 'half' as const,
-      sort: 2,
-    },
-    {
-      id: 'last_name',
-      type: 'text' as const,
-      label: 'Last Name',
-      name: 'last_name',
-      placeholder: 'Smith',
-      help_text: null,
-      required: true,
-      validation_rules: null,
-      options: null,
-      conditional_logic: null,
-      width: 'half' as const,
-      sort: 3,
-    },
-    {
-      id: 'email',
-      type: 'email' as const,
-      label: 'Email Address',
-      name: 'email',
-      placeholder: 'john@example.com',
-      help_text: null,
-      required: true,
-      validation_rules: null,
-      options: null,
-      conditional_logic: null,
-      width: 'half' as const,
-      sort: 4,
-    },
-    {
-      id: 'phone',
-      type: 'phone' as const,
-      label: 'Phone Number',
-      name: 'phone',
-      placeholder: '(607) 555-1234',
-      help_text: null,
-      required: true,
-      validation_rules: null,
-      options: null,
-      conditional_logic: null,
-      width: 'half' as const,
-      sort: 5,
-    },
-    // Filing Status Section
-    {
-      id: 'section-filing',
-      type: 'heading' as const,
-      label: 'Filing Status',
-      name: 'section_filing',
-      placeholder: null,
-      help_text: 'Tell us about your tax filing situation.',
-      required: false,
-      validation_rules: null,
-      options: null,
-      conditional_logic: null,
-      width: 'full' as const,
-      sort: 10,
-    },
-    {
-      id: 'filing_status',
-      type: 'select' as const,
-      label: 'Filing Status',
-      name: 'filing_status',
+      options: [
+        { label: 'Individual Tax', value: 'individual_tax' },
+        { label: 'Self-Employment', value: 'self_employment' },
+        { label: 'LLC & Partnership', value: 'llc_partnership' },
+        { label: 'S or C Corporation', value: 's_c_corporation' },
+        { label: 'Payroll Services', value: 'payroll_services' },
+        { label: 'Sales Tax Services', value: 'sales_tax' },
+        { label: 'Exempt Organization Returns', value: 'exempt_org' },
+        { label: 'Fiduciary Returns - Trusts & Estates', value: 'fiduciary' },
+      ],
+    }),
+
+    // ── Step 2: Individual Tax (sort 100–119) ──
+    field('section_individual', 'heading', 'Individual Tax Information', 100, {
+      help_text: 'Tell us about your individual tax situation.',
+    }),
+    field('filing_status', 'select', 'Filing Status', 101, {
+      required: true, width: 'half',
       placeholder: 'Select your filing status',
-      help_text: null,
-      required: true,
-      validation_rules: null,
       options: [
         { label: 'Single', value: 'single' },
         { label: 'Married Filing Jointly', value: 'married_joint' },
@@ -127,290 +95,246 @@ const defaultForm = {
         { label: 'Head of Household', value: 'head_household' },
         { label: 'Qualifying Widow(er)', value: 'widow' },
       ],
-      conditional_logic: null,
-      width: 'half' as const,
-      sort: 11,
-    },
-    {
-      id: 'dependents',
-      type: 'number' as const,
-      label: 'Number of Dependents',
-      name: 'dependents',
-      placeholder: '0',
-      help_text: null,
-      required: false,
-      validation_rules: null,
-      options: null,
-      conditional_logic: null,
-      width: 'half' as const,
-      sort: 12,
-    },
-    // Income Section
-    {
-      id: 'section-income',
-      type: 'heading' as const,
-      label: 'Income Sources',
-      name: 'section_income',
-      placeholder: null,
-      help_text: 'Please indicate all sources of income.',
-      required: false,
-      validation_rules: null,
-      options: null,
-      conditional_logic: null,
-      width: 'full' as const,
-      sort: 20,
-    },
-    {
-      id: 'has_w2',
-      type: 'checkbox' as const,
-      label: 'I have W-2 income (employment)',
-      name: 'has_w2',
-      placeholder: null,
-      help_text: null,
-      required: false,
-      validation_rules: null,
-      options: null,
-      conditional_logic: null,
-      width: 'full' as const,
-      sort: 21,
-    },
-    {
-      id: 'has_1099',
-      type: 'checkbox' as const,
-      label: 'I have 1099 income (self-employment/contract work)',
-      name: 'has_1099',
-      placeholder: null,
-      help_text: null,
-      required: false,
-      validation_rules: null,
-      options: null,
-      conditional_logic: null,
-      width: 'full' as const,
-      sort: 22,
-    },
-    {
-      id: 'has_investment',
-      type: 'checkbox' as const,
-      label: 'I have investment income (dividends, capital gains)',
-      name: 'has_investment',
-      placeholder: null,
-      help_text: null,
-      required: false,
-      validation_rules: null,
-      options: null,
-      conditional_logic: null,
-      width: 'full' as const,
-      sort: 23,
-    },
-    {
-      id: 'has_rental',
-      type: 'checkbox' as const,
-      label: 'I have rental income',
-      name: 'has_rental',
-      placeholder: null,
-      help_text: null,
-      required: false,
-      validation_rules: null,
-      options: null,
-      conditional_logic: null,
-      width: 'full' as const,
-      sort: 24,
-    },
-    {
-      id: 'has_retirement',
-      type: 'checkbox' as const,
-      label: 'I have retirement income (pension, IRA distributions)',
-      name: 'has_retirement',
-      placeholder: null,
-      help_text: null,
-      required: false,
-      validation_rules: null,
-      options: null,
-      conditional_logic: null,
-      width: 'full' as const,
-      sort: 25,
-    },
-    {
-      id: 'has_social_security',
-      type: 'checkbox' as const,
-      label: 'I receive Social Security benefits',
-      name: 'has_social_security',
-      placeholder: null,
-      help_text: null,
-      required: false,
-      validation_rules: null,
-      options: null,
-      conditional_logic: null,
-      width: 'full' as const,
-      sort: 26,
-    },
-    // Life Changes Section
-    {
-      id: 'section-changes',
-      type: 'heading' as const,
-      label: 'Life Changes This Year',
-      name: 'section_changes',
-      placeholder: null,
-      help_text: 'Have any of the following occurred this year?',
-      required: false,
-      validation_rules: null,
-      options: null,
-      conditional_logic: null,
-      width: 'full' as const,
-      sort: 30,
-    },
-    {
-      id: 'change_marriage',
-      type: 'checkbox' as const,
-      label: 'Got married or divorced',
-      name: 'change_marriage',
-      placeholder: null,
-      help_text: null,
-      required: false,
-      validation_rules: null,
-      options: null,
-      conditional_logic: null,
-      width: 'full' as const,
-      sort: 31,
-    },
-    {
-      id: 'change_child',
-      type: 'checkbox' as const,
-      label: 'Had a child or adopted',
-      name: 'change_child',
-      placeholder: null,
-      help_text: null,
-      required: false,
-      validation_rules: null,
-      options: null,
-      conditional_logic: null,
-      width: 'full' as const,
-      sort: 32,
-    },
-    {
-      id: 'change_home',
-      type: 'checkbox' as const,
-      label: 'Bought or sold a home',
-      name: 'change_home',
-      placeholder: null,
-      help_text: null,
-      required: false,
-      validation_rules: null,
-      options: null,
-      conditional_logic: null,
-      width: 'full' as const,
-      sort: 33,
-    },
-    {
-      id: 'change_job',
-      type: 'checkbox' as const,
-      label: 'Changed jobs or started a business',
-      name: 'change_job',
-      placeholder: null,
-      help_text: null,
-      required: false,
-      validation_rules: null,
-      options: null,
-      conditional_logic: null,
-      width: 'full' as const,
-      sort: 34,
-    },
-    {
-      id: 'change_retirement',
-      type: 'checkbox' as const,
-      label: 'Retired or started receiving retirement income',
-      name: 'change_retirement',
-      placeholder: null,
-      help_text: null,
-      required: false,
-      validation_rules: null,
-      options: null,
-      conditional_logic: null,
-      width: 'full' as const,
-      sort: 35,
-    },
-    // Documents Section
-    {
-      id: 'section-documents',
-      type: 'heading' as const,
-      label: 'Supporting Documents',
-      name: 'section_documents',
-      placeholder: null,
+    }),
+    field('dependents', 'number', 'Number of Dependents', 102, {
+      placeholder: '0', width: 'half',
+    }),
+    field('has_w2', 'checkbox', 'I have W-2 income (employment)', 103),
+    field('has_investment', 'checkbox', 'I have investment income (dividends, capital gains)', 104),
+    field('has_rental', 'checkbox', 'I have rental property income', 105),
+    field('has_retirement', 'checkbox', 'I have retirement income (pension, IRA distributions)', 106),
+    field('has_social_security', 'checkbox', 'I receive Social Security benefits', 107),
+    field('individual_notes', 'textarea', 'Additional details about your individual tax situation', 108, {
+      placeholder: 'Any other details relevant to your individual return...',
+    }),
+
+    // ── Step 3: Self-Employment (sort 120–139) ──
+    field('section_self_employment', 'heading', 'Self-Employment Details', 120, {
+      help_text: 'Tell us about your self-employment activity.',
+    }),
+    field('se_business_name', 'text', 'Business Name (DBA)', 121, { width: 'half' }),
+    field('se_business_type', 'select', 'Type of Business Activity', 122, {
+      width: 'half',
+      placeholder: 'Select business type',
+      options: [
+        { label: 'Freelance / Consulting', value: 'freelance' },
+        { label: 'Sole Proprietorship', value: 'sole_prop' },
+        { label: 'Independent Contractor', value: 'contractor' },
+        { label: 'Other', value: 'other' },
+      ],
+    }),
+    field('se_has_1099', 'checkbox', 'I receive 1099 forms for my work', 123),
+    field('se_home_office', 'checkbox', 'I use a dedicated home office', 124),
+    field('se_estimated_income', 'text', 'Estimated Annual Self-Employment Income', 125, {
+      placeholder: '$0.00', width: 'half',
+    }),
+    field('se_notes', 'textarea', 'Additional details about your self-employment', 126, {
+      placeholder: 'Describe your business activities, major expenses, etc.',
+    }),
+
+    // ── Step 4: LLC & Partnership (sort 140–159) ──
+    field('section_llc', 'heading', 'LLC & Partnership Information', 140, {
+      help_text: 'Provide details about your LLC or partnership.',
+    }),
+    field('llc_name', 'text', 'LLC / Partnership Name', 141, { required: true, width: 'half' }),
+    field('llc_ein', 'text', 'EIN (Employer Identification Number)', 142, {
+      placeholder: 'XX-XXXXXXX', width: 'half',
+    }),
+    field('llc_members', 'number', 'Number of Members / Partners', 143, {
+      placeholder: '1', width: 'half',
+    }),
+    field('llc_formation_state', 'text', 'State of Formation', 144, { width: 'half' }),
+    field('llc_notes', 'textarea', 'Additional details about your LLC or partnership', 145, {
+      placeholder: 'Describe the nature of the business, revenue, etc.',
+    }),
+
+    // ── Step 5: S or C Corporation (sort 160–179) ──
+    field('section_corp', 'heading', 'S or C Corporation Information', 160, {
+      help_text: 'Provide details about your corporation.',
+    }),
+    field('corp_name', 'text', 'Corporation Name', 161, { required: true, width: 'half' }),
+    field('corp_type', 'select', 'Corporation Type', 162, {
+      width: 'half',
+      placeholder: 'Select corporation type',
+      options: [
+        { label: 'S Corporation', value: 's_corp' },
+        { label: 'C Corporation', value: 'c_corp' },
+      ],
+    }),
+    field('corp_ein', 'text', 'EIN (Employer Identification Number)', 163, {
+      placeholder: 'XX-XXXXXXX', width: 'half',
+    }),
+    field('corp_state', 'text', 'State of Incorporation', 164, { width: 'half' }),
+    field('corp_shareholders', 'number', 'Number of Shareholders', 165, {
+      placeholder: '1', width: 'half',
+    }),
+    field('corp_notes', 'textarea', 'Additional details about your corporation', 166, {
+      placeholder: 'Describe business activities, revenue, payroll details, etc.',
+    }),
+
+    // ── Step 6: Payroll Services (sort 180–199) ──
+    field('section_payroll', 'heading', 'Payroll Services Information', 180, {
+      help_text: 'Tell us about your payroll needs.',
+    }),
+    field('payroll_business_name', 'text', 'Business Name', 181, { required: true, width: 'half' }),
+    field('payroll_employees', 'number', 'Number of Employees', 182, {
+      placeholder: '1', width: 'half',
+    }),
+    field('payroll_frequency', 'select', 'Payroll Frequency', 183, {
+      width: 'half',
+      placeholder: 'Select frequency',
+      options: [
+        { label: 'Weekly', value: 'weekly' },
+        { label: 'Bi-weekly', value: 'biweekly' },
+        { label: 'Semi-monthly', value: 'semimonthly' },
+        { label: 'Monthly', value: 'monthly' },
+      ],
+    }),
+    field('payroll_current_provider', 'text', 'Current Payroll Provider (if any)', 184, { width: 'half' }),
+    field('payroll_notes', 'textarea', 'Additional details about your payroll needs', 185, {
+      placeholder: 'Any special payroll requirements, benefits administration, etc.',
+    }),
+
+    // ── Step 7: Sales Tax Services (sort 200–219) ──
+    field('section_sales_tax', 'heading', 'Sales Tax Services Information', 200, {
+      help_text: 'Tell us about your sales tax needs.',
+    }),
+    field('sales_tax_business_name', 'text', 'Business Name', 201, { required: true, width: 'half' }),
+    field('sales_tax_states', 'text', 'States Where You Collect Sales Tax', 202, {
+      placeholder: 'e.g. NY, NJ, CT', width: 'half',
+    }),
+    field('sales_tax_filing_frequency', 'select', 'Filing Frequency', 203, {
+      width: 'half',
+      placeholder: 'Select frequency',
+      options: [
+        { label: 'Monthly', value: 'monthly' },
+        { label: 'Quarterly', value: 'quarterly' },
+        { label: 'Annually', value: 'annually' },
+      ],
+    }),
+    field('sales_tax_notes', 'textarea', 'Additional details about your sales tax needs', 204, {
+      placeholder: 'Describe your sales tax situation, any nexus concerns, etc.',
+    }),
+
+    // ── Step 8: Exempt Organization Returns (sort 220–239) ──
+    field('section_exempt', 'heading', 'Exempt Organization Information', 220, {
+      help_text: 'Provide details about your exempt organization.',
+    }),
+    field('exempt_org_name', 'text', 'Organization Name', 221, { required: true, width: 'half' }),
+    field('exempt_org_type', 'select', 'Organization Type', 222, {
+      width: 'half',
+      placeholder: 'Select type',
+      options: [
+        { label: '501(c)(3) - Charitable', value: '501c3' },
+        { label: '501(c)(4) - Social Welfare', value: '501c4' },
+        { label: '501(c)(6) - Business League', value: '501c6' },
+        { label: '501(c)(7) - Social Club', value: '501c7' },
+        { label: 'Other', value: 'other' },
+      ],
+    }),
+    field('exempt_ein', 'text', 'EIN (Employer Identification Number)', 223, {
+      placeholder: 'XX-XXXXXXX', width: 'half',
+    }),
+    field('exempt_annual_revenue', 'text', 'Approximate Annual Revenue', 224, {
+      placeholder: '$0.00', width: 'half',
+    }),
+    field('exempt_notes', 'textarea', 'Additional details about your organization', 225, {
+      placeholder: 'Describe your organization\'s activities, any compliance concerns, etc.',
+    }),
+
+    // ── Step 9: Fiduciary Returns (sort 240–259) ──
+    field('section_fiduciary', 'heading', 'Fiduciary Returns - Trusts & Estates', 240, {
+      help_text: 'Provide details about the trust or estate.',
+    }),
+    field('fiduciary_name', 'text', 'Trust / Estate Name', 241, { required: true, width: 'half' }),
+    field('fiduciary_type', 'select', 'Type', 242, {
+      width: 'half',
+      placeholder: 'Select type',
+      options: [
+        { label: 'Revocable Trust', value: 'revocable' },
+        { label: 'Irrevocable Trust', value: 'irrevocable' },
+        { label: 'Estate', value: 'estate' },
+        { label: 'Other', value: 'other' },
+      ],
+    }),
+    field('fiduciary_ein', 'text', 'EIN (Employer Identification Number)', 243, {
+      placeholder: 'XX-XXXXXXX', width: 'half',
+    }),
+    field('fiduciary_beneficiaries', 'number', 'Number of Beneficiaries', 244, {
+      placeholder: '1', width: 'half',
+    }),
+    field('fiduciary_notes', 'textarea', 'Additional details about the trust or estate', 245, {
+      placeholder: 'Describe the nature of the trust or estate, distributions, etc.',
+    }),
+
+    // ── Step 10: Documents & Notes (sort 300–319) ──
+    field('section_documents', 'heading', 'Supporting Documents', 300, {
       help_text: 'Upload any relevant documents you have available.',
-      required: false,
-      validation_rules: null,
-      options: null,
-      conditional_logic: null,
-      width: 'full' as const,
-      sort: 40,
-    },
-    {
-      id: 'documents',
-      type: 'file' as const,
-      label: 'Upload Documents (Optional)',
-      name: 'documents',
-      placeholder: null,
+    }),
+    field('documents', 'file', 'Upload Documents (Optional)', 301, {
       help_text: 'Upload W-2s, 1099s, or other relevant tax documents.',
-      required: false,
-      validation_rules: null,
-      options: null,
-      conditional_logic: null,
-      width: 'full' as const,
-      sort: 41,
-    },
-    // Additional Notes
-    {
-      id: 'additional_notes',
-      type: 'textarea' as const,
-      label: 'Additional Information',
-      name: 'additional_notes',
-      placeholder: 'Please share any other information that would be helpful for your tax planning session...',
-      help_text: null,
-      required: false,
-      validation_rules: null,
-      options: null,
-      conditional_logic: null,
-      width: 'full' as const,
-      sort: 50,
-    },
+    }),
+    field('additional_notes', 'textarea', 'Additional Information', 310, {
+      placeholder: 'Please share any other information that would be helpful...',
+    }),
   ],
 }
 
 const displayForm = computed(() => form.value || defaultForm)
 
-// Multi-step configuration
+// Multi-step configuration with conditional steps
 const formSteps: FormStep[] = [
-  { label: 'Personal Info', icon: 'lucide:user', fieldRange: [1, 12] },
-  { label: 'Income', icon: 'lucide:dollar-sign', fieldRange: [20, 35] },
-  { label: 'Documents', icon: 'lucide:file-text', fieldRange: [40, 50] },
+  // Step 1: Always shown — personal info + service selection
+  { label: 'Getting Started', icon: 'lucide:user', fieldRange: [1, 19] },
+  // Conditional steps — only shown when the matching service is selected
+  { label: 'Individual Tax', icon: 'lucide:user-check', fieldRange: [100, 119], condition: { field: 'service_types', operator: 'includes', value: 'individual_tax' } },
+  { label: 'Self-Employment', icon: 'lucide:briefcase', fieldRange: [120, 139], condition: { field: 'service_types', operator: 'includes', value: 'self_employment' } },
+  { label: 'LLC & Partnership', icon: 'lucide:users', fieldRange: [140, 159], condition: { field: 'service_types', operator: 'includes', value: 'llc_partnership' } },
+  { label: 'S/C Corporation', icon: 'lucide:building-2', fieldRange: [160, 179], condition: { field: 'service_types', operator: 'includes', value: 's_c_corporation' } },
+  { label: 'Payroll', icon: 'lucide:banknote', fieldRange: [180, 199], condition: { field: 'service_types', operator: 'includes', value: 'payroll_services' } },
+  { label: 'Sales Tax', icon: 'lucide:receipt', fieldRange: [200, 219], condition: { field: 'service_types', operator: 'includes', value: 'sales_tax' } },
+  { label: 'Exempt Org', icon: 'lucide:heart-handshake', fieldRange: [220, 239], condition: { field: 'service_types', operator: 'includes', value: 'exempt_org' } },
+  { label: 'Trusts & Estates', icon: 'lucide:scroll-text', fieldRange: [240, 259], condition: { field: 'service_types', operator: 'includes', value: 'fiduciary' } },
+  // Final step: Always shown — documents & notes
+  { label: 'Documents', icon: 'lucide:file-text', fieldRange: [300, 319] },
 ]
 
+const dynamicFormRef = ref<{ activeSteps: FormStep[]; currentStep: number } | null>(null)
+
 const currentStep = ref(0)
+
+const displayedSteps = computed(() => {
+  if (!dynamicFormRef.value) {
+    // Before mount, show only unconditional steps
+    return formSteps.filter((s) => !s.condition)
+  }
+  return dynamicFormRef.value.activeSteps as FormStep[]
+})
 
 const onStepChange = (step: number) => {
   currentStep.value = step
 }
 
 const handleSubmitted = (data: Record<string, unknown>) => {
-  console.log('Tax planning questionnaire submitted:', data)
+  console.log('Tax services questionnaire submitted:', data)
 }
 
 // SEO
 useSeoMeta({
-  title: 'Tax Planning Questionnaire - SJHAS, Inc.',
-  description: 'Complete our tax planning questionnaire to help us prepare for your personalized tax planning session.',
-  ogTitle: 'Tax Planning Questionnaire - SJHAS, Inc.',
-  ogDescription: 'Complete our tax planning questionnaire to help us prepare for your personalized tax planning session.',
+  title: 'Tax Services Questionnaire - SJHAS, Inc.',
+  description: 'Complete our Tax Services Questionnaire so we can best serve your tax and payroll needs.',
+  ogTitle: 'Tax Services Questionnaire - SJHAS, Inc.',
+  ogDescription: 'Complete our Tax Services Questionnaire so we can best serve your tax and payroll needs.',
   ogType: 'website',
   ogSiteName: 'SJHAS, Inc.',
   twitterCard: 'summary_large_image',
-  twitterTitle: 'Tax Planning Questionnaire - SJHAS, Inc.',
-  twitterDescription: 'Complete our tax planning questionnaire to help us prepare for your personalized tax planning session.',
+  twitterTitle: 'Tax Services Questionnaire - SJHAS, Inc.',
+  twitterDescription: 'Complete our Tax Services Questionnaire so we can best serve your tax and payroll needs.',
 })
 
 defineOgImage({
   component: 'Sjhas',
-  title: 'Tax Planning Questionnaire',
+  title: 'Tax Services Questionnaire',
   description: 'SJHAS, Inc. - Accounting & Tax Services',
 })
 </script>
@@ -422,7 +346,7 @@ defineOgImage({
       <div class="container-wide section-padding text-center">
         <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full t-hero-badge text-sm font-medium mb-6">
           <Icon name="lucide:clipboard-list" class="w-4 h-4" />
-          <span>Tax Planning</span>
+          <span>Tax Services</span>
         </div>
         <h1 class="text-3xl sm:text-4xl lg:text-5xl t-heading t-hero-text mb-4">
           {{ displayForm.title }}
@@ -436,8 +360,8 @@ defineOgImage({
     <!-- Progress indicator -->
     <section class="t-bg-elevated border-b t-border py-4">
       <div class="container-wide section-padding">
-        <div class="flex items-center justify-center gap-8 text-sm">
-          <template v-for="(step, index) in formSteps" :key="step.label">
+        <div class="flex items-center justify-center gap-4 sm:gap-8 text-sm flex-wrap">
+          <template v-for="(step, index) in displayedSteps" :key="step.label">
             <div
               class="flex items-center gap-2"
               :class="index <= currentStep ? 't-text-accent' : 't-text-muted'"
@@ -454,8 +378,8 @@ defineOgImage({
               </span>
             </div>
             <div
-              v-if="index < formSteps.length - 1"
-              class="w-8 h-px"
+              v-if="index < displayedSteps.length - 1"
+              class="w-8 h-px hidden sm:block"
               :style="{ backgroundColor: index < currentStep ? 'var(--theme-accent, var(--theme-primary))' : 'var(--theme-border-secondary)' }"
             />
           </template>
@@ -468,6 +392,7 @@ defineOgImage({
       <div class="container-narrow section-padding">
         <Card class="p-6 sm:p-8 lg:p-10">
           <FormsDynamicForm
+            ref="dynamicFormRef"
             :form="displayForm"
             :steps="formSteps"
             @submitted="handleSubmitted"

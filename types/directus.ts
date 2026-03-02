@@ -32,6 +32,7 @@ export interface FormField {
 		| 'textarea'
 		| 'select'
 		| 'checkbox'
+		| 'checkbox_group'
 		| 'radio'
 		| 'file'
 		| 'heading'
