@@ -17,7 +17,7 @@ const navigation = [
 
 const formLinks = [
   { name: 'Upload Documents', href: '/upload', icon: 'lucide:upload' },
-  { name: 'Tax Planning', href: '/tax-planning', icon: 'lucide:clipboard-list' },
+  { name: 'Tax Services Questionnaire', href: '/tax-planning', icon: 'lucide:clipboard-list' },
 ]
 
 const handleLogout = async () => {

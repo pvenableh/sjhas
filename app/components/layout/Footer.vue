@@ -73,10 +73,8 @@ const hours = computed(() => {
 
 const baseLinks = [
   { label: "Home", href: "/", external: false },
-  { label: "Services", href: "/#services", external: false },
-  { label: "About", href: "/#about", external: false },
   { label: "Upload Documents", href: "/upload", external: false },
-  { label: "Tax Planning", href: "/tax-planning", external: false },
+  { label: "Tax Services Questionnaire", href: "/tax-planning", external: false },
   { label: "Contact", href: "/#contact", external: false },
   {
     label: "Client Portal",

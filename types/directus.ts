@@ -32,6 +32,7 @@ export interface FormField {
 		| 'textarea'
 		| 'select'
 		| 'checkbox'
+		| 'checkbox_group'
 		| 'radio'
 		| 'file'
 		| 'heading'
@@ -56,9 +57,25 @@ export interface FormField {
 }
 
 /**
- * Override the generated Form interface so `fields` is properly typed as
- * FormField[] instead of Record<string, any>.
+ * A step condition that controls whether a step is visible.
  */
-export interface Form extends Omit<GeneratedForm, 'fields'> {
+export interface FormStepConfig {
+	label: string
+	icon?: string
+	/** Sort range [min, max] inclusive — fields with sort values in this range belong to this step */
+	fieldRange: [number, number]
+	/** Optional condition — step is only shown when the condition is met */
+	condition?: {
+		field: string
+		operator: 'includes' | 'includes_any' | 'equals' | 'not_equals'
+		value: string
+	} | null
+}
+
+/**
+ * Override the generated Form interface so `fields` and `steps` are properly typed.
+ */
+export interface Form extends Omit<GeneratedForm, 'fields' | 'steps'> {
 	fields: FormField[] | null
+	steps?: FormStepConfig[] | null
 }

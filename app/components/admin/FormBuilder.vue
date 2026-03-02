@@ -21,6 +21,7 @@ const fieldTypes = [
   { type: 'textarea', label: 'Long Text', icon: 'lucide:align-left' },
   { type: 'select', label: 'Dropdown', icon: 'lucide:chevron-down' },
   { type: 'checkbox', label: 'Checkbox', icon: 'lucide:check-square' },
+  { type: 'checkbox_group', label: 'Checkbox Group', icon: 'lucide:list-checks' },
   { type: 'radio', label: 'Radio Group', icon: 'lucide:circle-dot' },
   { type: 'file', label: 'File Upload', icon: 'lucide:upload' },
   { type: 'heading', label: 'Heading', icon: 'lucide:heading' },
@@ -79,7 +80,7 @@ const addField = (type: string, index?: number) => {
     help_text: null,
     required: false,
     validation_rules: null,
-    options: type === 'select' || type === 'radio' ? [
+    options: type === 'select' || type === 'radio' || type === 'checkbox_group' ? [
       { label: 'Option 1', value: 'option_1' },
       { label: 'Option 2', value: 'option_2' },
     ] : null,
@@ -181,6 +182,49 @@ const handleDrop = (event: DragEvent, index?: number) => {
 // Handle drag over
 const handleDragOver = (event: DragEvent) => {
   event.preventDefault()
+}
+
+// Other fields (for conditional logic references — excludes headings/paragraphs and the selected field)
+const otherFields = computed(() => {
+  return fields.value.filter(
+    (f) => f.id !== selectedFieldId.value && f.type !== 'heading' && f.type !== 'paragraph'
+  )
+})
+
+// Get available values for a given field (options for select/radio/checkbox_group, or true/false for checkbox)
+const getFieldValues = (fieldName: string): Array<{ label: string; value: string }> => {
+  const f = fields.value.find((field) => field.name === fieldName)
+  if (!f) return []
+  if (f.type === 'checkbox') {
+    return [{ label: 'Checked (true)', value: 'true' }, { label: 'Unchecked (false)', value: 'false' }]
+  }
+  if (f.options && f.options.length > 0) {
+    return f.options
+  }
+  return []
+}
+
+// Toggle conditional logic on a field
+const toggleConditionalLogic = (enabled: boolean) => {
+  if (!selectedField.value) return
+  if (enabled) {
+    updateField(selectedField.value.id, {
+      conditional_logic: { field: '', operator: 'equals', value: '' },
+    })
+  } else {
+    updateField(selectedField.value.id, { conditional_logic: null })
+  }
+}
+
+// Update a property inside conditional_logic
+const updateCondition = (key: string, value: string) => {
+  if (!selectedField.value?.conditional_logic) return
+  const updated = { ...selectedField.value.conditional_logic, [key]: value }
+  // Reset value when field changes (available values may differ)
+  if (key === 'field') {
+    updated.value = ''
+  }
+  updateField(selectedField.value.id, { conditional_logic: updated })
 }
 
 // Add option to select/radio field
@@ -302,6 +346,18 @@ const removeOption = (index: number) => {
               <div v-else-if="field.type === 'checkbox'" class="flex items-center gap-2">
                 <div class="w-5 h-5 rounded border border-slate-300 bg-slate-50" />
                 <span class="text-sm text-slate-700">{{ field.label }}</span>
+              </div>
+
+              <!-- Checkbox Group -->
+              <div v-else-if="field.type === 'checkbox_group'" class="space-y-2">
+                <div
+                  v-for="option in field.options"
+                  :key="option.value"
+                  class="flex items-center gap-2"
+                >
+                  <div class="w-5 h-5 rounded border border-slate-300 bg-slate-50" />
+                  <span class="text-sm text-slate-700">{{ option.label }}</span>
+                </div>
               </div>
 
               <!-- Radio -->
@@ -444,7 +500,7 @@ const removeOption = (index: number) => {
         </div>
 
         <!-- Options for select/radio -->
-        <div v-if="['select', 'radio'].includes(selectedField.type)">
+        <div v-if="['select', 'radio', 'checkbox_group'].includes(selectedField.type)">
           <Label class="text-xs text-slate-500 mb-2">Options</Label>
           <div class="space-y-2">
             <div
@@ -468,6 +524,85 @@ const removeOption = (index: number) => {
               <Icon name="lucide:plus" class="w-4 h-4" />
               Add Option
             </Button>
+          </div>
+        </div>
+
+        <!-- Conditional Logic -->
+        <div v-if="!['heading', 'paragraph'].includes(selectedField.type)" class="border-t border-slate-200 pt-5">
+          <div class="flex items-center justify-between mb-3">
+            <Label class="text-xs text-slate-500">Conditional Logic</Label>
+            <Switch
+              :checked="!!selectedField.conditional_logic"
+              @update:checked="toggleConditionalLogic"
+            />
+          </div>
+
+          <div v-if="selectedField.conditional_logic" class="space-y-3 bg-slate-50 rounded-lg p-3">
+            <p class="text-xs text-slate-500">Show this field when:</p>
+
+            <!-- Source field -->
+            <Select
+              :model-value="(selectedField.conditional_logic as any)?.field || ''"
+              @update:model-value="updateCondition('field', $event)"
+            >
+              <SelectTrigger class="text-xs">
+                <SelectValue placeholder="Select a field..." />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem
+                  v-for="f in otherFields"
+                  :key="f.id"
+                  :value="f.name"
+                >
+                  {{ f.label }}
+                </SelectItem>
+              </SelectContent>
+            </Select>
+
+            <!-- Operator -->
+            <Select
+              :model-value="(selectedField.conditional_logic as any)?.operator || 'equals'"
+              @update:model-value="updateCondition('operator', $event)"
+            >
+              <SelectTrigger class="text-xs">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="equals">equals</SelectItem>
+                <SelectItem value="not_equals">does not equal</SelectItem>
+                <SelectItem value="includes">includes</SelectItem>
+                <SelectItem value="includes_any">includes any of</SelectItem>
+              </SelectContent>
+            </Select>
+
+            <!-- Value -->
+            <template v-if="(selectedField.conditional_logic as any)?.field">
+              <Select
+                v-if="getFieldValues((selectedField.conditional_logic as any).field).length > 0"
+                :model-value="(selectedField.conditional_logic as any)?.value || ''"
+                @update:model-value="updateCondition('value', $event)"
+              >
+                <SelectTrigger class="text-xs">
+                  <SelectValue placeholder="Select a value..." />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem
+                    v-for="opt in getFieldValues((selectedField.conditional_logic as any).field)"
+                    :key="opt.value"
+                    :value="opt.value"
+                  >
+                    {{ opt.label }}
+                  </SelectItem>
+                </SelectContent>
+              </Select>
+              <Input
+                v-else
+                :model-value="(selectedField.conditional_logic as any)?.value || ''"
+                @update:model-value="updateCondition('value', $event)"
+                placeholder="Enter a value..."
+                class="text-xs"
+              />
+            </template>
           </div>
         </div>
       </div>
