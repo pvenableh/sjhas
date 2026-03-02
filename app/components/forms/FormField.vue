@@ -58,6 +58,11 @@ const isVisible = computed(() => {
         return sourceValue.includes(logic.value)
       }
       return false
+    case 'includes_any': {
+      if (!Array.isArray(sourceValue)) return false
+      const values = logic.value.split(',').map((v: string) => v.trim())
+      return values.some((v: string) => (sourceValue as string[]).includes(v))
+    }
     default:
       return true
   }

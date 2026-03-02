@@ -67,7 +67,7 @@ export interface FormStepConfig {
 	/** Optional condition — step is only shown when the condition is met */
 	condition?: {
 		field: string
-		operator: 'includes' | 'equals' | 'not_equals'
+		operator: 'includes' | 'includes_any' | 'equals' | 'not_equals'
 		value: string
 	} | null
 }

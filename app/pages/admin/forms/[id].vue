@@ -489,6 +489,7 @@ const previewSteps = computed(() => {
                         <SelectItem value="equals">equals</SelectItem>
                         <SelectItem value="not_equals">does not equal</SelectItem>
                         <SelectItem value="includes">includes</SelectItem>
+                        <SelectItem value="includes_any">includes any of</SelectItem>
                       </SelectContent>
                     </Select>
 

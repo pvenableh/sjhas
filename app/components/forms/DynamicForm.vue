@@ -11,8 +11,8 @@ export interface FormStepCondition {
   /** The field name to check */
   field: string
   /** Operator for comparison */
-  operator: 'includes' | 'equals' | 'not_equals'
-  /** The value to compare against */
+  operator: 'includes' | 'includes_any' | 'equals' | 'not_equals'
+  /** The value to compare against (comma-separated for includes_any) */
   value: string
 }
 
@@ -145,6 +145,11 @@ const evaluateCondition = (condition: FormStepCondition): boolean => {
         return fieldValue.includes(condition.value)
       }
       return false
+    case 'includes_any': {
+      if (!Array.isArray(fieldValue)) return false
+      const values = condition.value.split(',').map((v) => v.trim())
+      return values.some((v) => (fieldValue as string[]).includes(v))
+    }
     case 'equals':
       // Support boolean comparison: condition.value is always a string,
       // but the field may be a boolean (e.g. checkbox true/false)
@@ -157,6 +162,32 @@ const evaluateCondition = (condition: FormStepCondition): boolean => {
         return fieldValue !== (condition.value === 'true')
       }
       return fieldValue !== condition.value
+    default:
+      return true
+  }
+}
+
+// Evaluate whether a field is visible based on its conditional_logic (mirrors FormField.vue logic)
+const isFieldVisible = (field: FormField): boolean => {
+  const logic = field.conditional_logic as { field: string; operator: string; value: string } | null
+  if (!logic || !logic.field) return true
+  const sourceValue = (formValues as Record<string, unknown>)[logic.field]
+  switch (logic.operator) {
+    case 'equals':
+      if (typeof sourceValue === 'boolean') return sourceValue === (logic.value === 'true')
+      return sourceValue === logic.value
+    case 'not_equals':
+      if (typeof sourceValue === 'boolean') return sourceValue !== (logic.value === 'true')
+      return sourceValue !== logic.value
+    case 'includes':
+      if (Array.isArray(sourceValue)) return sourceValue.includes(logic.value)
+      if (typeof sourceValue === 'string') return sourceValue.includes(logic.value)
+      return false
+    case 'includes_any': {
+      if (!Array.isArray(sourceValue)) return false
+      const values = logic.value.split(',').map((v: string) => v.trim())
+      return values.some((v: string) => (sourceValue as string[]).includes(v))
+    }
     default:
       return true
   }
@@ -186,9 +217,10 @@ const visibleFields = computed(() => {
 })
 
 // Field names for the current step (used for validation)
+// Excludes fields hidden by conditional_logic so they don't block step navigation
 const currentStepFieldNames = computed(() => {
   return visibleFields.value
-    .filter((f) => f.type !== 'heading' && f.type !== 'paragraph')
+    .filter((f) => f.type !== 'heading' && f.type !== 'paragraph' && isFieldVisible(f))
     .map((f) => f.name)
 })
 
