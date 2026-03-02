@@ -83,13 +83,13 @@ const formatFileSize = (bytes: number) => {
 const getStatusColor = (status: string) => {
   switch (status) {
     case 'new':
-      return 'bg-blue-100 text-blue-700'
+      return 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400'
     case 'reviewed':
-      return 'bg-green-100 text-green-700'
+      return 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400'
     case 'archived':
-      return 'bg-slate-100 text-slate-700'
+      return 'bg-slate-100 dark:bg-slate-700/30 text-slate-700 dark:text-slate-400'
     default:
-      return 'bg-slate-100 text-slate-700'
+      return 'bg-slate-100 dark:bg-slate-700/30 text-slate-700 dark:text-slate-400'
   }
 }
 </script>
@@ -98,10 +98,10 @@ const getStatusColor = (status: string) => {
   <div class="space-y-8">
     <!-- Welcome header -->
     <div>
-      <h1 class="text-2xl font-semibold text-slate-900">
+      <h1 class="text-2xl font-semibold text-slate-900 dark:text-slate-100">
         Welcome back, {{ user?.first_name || 'Client' }}!
       </h1>
-      <p class="text-slate-600 mt-1">
+      <p class="text-slate-600 dark:text-slate-400 mt-1">
         Here's an overview of your account activity.
       </p>
     </div>
@@ -110,36 +110,36 @@ const getStatusColor = (status: string) => {
     <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
       <Card class="p-6">
         <div class="flex items-center gap-4">
-          <div class="w-12 h-12 rounded-lg bg-primary-100 flex items-center justify-center">
-            <Icon name="lucide:file-text" class="w-6 h-6 text-primary-600" />
+          <div class="w-12 h-12 rounded-lg bg-primary-100 dark:bg-primary-900/30 flex items-center justify-center">
+            <Icon name="lucide:file-text" class="w-6 h-6 text-primary-600 dark:text-primary-400" />
           </div>
           <div>
-            <p class="text-2xl font-bold text-slate-900">{{ stats.totalSubmissions }}</p>
-            <p class="text-sm text-slate-500">Total Submissions</p>
+            <p class="text-2xl font-bold text-slate-900 dark:text-slate-100">{{ stats.totalSubmissions }}</p>
+            <p class="text-sm text-slate-500 dark:text-slate-400">Total Submissions</p>
           </div>
         </div>
       </Card>
 
       <Card class="p-6">
         <div class="flex items-center gap-4">
-          <div class="w-12 h-12 rounded-lg bg-accent-100 flex items-center justify-center">
-            <Icon name="lucide:folder" class="w-6 h-6 text-accent-600" />
+          <div class="w-12 h-12 rounded-lg bg-accent-100 dark:bg-accent-900/30 flex items-center justify-center">
+            <Icon name="lucide:folder" class="w-6 h-6 text-accent-600 dark:text-accent-400" />
           </div>
           <div>
-            <p class="text-2xl font-bold text-slate-900">{{ stats.totalFiles }}</p>
-            <p class="text-sm text-slate-500">Files Uploaded</p>
+            <p class="text-2xl font-bold text-slate-900 dark:text-slate-100">{{ stats.totalFiles }}</p>
+            <p class="text-sm text-slate-500 dark:text-slate-400">Files Uploaded</p>
           </div>
         </div>
       </Card>
 
       <Card class="p-6">
         <div class="flex items-center gap-4">
-          <div class="w-12 h-12 rounded-lg bg-blue-100 flex items-center justify-center">
-            <Icon name="lucide:clock" class="w-6 h-6 text-blue-600" />
+          <div class="w-12 h-12 rounded-lg bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center">
+            <Icon name="lucide:clock" class="w-6 h-6 text-blue-600 dark:text-blue-400" />
           </div>
           <div>
-            <p class="text-2xl font-bold text-slate-900">{{ stats.pendingReview }}</p>
-            <p class="text-sm text-slate-500">Pending Review</p>
+            <p class="text-2xl font-bold text-slate-900 dark:text-slate-100">{{ stats.pendingReview }}</p>
+            <p class="text-sm text-slate-500 dark:text-slate-400">Pending Review</p>
           </div>
         </div>
       </Card>
@@ -147,45 +147,45 @@ const getStatusColor = (status: string) => {
 
     <!-- Quick Actions -->
     <Card class="p-6">
-      <h2 class="text-lg font-semibold text-slate-900 mb-4">Quick Actions</h2>
+      <h2 class="text-lg font-semibold text-slate-900 dark:text-slate-100 mb-4">Quick Actions</h2>
       <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <NuxtLink
           to="/upload"
-          class="flex items-center gap-3 p-4 rounded-lg border border-slate-200 hover:border-primary-200 hover:bg-primary-50 transition-colors"
+          class="flex items-center gap-3 p-4 rounded-lg border border-slate-200 dark:border-slate-700 hover:border-primary-200 dark:hover:border-primary-700 hover:bg-primary-50 dark:hover:bg-primary-900/20 transition-colors"
         >
-          <div class="w-10 h-10 rounded-lg bg-primary-100 flex items-center justify-center">
-            <Icon name="lucide:upload" class="w-5 h-5 text-primary-600" />
+          <div class="w-10 h-10 rounded-lg bg-primary-100 dark:bg-primary-900/30 flex items-center justify-center">
+            <Icon name="lucide:upload" class="w-5 h-5 text-primary-600 dark:text-primary-400" />
           </div>
           <div>
-            <p class="font-medium text-slate-900">Upload Documents</p>
-            <p class="text-sm text-slate-500">Send files securely</p>
+            <p class="font-medium text-slate-900 dark:text-slate-100">Upload Documents</p>
+            <p class="text-sm text-slate-500 dark:text-slate-400">Send files securely</p>
           </div>
         </NuxtLink>
 
         <NuxtLink
           to="/tax-planning"
-          class="flex items-center gap-3 p-4 rounded-lg border border-slate-200 hover:border-primary-200 hover:bg-primary-50 transition-colors"
+          class="flex items-center gap-3 p-4 rounded-lg border border-slate-200 dark:border-slate-700 hover:border-primary-200 dark:hover:border-primary-700 hover:bg-primary-50 dark:hover:bg-primary-900/20 transition-colors"
         >
-          <div class="w-10 h-10 rounded-lg bg-accent-100 flex items-center justify-center">
-            <Icon name="lucide:clipboard-list" class="w-5 h-5 text-accent-600" />
+          <div class="w-10 h-10 rounded-lg bg-accent-100 dark:bg-accent-900/30 flex items-center justify-center">
+            <Icon name="lucide:clipboard-list" class="w-5 h-5 text-accent-600 dark:text-accent-400" />
           </div>
           <div>
-            <p class="font-medium text-slate-900">Tax Services Questionnaire</p>
-            <p class="text-sm text-slate-500">Complete questionnaire</p>
+            <p class="font-medium text-slate-900 dark:text-slate-100">Tax Services Questionnaire</p>
+            <p class="text-sm text-slate-500 dark:text-slate-400">Complete questionnaire</p>
           </div>
         </NuxtLink>
 
         <a
           href="https://app.reclaim.ai/m/sjhas/quick-meeting"
           target="_blank"
-          class="flex items-center gap-3 p-4 rounded-lg border border-slate-200 hover:border-primary-200 hover:bg-primary-50 transition-colors"
+          class="flex items-center gap-3 p-4 rounded-lg border border-slate-200 dark:border-slate-700 hover:border-primary-200 dark:hover:border-primary-700 hover:bg-primary-50 dark:hover:bg-primary-900/20 transition-colors"
         >
-          <div class="w-10 h-10 rounded-lg bg-green-100 flex items-center justify-center">
-            <Icon name="lucide:calendar" class="w-5 h-5 text-green-600" />
+          <div class="w-10 h-10 rounded-lg bg-green-100 dark:bg-green-900/30 flex items-center justify-center">
+            <Icon name="lucide:calendar" class="w-5 h-5 text-green-600 dark:text-green-400" />
           </div>
           <div>
-            <p class="font-medium text-slate-900">Book Appointment</p>
-            <p class="text-sm text-slate-500">Schedule a meeting</p>
+            <p class="font-medium text-slate-900 dark:text-slate-100">Book Appointment</p>
+            <p class="text-sm text-slate-500 dark:text-slate-400">Schedule a meeting</p>
           </div>
         </a>
       </div>
@@ -199,7 +199,7 @@ const getStatusColor = (status: string) => {
             <CardTitle>Recent Submissions</CardTitle>
             <NuxtLink
               to="/forms/submissions"
-              class="text-sm text-primary-600 hover:text-primary-700"
+              class="text-sm text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300"
             >
               View all →
             </NuxtLink>
@@ -207,9 +207,9 @@ const getStatusColor = (status: string) => {
         </CardHeader>
         <CardContent>
           <div v-if="isLoading" class="space-y-3">
-            <div v-for="i in 3" :key="i" class="h-16 bg-slate-100 rounded-lg animate-pulse" />
+            <div v-for="i in 3" :key="i" class="h-16 bg-slate-100 dark:bg-secondary-700/50 rounded-lg animate-pulse" />
           </div>
-          <div v-else-if="recentSubmissions.length === 0" class="text-center py-8 text-slate-500">
+          <div v-else-if="recentSubmissions.length === 0" class="text-center py-8 text-slate-500 dark:text-slate-400">
             <Icon name="lucide:inbox" class="w-12 h-12 mx-auto mb-3 opacity-50" />
             <p>No submissions yet</p>
           </div>
@@ -217,13 +217,13 @@ const getStatusColor = (status: string) => {
             <div
               v-for="submission in recentSubmissions"
               :key="submission.id"
-              class="flex items-center justify-between p-3 rounded-lg bg-slate-50"
+              class="flex items-center justify-between p-3 rounded-lg bg-slate-50 dark:bg-secondary-900/50"
             >
               <div>
-                <p class="font-medium text-slate-900">
+                <p class="font-medium text-slate-900 dark:text-slate-100">
                   {{ submission.form?.title || 'Form Submission' }}
                 </p>
-                <p class="text-sm text-slate-500">
+                <p class="text-sm text-slate-500 dark:text-slate-400">
                   Submission #{{ submission.id }}
                 </p>
               </div>
@@ -247,7 +247,7 @@ const getStatusColor = (status: string) => {
             <CardTitle>Recent Files</CardTitle>
             <NuxtLink
               to="/forms/files"
-              class="text-sm text-primary-600 hover:text-primary-700"
+              class="text-sm text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300"
             >
               View all →
             </NuxtLink>
@@ -255,9 +255,9 @@ const getStatusColor = (status: string) => {
         </CardHeader>
         <CardContent>
           <div v-if="isLoading" class="space-y-3">
-            <div v-for="i in 3" :key="i" class="h-16 bg-slate-100 rounded-lg animate-pulse" />
+            <div v-for="i in 3" :key="i" class="h-16 bg-slate-100 dark:bg-secondary-700/50 rounded-lg animate-pulse" />
           </div>
-          <div v-else-if="recentFiles.length === 0" class="text-center py-8 text-slate-500">
+          <div v-else-if="recentFiles.length === 0" class="text-center py-8 text-slate-500 dark:text-slate-400">
             <Icon name="lucide:folder-open" class="w-12 h-12 mx-auto mb-3 opacity-50" />
             <p>No files uploaded yet</p>
           </div>
@@ -267,20 +267,20 @@ const getStatusColor = (status: string) => {
               :key="file.id"
               :href="getUrl(file.id)"
               target="_blank"
-              class="flex items-center gap-3 p-3 rounded-lg bg-slate-50 hover:bg-slate-100 transition-colors"
+              class="flex items-center gap-3 p-3 rounded-lg bg-slate-50 dark:bg-secondary-900/50 hover:bg-slate-100 dark:hover:bg-secondary-800 transition-colors"
             >
-              <div class="w-10 h-10 rounded-lg bg-white border border-slate-200 flex items-center justify-center">
-                <Icon name="lucide:file" class="w-5 h-5 text-slate-500" />
+              <div class="w-10 h-10 rounded-lg bg-white dark:bg-secondary-800 border border-slate-200 dark:border-slate-700 flex items-center justify-center">
+                <Icon name="lucide:file" class="w-5 h-5 text-slate-500 dark:text-slate-400" />
               </div>
               <div class="flex-1 min-w-0">
-                <p class="font-medium text-slate-900 truncate">
+                <p class="font-medium text-slate-900 dark:text-slate-100 truncate">
                   {{ file.filename_download }}
                 </p>
-                <p class="text-sm text-slate-500">
+                <p class="text-sm text-slate-500 dark:text-slate-400">
                   {{ formatFileSize(file.filesize) }} • {{ formatDate(file.uploaded_on) }}
                 </p>
               </div>
-              <Icon name="lucide:download" class="w-5 h-5 text-slate-400" />
+              <Icon name="lucide:download" class="w-5 h-5 text-slate-400 dark:text-slate-500" />
             </a>
           </div>
         </CardContent>

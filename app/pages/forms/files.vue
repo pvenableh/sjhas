@@ -51,43 +51,43 @@ const formatFileSize = (bytes: number) => {
 <template>
   <div class="space-y-6">
     <div>
-      <h1 class="text-2xl font-semibold text-slate-900">My Files</h1>
-      <p class="text-slate-600 mt-1">View all your uploaded files.</p>
+      <h1 class="text-2xl font-semibold text-slate-900 dark:text-slate-100">My Files</h1>
+      <p class="text-slate-600 dark:text-slate-400 mt-1">View all your uploaded files.</p>
     </div>
 
     <!-- Loading -->
     <div v-if="isLoading" class="space-y-3">
-      <div v-for="i in 5" :key="i" class="h-16 bg-slate-100 rounded-lg animate-pulse" />
+      <div v-for="i in 5" :key="i" class="h-16 bg-slate-100 dark:bg-secondary-700/50 rounded-lg animate-pulse" />
     </div>
 
     <!-- Empty -->
     <Card v-else-if="files.length === 0" class="p-12 text-center">
-      <Icon name="lucide:folder-open" class="w-12 h-12 mx-auto mb-3 text-slate-300" />
-      <p class="text-slate-500">No files uploaded yet.</p>
+      <Icon name="lucide:folder-open" class="w-12 h-12 mx-auto mb-3 text-slate-300 dark:text-slate-600" />
+      <p class="text-slate-500 dark:text-slate-400">No files uploaded yet.</p>
     </Card>
 
     <!-- List -->
     <Card v-else>
-      <div class="divide-y divide-slate-100">
+      <div class="divide-y divide-slate-100 dark:divide-slate-700/50">
         <a
           v-for="file in files"
           :key="file.id"
           :href="getUrl(file.id)"
           target="_blank"
-          class="flex items-center gap-3 p-4 hover:bg-slate-50 transition-colors"
+          class="flex items-center gap-3 p-4 hover:bg-slate-50 dark:hover:bg-secondary-700/50 transition-colors"
         >
-          <div class="w-10 h-10 rounded-lg bg-slate-100 border border-slate-200 flex items-center justify-center">
-            <Icon name="lucide:file" class="w-5 h-5 text-slate-500" />
+          <div class="w-10 h-10 rounded-lg bg-slate-100 dark:bg-secondary-900 border border-slate-200 dark:border-slate-700 flex items-center justify-center">
+            <Icon name="lucide:file" class="w-5 h-5 text-slate-500 dark:text-slate-400" />
           </div>
           <div class="flex-1 min-w-0">
-            <p class="font-medium text-slate-900 truncate">
+            <p class="font-medium text-slate-900 dark:text-slate-100 truncate">
               {{ file.filename_download }}
             </p>
-            <p class="text-sm text-slate-500">
+            <p class="text-sm text-slate-500 dark:text-slate-400">
               {{ formatFileSize(file.filesize) }} &middot; {{ formatDate(file.uploaded_on) }}
             </p>
           </div>
-          <Icon name="lucide:download" class="w-5 h-5 text-slate-400" />
+          <Icon name="lucide:download" class="w-5 h-5 text-slate-400 dark:text-slate-500" />
         </a>
       </div>
     </Card>
