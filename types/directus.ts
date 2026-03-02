@@ -77,6 +77,8 @@ export interface FormField {
 		mode: 'always' | 'when' | 'never'
 		condition?: ConditionRule | null
 	}
+	/** Default value for this field */
+	default_value?: string | boolean | string[] | number | null
 }
 
 /**

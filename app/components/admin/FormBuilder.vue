@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed, watch, nextTick } from 'vue'
+import { ref, computed, watch, nextTick, onMounted, onUnmounted } from 'vue'
 import type { FormField, FormStepConfig, ConditionRule } from '~/types/directus'
 
 // ──────────────────────────────────────────────
@@ -155,6 +155,7 @@ const emitAll = () => {
   }
 
   nextTick(() => { isSyncing.value = false })
+  pushHistoryDebounced()
 }
 
 // Flat-mode only emit (same as original)
@@ -163,6 +164,7 @@ const emitFields = () => {
   fields.value.forEach((f, i) => { f.sort = i })
   emit('update:modelValue', [...fields.value])
   nextTick(() => { isSyncing.value = false })
+  pushHistoryDebounced()
 }
 
 // ──────────────────────────────────────────────
@@ -224,6 +226,7 @@ const createField = (type: string): FormField => {
     layout: ['radio', 'checkbox_group'].includes(type) ? 'stacked' : undefined,
     visibility: { mode: 'always', condition: null },
     requirement: { mode: 'never', condition: null },
+    default_value: null,
   }
 }
 
@@ -740,6 +743,265 @@ const isFieldEffectivelyRequired = (field: FormField): boolean => {
   if (field.requirement) return field.requirement.mode === 'always' || field.requirement.mode === 'when'
   return field.required
 }
+
+// ──────────────────────────────────────────────
+// Search & filter
+// ──────────────────────────────────────────────
+const searchQuery = ref('')
+
+const matchesSearch = (field: FormField): boolean => {
+  if (!searchQuery.value) return true
+  const q = searchQuery.value.toLowerCase()
+  return field.label.toLowerCase().includes(q)
+    || field.name.toLowerCase().includes(q)
+    || field.type.toLowerCase().includes(q)
+}
+
+// ──────────────────────────────────────────────
+// Undo / Redo
+// ──────────────────────────────────────────────
+interface HistorySnapshot {
+  fields: string
+  stepGroups: string
+  isStepsMode: boolean
+}
+
+const history = ref<HistorySnapshot[]>([])
+const historyIndex = ref(0)
+const isRestoring = ref(false)
+const maxHistory = 50
+
+const takeSnapshot = (): HistorySnapshot => ({
+  fields: JSON.stringify(fields.value),
+  stepGroups: JSON.stringify(stepGroups.value),
+  isStepsMode: isStepsMode.value,
+})
+
+// Initial snapshot
+history.value = [takeSnapshot()]
+
+let historyTimer: ReturnType<typeof setTimeout> | null = null
+const pushHistoryDebounced = () => {
+  if (isRestoring.value) return
+  if (historyTimer) clearTimeout(historyTimer)
+  historyTimer = setTimeout(() => {
+    const snap = takeSnapshot()
+    // Don't push if identical to last
+    if (historyIndex.value >= 0 && historyIndex.value < history.value.length) {
+      const last = history.value[historyIndex.value]
+      if (last.fields === snap.fields && last.stepGroups === snap.stepGroups && last.isStepsMode === snap.isStepsMode) return
+    }
+    // Trim future entries if we undid then made a new change
+    if (historyIndex.value < history.value.length - 1) {
+      history.value = history.value.slice(0, historyIndex.value + 1)
+    }
+    history.value.push(snap)
+    if (history.value.length > maxHistory) history.value.shift()
+    historyIndex.value = history.value.length - 1
+  }, 300)
+}
+
+const canUndo = computed(() => historyIndex.value > 0)
+const canRedo = computed(() => historyIndex.value < history.value.length - 1)
+
+const restoreSnapshot = (snap: HistorySnapshot) => {
+  isRestoring.value = true
+  isSyncing.value = true
+  fields.value = JSON.parse(snap.fields)
+  stepGroups.value = JSON.parse(snap.stepGroups)
+  isStepsMode.value = snap.isStepsMode
+
+  // Re-emit to parent
+  if (isStepsMode.value && stepGroups.value.length > 0) {
+    let sortIndex = 0
+    const allFieldsOut: FormField[] = []
+    const stepsOut: FormStepConfig[] = []
+    for (const group of stepGroups.value) {
+      const startSort = sortIndex
+      for (const field of group.fields) {
+        field.sort = sortIndex++
+        allFieldsOut.push({ ...field })
+      }
+      const endSort = Math.max(startSort, sortIndex - 1)
+      stepsOut.push({ ...group.step, fieldRange: [startSort, endSort] as [number, number] })
+    }
+    emit('update:modelValue', allFieldsOut)
+    emit('update:steps', stepsOut)
+  } else {
+    fields.value.forEach((f, i) => { f.sort = i })
+    emit('update:modelValue', [...fields.value])
+    emit('update:steps', null)
+  }
+
+  nextTick(() => {
+    isSyncing.value = false
+    isRestoring.value = false
+  })
+}
+
+const undo = () => {
+  if (!canUndo.value) return
+  historyIndex.value--
+  restoreSnapshot(history.value[historyIndex.value])
+}
+
+const redo = () => {
+  if (!canRedo.value) return
+  historyIndex.value++
+  restoreSnapshot(history.value[historyIndex.value])
+}
+
+// Keyboard shortcuts
+const handleKeyboard = (e: KeyboardEvent) => {
+  if ((e.ctrlKey || e.metaKey) && e.key === 'z' && !e.shiftKey) {
+    e.preventDefault()
+    undo()
+  }
+  if ((e.ctrlKey || e.metaKey) && (e.key === 'y' || (e.key === 'z' && e.shiftKey))) {
+    e.preventDefault()
+    redo()
+  }
+}
+
+onMounted(() => window.addEventListener('keydown', handleKeyboard))
+onUnmounted(() => window.removeEventListener('keydown', handleKeyboard))
+
+// ──────────────────────────────────────────────
+// Bulk selection
+// ──────────────────────────────────────────────
+const bulkSelectedIds = ref<Set<string>>(new Set())
+
+const toggleBulkSelect = (fieldId: string) => {
+  const s = new Set(bulkSelectedIds.value)
+  if (s.has(fieldId)) s.delete(fieldId)
+  else s.add(fieldId)
+  bulkSelectedIds.value = s
+}
+
+const selectAllVisible = () => {
+  bulkSelectedIds.value = new Set(allFields.value.filter(matchesSearch).map(f => f.id))
+}
+
+const clearBulkSelection = () => {
+  bulkSelectedIds.value = new Set()
+}
+
+const bulkDelete = () => {
+  if (isStepsMode.value) {
+    for (const group of stepGroups.value) {
+      group.fields = group.fields.filter(f => !bulkSelectedIds.value.has(f.id))
+    }
+    emitAll()
+  } else {
+    fields.value = fields.value.filter(f => !bulkSelectedIds.value.has(f.id))
+    emitFields()
+  }
+  if (selectedFieldId.value && bulkSelectedIds.value.has(selectedFieldId.value)) {
+    selectedFieldId.value = null
+  }
+  clearBulkSelection()
+}
+
+const bulkSetVisibility = (mode: 'always' | 'never') => {
+  for (const field of allFields.value) {
+    if (bulkSelectedIds.value.has(field.id)) {
+      field.visibility = { mode, condition: null }
+      field.conditional_logic = null
+    }
+  }
+  if (isStepsMode.value) emitAll()
+  else emitFields()
+}
+
+const bulkSetRequirement = (mode: 'always' | 'never') => {
+  for (const field of allFields.value) {
+    if (bulkSelectedIds.value.has(field.id)) {
+      field.requirement = { mode, condition: null }
+      field.required = mode === 'always'
+    }
+  }
+  if (isStepsMode.value) emitAll()
+  else emitFields()
+}
+
+// Ctrl/Cmd + Click for multi-select
+const handleFieldClick = (fieldId: string, event: MouseEvent) => {
+  if (event.ctrlKey || event.metaKey) {
+    toggleBulkSelect(fieldId)
+    return
+  }
+  bulkSelectedIds.value = new Set()
+  selectField(fieldId)
+}
+
+// ──────────────────────────────────────────────
+// Condition summary & validation
+// ──────────────────────────────────────────────
+const conditionSummary = (condition: ConditionRule | null | undefined): string => {
+  if (!condition || !condition.field) return ''
+  const sourceField = allFields.value.find(f => f.name === condition.field)
+  const fieldLabel = sourceField?.label || condition.field
+  const opMap: Record<string, string> = {
+    equals: '=', not_equals: '\u2260', includes: 'includes', includes_any: 'includes any of',
+  }
+  const op = opMap[condition.operator] || condition.operator
+  let valueLabel = condition.value
+  if (sourceField?.options) {
+    const opt = sourceField.options.find(o => o.value === condition.value)
+    if (opt) valueLabel = opt.label
+  }
+  if (sourceField?.type === 'checkbox') {
+    valueLabel = condition.value === 'true' ? 'checked' : 'unchecked'
+  }
+  return `${fieldLabel} ${op} ${valueLabel}`
+}
+
+const getFieldConditionWarnings = (field: FormField): string[] => {
+  const warnings: string[] = []
+  const check = (cond: ConditionRule | null | undefined, label: string) => {
+    if (!cond || !cond.field) return
+    const exists = allFields.value.some(f => f.name === cond.field)
+    if (!exists) warnings.push(`${label} references missing field "${cond.field}"`)
+    else if (!cond.value) warnings.push(`${label} has no value set`)
+  }
+  check(field.visibility?.condition, 'Visibility')
+  check(field.requirement?.condition, 'Requirement')
+  return warnings
+}
+
+// ──────────────────────────────────────────────
+// Field dependency map
+// ──────────────────────────────────────────────
+const fieldDependents = computed(() => {
+  const map: Record<string, string[]> = {}
+  for (const field of allFields.value) {
+    const visCond = field.visibility?.condition
+    if (visCond?.field) {
+      if (!map[visCond.field]) map[visCond.field] = []
+      map[visCond.field].push(field.label)
+    }
+    const reqCond = field.requirement?.condition
+    if (reqCond?.field) {
+      if (!map[reqCond.field]) map[reqCond.field] = []
+      map[reqCond.field].push(field.label)
+    }
+  }
+  return map
+})
+
+// ──────────────────────────────────────────────
+// Layout preview helper
+// ──────────────────────────────────────────────
+const getPreviewLayoutClass = (field: FormField): string => {
+  const layout = field.layout || 'stacked'
+  switch (layout) {
+    case 'two-columns': return 'grid grid-cols-2 gap-2'
+    case 'three-columns': return 'grid grid-cols-3 gap-2'
+    case 'four-columns': return 'grid grid-cols-4 gap-2'
+    case 'side-by-side': return 'flex flex-wrap gap-x-4 gap-y-2'
+    default: return 'space-y-2'
+  }
+}
 </script>
 
 <template>
@@ -785,6 +1047,72 @@ const isFieldEffectivelyRequired = (field: FormField): boolean => {
       @dragend="clearDrag"
     >
 
+      <!-- Search bar + undo/redo -->
+      <div class="flex items-center gap-2 mb-4 max-w-2xl mx-auto">
+        <div class="relative flex-1">
+          <Icon name="lucide:search" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-300" />
+          <Input
+            :model-value="searchQuery"
+            @update:model-value="searchQuery = $event"
+            placeholder="Search fields..."
+            class="pl-9 h-9 text-sm"
+          />
+          <button v-if="searchQuery" class="absolute right-2 top-1/2 -translate-y-1/2 p-0.5 rounded hover:bg-slate-100" @click="searchQuery = ''">
+            <Icon name="lucide:x" class="w-3.5 h-3.5 text-slate-400" />
+          </button>
+        </div>
+        <div class="flex items-center gap-0.5">
+          <button
+            :disabled="!canUndo"
+            :class="['p-2 rounded-lg transition-colors', canUndo ? 'hover:bg-slate-100 text-slate-600' : 'text-slate-300 cursor-not-allowed']"
+            title="Undo (Ctrl+Z)"
+            @click="undo"
+          >
+            <Icon name="lucide:undo-2" class="w-4 h-4" />
+          </button>
+          <button
+            :disabled="!canRedo"
+            :class="['p-2 rounded-lg transition-colors', canRedo ? 'hover:bg-slate-100 text-slate-600' : 'text-slate-300 cursor-not-allowed']"
+            title="Redo (Ctrl+Y)"
+            @click="redo"
+          >
+            <Icon name="lucide:redo-2" class="w-4 h-4" />
+          </button>
+        </div>
+      </div>
+
+      <!-- Bulk actions toolbar -->
+      <Transition
+        enter-active-class="transition-all duration-200 ease-out"
+        leave-active-class="transition-all duration-150 ease-in"
+        enter-from-class="opacity-0 -translate-y-1"
+        enter-to-class="opacity-100 translate-y-0"
+        leave-from-class="opacity-100 translate-y-0"
+        leave-to-class="opacity-0 -translate-y-1"
+      >
+        <div v-if="bulkSelectedIds.size > 0" class="flex items-center gap-2 mb-4 max-w-2xl mx-auto p-3 bg-primary-50 border border-primary-200 rounded-xl">
+          <span class="text-sm font-medium text-primary-700">{{ bulkSelectedIds.size }} selected</span>
+          <button class="text-xs text-primary-500 hover:underline" @click="selectAllVisible">Select all</button>
+          <div class="flex-1" />
+          <Button variant="secondary" size="sm" @click="bulkSetVisibility('always')">
+            <Icon name="lucide:eye" class="w-3.5 h-3.5" />
+            Show
+          </Button>
+          <Button variant="secondary" size="sm" @click="bulkSetVisibility('never')">
+            <Icon name="lucide:eye-off" class="w-3.5 h-3.5" />
+            Hide
+          </Button>
+          <Button variant="secondary" size="sm" @click="bulkSetRequirement('always')">Require</Button>
+          <Button variant="secondary" size="sm" @click="bulkSetRequirement('never')">Optional</Button>
+          <Button variant="secondary" size="sm" class="text-red-600 hover:bg-red-50" @click="bulkDelete">
+            <Icon name="lucide:trash-2" class="w-3.5 h-3.5" />
+          </Button>
+          <button class="p-1 rounded hover:bg-primary-100 transition-colors" @click="clearBulkSelection">
+            <Icon name="lucide:x" class="w-4 h-4 text-primary-500" />
+          </button>
+        </div>
+      </Transition>
+
       <!-- ──── FLAT MODE (no steps) ──── -->
       <template v-if="!isStepsMode">
         <div
@@ -814,19 +1142,22 @@ const isFieldEffectivelyRequired = (field: FormField): boolean => {
 
             <!-- Field card -->
             <div
+              v-show="matchesSearch(field)"
               :class="[
                 'relative p-5 rounded-xl border-2 transition-all duration-200 cursor-pointer',
                 dragState?.type === 'field' && dragState.fieldId === field.id
                   ? 'opacity-40'
                   : '',
-                selectedFieldId === field.id
-                  ? 'border-primary-500 bg-primary-50/30 shadow-sm'
-                  : 'border-slate-200/80 hover:border-slate-300'
+                bulkSelectedIds.has(field.id)
+                  ? 'border-primary-400 bg-primary-50/50 ring-2 ring-primary-200'
+                  : selectedFieldId === field.id
+                    ? 'border-primary-500 bg-primary-50/30 shadow-sm'
+                    : 'border-slate-200/80 hover:border-slate-300'
               ]"
               draggable="true"
               @dragstart="handleFlatFieldDragStart($event, field.id)"
               @dragover="handleFlatFieldDragOver($event, index)"
-              @click="selectField(field.id)"
+              @click="handleFieldClick(field.id, $event)"
             >
               <!-- Drag handle indicator -->
               <div class="absolute left-1.5 top-1/2 -translate-y-1/2 opacity-30 hover:opacity-60 transition-opacity">
@@ -843,10 +1174,46 @@ const isFieldEffectivelyRequired = (field: FormField): boolean => {
                   <p class="text-slate-700">{{ field.label }}</p>
                 </template>
                 <template v-else>
-                  <label class="block text-sm font-medium text-slate-700 mb-1.5">
-                    {{ field.label }}
-                    <span v-if="isFieldEffectivelyRequired(field)" class="text-red-500 ml-0.5">*</span>
-                  </label>
+                  <div class="flex items-start justify-between gap-2 mb-1.5">
+                    <label class="block text-sm font-medium text-slate-700">
+                      {{ field.label }}
+                      <span v-if="isFieldEffectivelyRequired(field)" class="text-red-500 ml-0.5">*</span>
+                    </label>
+                    <div class="flex items-center gap-1 flex-shrink-0">
+                      <!-- Dependency indicator -->
+                      <span
+                        v-if="fieldDependents[field.name]?.length"
+                        class="text-[10px] font-medium text-blue-600 bg-blue-50 px-1.5 py-0.5 rounded inline-flex items-center gap-0.5"
+                        :title="`Controls: ${fieldDependents[field.name].join(', ')}`"
+                      >
+                        <Icon name="lucide:git-branch" class="w-3 h-3" />
+                        {{ fieldDependents[field.name].length }}
+                      </span>
+                      <!-- Visibility badge -->
+                      <span
+                        v-if="field.visibility?.mode === 'when' && field.visibility.condition?.field"
+                        class="text-[10px] text-amber-600 bg-amber-50 px-1.5 py-0.5 rounded truncate max-w-[140px]"
+                        :title="'Shown when ' + conditionSummary(field.visibility.condition)"
+                      >
+                        <Icon name="lucide:eye" class="w-3 h-3 inline" />
+                        {{ conditionSummary(field.visibility.condition) }}
+                      </span>
+                      <span
+                        v-else-if="field.visibility?.mode === 'never'"
+                        class="text-[10px] text-slate-400 bg-slate-100 px-1.5 py-0.5 rounded"
+                      >
+                        <Icon name="lucide:eye-off" class="w-3 h-3 inline" /> Hidden
+                      </span>
+                      <!-- Requirement badge -->
+                      <span
+                        v-if="field.requirement?.mode === 'when' && field.requirement.condition?.field"
+                        class="text-[10px] text-violet-600 bg-violet-50 px-1.5 py-0.5 rounded truncate max-w-[140px]"
+                        :title="'Required when ' + conditionSummary(field.requirement.condition)"
+                      >
+                        Required*
+                      </span>
+                    </div>
+                  </div>
                   <input
                     v-if="['text', 'email', 'phone', 'number', 'date'].includes(field.type)"
                     :type="field.type"
@@ -871,15 +1238,15 @@ const isFieldEffectivelyRequired = (field: FormField): boolean => {
                     <div class="w-5 h-5 rounded border border-slate-300 bg-slate-50" />
                     <span class="text-sm text-slate-700">{{ field.label }}</span>
                   </div>
-                  <div v-else-if="field.type === 'checkbox_group'" class="space-y-2">
+                  <div v-else-if="field.type === 'checkbox_group'" :class="getPreviewLayoutClass(field)">
                     <div v-for="option in field.options" :key="option.value" class="flex items-center gap-2">
-                      <div class="w-5 h-5 rounded border border-slate-300 bg-slate-50" />
+                      <div class="w-5 h-5 rounded border border-slate-300 bg-slate-50 flex-shrink-0" />
                       <span class="text-sm text-slate-700">{{ option.label }}</span>
                     </div>
                   </div>
-                  <div v-else-if="field.type === 'radio'" class="space-y-2">
+                  <div v-else-if="field.type === 'radio'" :class="getPreviewLayoutClass(field)">
                     <div v-for="option in field.options" :key="option.value" class="flex items-center gap-2">
-                      <div class="w-5 h-5 rounded-full border border-slate-300 bg-slate-50" />
+                      <div class="w-5 h-5 rounded-full border border-slate-300 bg-slate-50 flex-shrink-0" />
                       <span class="text-sm text-slate-700">{{ option.label }}</span>
                     </div>
                   </div>
@@ -1044,25 +1411,38 @@ const isFieldEffectivelyRequired = (field: FormField): boolean => {
 
                   <!-- Compact field row -->
                   <div
+                    v-show="matchesSearch(field)"
                     :class="[
                       'group flex items-center gap-2 p-2.5 rounded-lg border transition-all duration-150 cursor-pointer',
                       dragState?.type === 'field' && dragState.fieldId === field.id
                         ? 'opacity-40'
                         : '',
-                      selectedFieldId === field.id
-                        ? 'border-primary-400 bg-primary-50/50 shadow-sm'
-                        : 'border-slate-100 hover:border-slate-200 hover:bg-slate-50/50',
+                      bulkSelectedIds.has(field.id)
+                        ? 'border-primary-400 bg-primary-50/50 ring-1 ring-primary-200'
+                        : selectedFieldId === field.id
+                          ? 'border-primary-400 bg-primary-50/50 shadow-sm'
+                          : 'border-slate-100 hover:border-slate-200 hover:bg-slate-50/50',
                     ]"
                     draggable="true"
                     @dragstart="handleStepFieldDragStart($event, field.id, stepIndex)"
                     @dragover="handleFieldRowDragOver($event, stepIndex, fieldIndex)"
-                    @click="selectField(field.id)"
+                    @click="handleFieldClick(field.id, $event)"
                   >
                     <Icon name="lucide:grip-vertical" class="w-3.5 h-3.5 text-slate-300 cursor-grab flex-shrink-0" />
 
                     <Icon :name="getFieldIcon(field.type)" class="w-4 h-4 text-slate-400 flex-shrink-0" />
 
                     <span class="text-sm text-slate-700 flex-1 truncate">{{ field.label }}</span>
+
+                    <!-- Dependency indicator -->
+                    <span
+                      v-if="fieldDependents[field.name]?.length"
+                      class="text-[10px] font-medium text-blue-600 bg-blue-50 px-1.5 py-0.5 rounded flex-shrink-0 inline-flex items-center gap-0.5"
+                      :title="`Controls: ${fieldDependents[field.name].join(', ')}`"
+                    >
+                      <Icon name="lucide:git-branch" class="w-3 h-3" />
+                      {{ fieldDependents[field.name].length }}
+                    </span>
 
                     <span
                       v-if="field.requirement?.mode === 'always' || (!field.requirement && field.required)"
@@ -1073,7 +1453,7 @@ const isFieldEffectivelyRequired = (field: FormField): boolean => {
                     <span
                       v-else-if="field.requirement?.mode === 'when'"
                       class="text-[10px] font-medium text-amber-600 bg-amber-50 px-1.5 py-0.5 rounded flex-shrink-0"
-                      title="Conditionally required"
+                      :title="'Required when ' + conditionSummary(field.requirement.condition)"
                     >
                       Required*
                     </span>
@@ -1081,7 +1461,7 @@ const isFieldEffectivelyRequired = (field: FormField): boolean => {
                     <span
                       v-if="field.visibility?.mode === 'when' || (!field.visibility && field.conditional_logic)"
                       class="text-amber-500 flex-shrink-0"
-                      title="Conditionally visible"
+                      :title="field.visibility?.condition ? 'Shown when ' + conditionSummary(field.visibility.condition) : 'Conditionally visible'"
                     >
                       <Icon name="lucide:eye" class="w-3 h-3" />
                     </span>
@@ -1343,6 +1723,44 @@ const isFieldEffectivelyRequired = (field: FormField): boolean => {
           />
         </div>
 
+        <!-- Default Value -->
+        <div v-if="!['heading', 'paragraph', 'file'].includes(selectedField.type)">
+          <Label class="text-xs text-slate-500 mb-1">Default Value</Label>
+          <template v-if="selectedField.type === 'checkbox'">
+            <div class="flex items-center gap-2 mt-1">
+              <Checkbox
+                :checked="selectedField.default_value === true"
+                @update:checked="updateField(selectedField.id, { default_value: $event || null })"
+              />
+              <span class="text-sm text-slate-600">Checked by default</span>
+            </div>
+          </template>
+          <template v-else-if="selectedField.type === 'select' || selectedField.type === 'radio'">
+            <Select
+              :model-value="(selectedField.default_value as string) || ''"
+              @update:model-value="updateField(selectedField.id, { default_value: $event || null })"
+            >
+              <SelectTrigger class="text-xs">
+                <SelectValue placeholder="No default" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="">No default</SelectItem>
+                <SelectItem v-for="opt in selectedField.options" :key="opt.value" :value="opt.value">
+                  {{ opt.label }}
+                </SelectItem>
+              </SelectContent>
+            </Select>
+          </template>
+          <template v-else>
+            <Input
+              :model-value="(selectedField.default_value as string) || ''"
+              @update:model-value="updateField(selectedField.id, { default_value: $event || null })"
+              placeholder="No default value"
+              class="text-sm"
+            />
+          </template>
+        </div>
+
         <!-- Width -->
         <div>
           <Label class="text-xs text-slate-500 mb-1">Field Width</Label>
@@ -1564,6 +1982,36 @@ const isFieldEffectivelyRequired = (field: FormField): boolean => {
                 class="text-xs"
               />
             </template>
+          </div>
+        </div>
+
+        <!-- Condition validation warnings -->
+        <div v-if="getFieldConditionWarnings(selectedField).length > 0" class="border-t border-amber-200 pt-4">
+          <div class="bg-amber-50 border border-amber-200 rounded-lg p-3 space-y-1.5">
+            <div class="flex items-center gap-1.5 text-amber-700">
+              <Icon name="lucide:alert-triangle" class="w-3.5 h-3.5 flex-shrink-0" />
+              <span class="text-xs font-medium">Condition Warnings</span>
+            </div>
+            <p
+              v-for="(warning, wIdx) in getFieldConditionWarnings(selectedField)"
+              :key="wIdx"
+              class="text-xs text-amber-600 pl-5"
+            >
+              {{ warning }}
+            </p>
+          </div>
+        </div>
+
+        <!-- Field dependencies info -->
+        <div v-if="fieldDependents[selectedField.name]?.length" class="border-t border-slate-200 pt-4">
+          <div class="bg-blue-50 border border-blue-200 rounded-lg p-3">
+            <div class="flex items-center gap-1.5 text-blue-700 mb-1.5">
+              <Icon name="lucide:git-branch" class="w-3.5 h-3.5 flex-shrink-0" />
+              <span class="text-xs font-medium">Controls {{ fieldDependents[selectedField.name].length }} field{{ fieldDependents[selectedField.name].length !== 1 ? 's' : '' }}</span>
+            </div>
+            <p class="text-xs text-blue-600 pl-5">
+              {{ fieldDependents[selectedField.name].join(', ') }}
+            </p>
           </div>
         </div>
       </div>

@@ -98,6 +98,14 @@ const optionsLayoutClass = computed(() => {
 </script>
 
 <template>
+  <Transition
+    enter-active-class="transition-all duration-300 ease-out"
+    leave-active-class="transition-all duration-200 ease-in"
+    enter-from-class="opacity-0 translate-y-1"
+    enter-to-class="opacity-100 translate-y-0"
+    leave-from-class="opacity-100 translate-y-0"
+    leave-to-class="opacity-0 translate-y-1"
+  >
   <div v-if="isVisible" :class="cn('col-span-2', widthClass)">
     <!-- Heading field type -->
     <template v-if="field.type === 'heading'">
@@ -359,4 +367,5 @@ const optionsLayoutClass = computed(() => {
       <p v-if="errorMessage" class="mt-2 text-xs text-red-500">{{ errorMessage }}</p>
     </template>
   </div>
+  </Transition>
 </template>

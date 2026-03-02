@@ -213,8 +213,20 @@ const validationSchema = computed(() => {
   return toTypedSchema(buildValidationSchema(props.form.fields || []))
 })
 
+// Build initial values from field defaults
+const initialValues = computed(() => {
+  const values: Record<string, unknown> = {}
+  for (const field of (props.form.fields || [])) {
+    if (field.default_value !== undefined && field.default_value !== null) {
+      values[field.name] = field.default_value
+    }
+  }
+  return values
+})
+
 const { handleSubmit, isSubmitting, resetForm, validate, values: formValues } = useForm({
   validationSchema,
+  initialValues,
 })
 
 const { trackFormSubmission, trackFormStepComplete, trackFormError, trackFormView } = useAnalytics()
