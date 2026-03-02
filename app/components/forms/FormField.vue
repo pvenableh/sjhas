@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useField, useFormValues } from 'vee-validate'
-import type { FormField } from '~/types/directus'
+import type { FormField, ConditionRule } from '~/types/directus'
 import { cn } from '~/utils/cn'
 
 const props = defineProps<{
@@ -31,45 +31,81 @@ const widthClass = computed(() => {
   }
 })
 
-const isVisible = computed(() => {
-  const logic = props.field.conditional_logic as { field: string; operator: string; value: string } | null
-  if (!logic || !logic.field) {
-    return true
-  }
+// Shared condition evaluator
+const evaluateCondition = (condition: ConditionRule): boolean => {
+  if (!condition.field) return true
+  const sourceValue = formValues.value[condition.field]
 
-  const sourceValue = formValues.value[logic.field]
-
-  switch (logic.operator) {
+  switch (condition.operator) {
     case 'equals':
-      if (typeof sourceValue === 'boolean') {
-        return sourceValue === (logic.value === 'true')
-      }
-      return sourceValue === logic.value
+      if (typeof sourceValue === 'boolean') return sourceValue === (condition.value === 'true')
+      return sourceValue === condition.value
     case 'not_equals':
-      if (typeof sourceValue === 'boolean') {
-        return sourceValue !== (logic.value === 'true')
-      }
-      return sourceValue !== logic.value
+      if (typeof sourceValue === 'boolean') return sourceValue !== (condition.value === 'true')
+      return sourceValue !== condition.value
     case 'includes':
-      if (Array.isArray(sourceValue)) {
-        return sourceValue.includes(logic.value)
-      }
-      if (typeof sourceValue === 'string') {
-        return sourceValue.includes(logic.value)
-      }
+      if (Array.isArray(sourceValue)) return sourceValue.includes(condition.value)
+      if (typeof sourceValue === 'string') return sourceValue.includes(condition.value)
       return false
     case 'includes_any': {
       if (!Array.isArray(sourceValue)) return false
-      const values = logic.value.split(',').map((v: string) => v.trim())
+      const values = condition.value.split(',').map((v: string) => v.trim())
       return values.some((v: string) => (sourceValue as string[]).includes(v))
     }
     default:
       return true
   }
+}
+
+// Visibility: prefer new `visibility` property, fall back to `conditional_logic`
+const isVisible = computed(() => {
+  const vis = props.field.visibility
+  if (vis) {
+    if (vis.mode === 'never') return false
+    if (vis.mode === 'always') return true
+    if (vis.mode === 'when' && vis.condition) return evaluateCondition(vis.condition)
+    return true
+  }
+  // Backward compat with old conditional_logic
+  const logic = props.field.conditional_logic as ConditionRule | null
+  if (!logic || !logic.field) return true
+  return evaluateCondition(logic)
+})
+
+// Requirement: prefer new `requirement` property, fall back to `required`
+const isRequired = computed(() => {
+  const req = props.field.requirement
+  if (req) {
+    if (req.mode === 'always') return true
+    if (req.mode === 'never') return false
+    if (req.mode === 'when' && req.condition) return evaluateCondition(req.condition)
+    return false
+  }
+  return props.field.required
+})
+
+// Layout class for radio/checkbox_group options
+const optionsLayoutClass = computed(() => {
+  const layout = props.field.layout || 'stacked'
+  switch (layout) {
+    case 'two-columns': return 'grid grid-cols-2 gap-3'
+    case 'three-columns': return 'grid grid-cols-3 gap-3'
+    case 'four-columns': return 'grid grid-cols-4 gap-3'
+    case 'side-by-side': return 'flex flex-wrap gap-x-6 gap-y-3'
+    default: return 'space-y-3'
+  }
 })
 </script>
 
 <template>
+  <Transition
+    enter-active-class="transition-all duration-300 ease-out"
+    leave-active-class="transition-all duration-200 ease-in"
+    enter-from-class="opacity-0 translate-y-1"
+    enter-to-class="opacity-100 translate-y-0"
+    leave-from-class="opacity-100 translate-y-0"
+    leave-to-class="opacity-0 translate-y-1"
+  >
   <div v-if="isVisible" :class="cn('col-span-2', widthClass)">
     <!-- Heading field type -->
     <template v-if="field.type === 'heading'">
@@ -86,7 +122,7 @@ const isVisible = computed(() => {
     <template v-else-if="field.type === 'text'">
       <Label :for="field.name" class="label-base">
         {{ field.label }}
-        <span v-if="field.required" class="text-red-500 ml-0.5">*</span>
+        <span v-if="isRequired" class="text-red-500 ml-0.5">*</span>
       </Label>
       <Input
         :id="field.name"
@@ -107,7 +143,7 @@ const isVisible = computed(() => {
     <template v-else-if="field.type === 'email'">
       <Label :for="field.name" class="label-base">
         {{ field.label }}
-        <span v-if="field.required" class="text-red-500 ml-0.5">*</span>
+        <span v-if="isRequired" class="text-red-500 ml-0.5">*</span>
       </Label>
       <Input
         :id="field.name"
@@ -128,7 +164,7 @@ const isVisible = computed(() => {
     <template v-else-if="field.type === 'phone'">
       <Label :for="field.name" class="label-base">
         {{ field.label }}
-        <span v-if="field.required" class="text-red-500 ml-0.5">*</span>
+        <span v-if="isRequired" class="text-red-500 ml-0.5">*</span>
       </Label>
       <Input
         :id="field.name"
@@ -149,7 +185,7 @@ const isVisible = computed(() => {
     <template v-else-if="field.type === 'number'">
       <Label :for="field.name" class="label-base">
         {{ field.label }}
-        <span v-if="field.required" class="text-red-500 ml-0.5">*</span>
+        <span v-if="isRequired" class="text-red-500 ml-0.5">*</span>
       </Label>
       <Input
         :id="field.name"
@@ -170,7 +206,7 @@ const isVisible = computed(() => {
     <template v-else-if="field.type === 'date'">
       <Label :for="field.name" class="label-base">
         {{ field.label }}
-        <span v-if="field.required" class="text-red-500 ml-0.5">*</span>
+        <span v-if="isRequired" class="text-red-500 ml-0.5">*</span>
       </Label>
       <Input
         :id="field.name"
@@ -190,7 +226,7 @@ const isVisible = computed(() => {
     <template v-else-if="field.type === 'textarea'">
       <Label :for="field.name" class="label-base">
         {{ field.label }}
-        <span v-if="field.required" class="text-red-500 ml-0.5">*</span>
+        <span v-if="isRequired" class="text-red-500 ml-0.5">*</span>
       </Label>
       <Textarea
         :id="field.name"
@@ -210,7 +246,7 @@ const isVisible = computed(() => {
     <template v-else-if="field.type === 'select'">
       <Label :for="field.name" class="label-base">
         {{ field.label }}
-        <span v-if="field.required" class="text-red-500 ml-0.5">*</span>
+        <span v-if="isRequired" class="text-red-500 ml-0.5">*</span>
       </Label>
       <Select
         :model-value="value as string"
@@ -246,7 +282,7 @@ const isVisible = computed(() => {
         <div class="space-y-1">
           <Label :for="field.name" class="text-sm font-medium text-slate-700 cursor-pointer">
             {{ field.label }}
-            <span v-if="field.required" class="text-red-500 ml-0.5">*</span>
+            <span v-if="isRequired" class="text-red-500 ml-0.5">*</span>
           </Label>
           <p v-if="field.help_text" class="text-sm text-slate-500">
             {{ field.help_text }}
@@ -260,9 +296,9 @@ const isVisible = computed(() => {
     <template v-else-if="field.type === 'checkbox_group'">
       <Label class="label-base">
         {{ field.label }}
-        <span v-if="field.required" class="text-red-500 ml-0.5">*</span>
+        <span v-if="isRequired" class="text-red-500 ml-0.5">*</span>
       </Label>
-      <div class="mt-3 space-y-3">
+      <div :class="['mt-3', optionsLayoutClass]">
         <div
           v-for="option in field.options"
           :key="option.value"
@@ -297,12 +333,12 @@ const isVisible = computed(() => {
     <template v-else-if="field.type === 'radio'">
       <Label class="label-base">
         {{ field.label }}
-        <span v-if="field.required" class="text-red-500 ml-0.5">*</span>
+        <span v-if="isRequired" class="text-red-500 ml-0.5">*</span>
       </Label>
       <RadioGroup
         :model-value="value as string"
         @update:model-value="handleChange"
-        class="mt-3 space-y-3"
+        :class="['mt-3', optionsLayoutClass]"
       >
         <div
           v-for="option in field.options"
@@ -331,4 +367,5 @@ const isVisible = computed(() => {
       <p v-if="errorMessage" class="mt-2 text-xs text-red-500">{{ errorMessage }}</p>
     </template>
   </div>
+  </Transition>
 </template>
