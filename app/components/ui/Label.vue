@@ -11,7 +11,7 @@ const props = defineProps<LabelProps & { class?: HTMLAttributes['class'] }>()
     v-bind="props"
     :class="
       cn(
-        'text-sm font-medium text-slate-700 leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70',
+        'text-sm font-medium text-slate-700 dark:text-slate-200 leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70',
         props.class
       )
     "

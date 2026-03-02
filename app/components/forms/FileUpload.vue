@@ -118,8 +118,8 @@ const openFilePicker = () => {
       :class="cn(
         'relative border-2 border-dashed rounded-2xl p-8 text-center transition-all duration-300 cursor-pointer',
         isDragging || isOverDropZone
-          ? 'border-primary-500 bg-primary-50'
-          : 'border-slate-200 hover:border-slate-300 hover:bg-slate-50/50'
+          ? 'border-primary-500 bg-primary-50 dark:bg-primary-900/20'
+          : 'border-slate-200 dark:border-slate-600 hover:border-slate-300 dark:hover:border-slate-500 hover:bg-slate-50/50 dark:hover:bg-secondary-800/50'
       )"
       @click="openFilePicker"
     >
@@ -133,14 +133,14 @@ const openFilePicker = () => {
       />
 
       <div class="flex flex-col items-center gap-3">
-        <div class="w-14 h-14 rounded-2xl bg-primary-50 flex items-center justify-center">
-          <Icon name="lucide:upload-cloud" class="w-6 h-6 text-primary-600" />
+        <div class="w-14 h-14 rounded-2xl bg-primary-50 dark:bg-primary-900/30 flex items-center justify-center">
+          <Icon name="lucide:upload-cloud" class="w-6 h-6 text-primary-600 dark:text-primary-400" />
         </div>
         <div>
-          <p class="text-sm text-slate-600">
-            <span class="font-medium text-primary-600">Click to upload</span> or drag and drop
+          <p class="text-sm text-slate-600 dark:text-slate-300">
+            <span class="font-medium text-primary-600 dark:text-primary-400">Click to upload</span> or drag and drop
           </p>
-          <p class="text-xs text-slate-400 mt-1.5">
+          <p class="text-xs text-slate-400 dark:text-slate-500 mt-1.5">
             PDF, DOC, DOCX, XLS, XLSX, CSV, or images (max 10MB)
           </p>
         </div>
@@ -148,7 +148,7 @@ const openFilePicker = () => {
     </div>
 
     <!-- Help text -->
-    <p v-if="field.help_text" class="text-xs text-slate-400 leading-relaxed">
+    <p v-if="field.help_text" class="text-xs text-slate-400 dark:text-slate-500 leading-relaxed">
       {{ field.help_text }}
     </p>
 
@@ -157,18 +157,18 @@ const openFilePicker = () => {
       <div
         v-for="(file, index) in files"
         :key="file.name"
-        class="flex items-center gap-3 p-3.5 bg-slate-50/80 rounded-xl border border-slate-200/80"
+        class="flex items-center gap-3 p-3.5 bg-slate-50/80 dark:bg-secondary-800/80 rounded-xl border border-slate-200/80 dark:border-slate-600/80"
       >
-        <div class="w-10 h-10 rounded-xl bg-white border border-slate-200/80 flex items-center justify-center">
-          <Icon :name="getFileIcon(file.type)" class="w-5 h-5 text-slate-400" />
+        <div class="w-10 h-10 rounded-xl bg-white dark:bg-secondary-900 border border-slate-200/80 dark:border-slate-600/80 flex items-center justify-center">
+          <Icon :name="getFileIcon(file.type)" class="w-5 h-5 text-slate-400 dark:text-slate-500" />
         </div>
         <div class="flex-1 min-w-0">
-          <p class="text-sm font-medium text-slate-700 truncate">{{ file.name }}</p>
-          <p class="text-xs text-slate-400">{{ formatFileSize(file.size) }}</p>
+          <p class="text-sm font-medium text-slate-700 dark:text-slate-200 truncate">{{ file.name }}</p>
+          <p class="text-xs text-slate-400 dark:text-slate-500">{{ formatFileSize(file.size) }}</p>
           <!-- Progress bar -->
           <div
             v-if="uploadProgress[file.name] !== undefined && uploadProgress[file.name] < 100"
-            class="mt-1.5 h-1 bg-slate-200 rounded-full overflow-hidden"
+            class="mt-1.5 h-1 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden"
           >
             <div
               class="h-full bg-primary-500 rounded-full transition-all duration-300"
@@ -178,10 +178,10 @@ const openFilePicker = () => {
         </div>
         <button
           type="button"
-          class="p-2 rounded-xl hover:bg-slate-200/80 transition-colors"
+          class="p-2 rounded-xl hover:bg-slate-200/80 dark:hover:bg-secondary-700/80 transition-colors"
           @click.stop="removeFile(index)"
         >
-          <Icon name="lucide:x" class="w-4 h-4 text-slate-400" />
+          <Icon name="lucide:x" class="w-4 h-4 text-slate-400 dark:text-slate-500" />
         </button>
       </div>
     </div>

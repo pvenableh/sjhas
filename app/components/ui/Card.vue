@@ -9,7 +9,7 @@ const props = defineProps<{
 
 <template>
   <div
-    :class="cn('rounded-2xl border border-slate-200/80 bg-white shadow-sm', props.class)"
+    :class="cn('rounded-2xl border border-slate-200/80 dark:border-slate-700/80 bg-white dark:bg-secondary-800 shadow-sm', props.class)"
   >
     <slot />
   </div>

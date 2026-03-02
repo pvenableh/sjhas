@@ -8,12 +8,12 @@ export const buttonVariants = cva(
       variant: {
         default: "t-btn shadow-sm hover:shadow-md",
         secondary:
-          "bg-secondary-50 text-secondary-800 border border-secondary-200 shadow-sm hover:bg-secondary-100 hover:border-secondary-300",
+          "bg-secondary-50 dark:bg-secondary-800 text-secondary-800 dark:text-secondary-200 border border-secondary-200 dark:border-secondary-600 shadow-sm hover:bg-secondary-100 dark:hover:bg-secondary-700 hover:border-secondary-300 dark:hover:border-secondary-500",
         destructive: "bg-red-600 text-white shadow-sm hover:bg-red-700",
         outline:
-          "border border-secondary-300 bg-transparent hover:bg-secondary-50 text-secondary-700",
-        ghost: "hover:bg-secondary-100 text-secondary-600",
-        link: "text-primary-600 underline-offset-4 hover:underline",
+          "border border-secondary-300 dark:border-secondary-600 bg-transparent hover:bg-secondary-50 dark:hover:bg-secondary-800 text-secondary-700 dark:text-secondary-200",
+        ghost: "hover:bg-secondary-100 dark:hover:bg-secondary-800 text-secondary-600 dark:text-secondary-300",
+        link: "text-primary-600 dark:text-primary-400 underline-offset-4 hover:underline",
       },
       size: {
         default: "h-12 px-7 py-2.5 tracking-wide",

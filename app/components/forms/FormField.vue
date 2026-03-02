@@ -109,13 +109,13 @@ const optionsLayoutClass = computed(() => {
   <div v-if="isVisible" :class="cn('col-span-2', widthClass)">
     <!-- Heading field type -->
     <template v-if="field.type === 'heading'">
-      <h3 class="text-lg font-semibold text-slate-900 mb-1 tracking-tight">{{ field.label }}</h3>
-      <p v-if="field.help_text" class="text-sm text-slate-500 leading-relaxed">{{ field.help_text }}</p>
+      <h3 class="text-lg font-semibold text-slate-900 dark:text-slate-100 mb-1 tracking-tight">{{ field.label }}</h3>
+      <p v-if="field.help_text" class="text-sm text-slate-500 dark:text-slate-400 leading-relaxed">{{ field.help_text }}</p>
     </template>
 
     <!-- Paragraph field type -->
     <template v-else-if="field.type === 'paragraph'">
-      <p class="text-slate-600 leading-relaxed">{{ field.label }}</p>
+      <p class="text-slate-600 dark:text-slate-300 leading-relaxed">{{ field.label }}</p>
     </template>
 
     <!-- Text input -->
@@ -133,7 +133,7 @@ const optionsLayoutClass = computed(() => {
         @update:model-value="handleChange"
         @blur="handleBlur"
       />
-      <p v-if="field.help_text && !errorMessage" class="mt-2 text-xs text-slate-400 leading-relaxed">
+      <p v-if="field.help_text && !errorMessage" class="mt-2 text-xs text-slate-400 dark:text-slate-500 leading-relaxed">
         {{ field.help_text }}
       </p>
       <p v-if="errorMessage" class="mt-2 text-xs text-red-500">{{ errorMessage }}</p>
@@ -154,7 +154,7 @@ const optionsLayoutClass = computed(() => {
         @update:model-value="handleChange"
         @blur="handleBlur"
       />
-      <p v-if="field.help_text && !errorMessage" class="mt-2 text-xs text-slate-400 leading-relaxed">
+      <p v-if="field.help_text && !errorMessage" class="mt-2 text-xs text-slate-400 dark:text-slate-500 leading-relaxed">
         {{ field.help_text }}
       </p>
       <p v-if="errorMessage" class="mt-2 text-xs text-red-500">{{ errorMessage }}</p>
@@ -175,7 +175,7 @@ const optionsLayoutClass = computed(() => {
         @update:model-value="handleChange"
         @blur="handleBlur"
       />
-      <p v-if="field.help_text && !errorMessage" class="mt-2 text-xs text-slate-400 leading-relaxed">
+      <p v-if="field.help_text && !errorMessage" class="mt-2 text-xs text-slate-400 dark:text-slate-500 leading-relaxed">
         {{ field.help_text }}
       </p>
       <p v-if="errorMessage" class="mt-2 text-xs text-red-500">{{ errorMessage }}</p>
@@ -196,7 +196,7 @@ const optionsLayoutClass = computed(() => {
         @update:model-value="handleChange"
         @blur="handleBlur"
       />
-      <p v-if="field.help_text && !errorMessage" class="mt-2 text-xs text-slate-400 leading-relaxed">
+      <p v-if="field.help_text && !errorMessage" class="mt-2 text-xs text-slate-400 dark:text-slate-500 leading-relaxed">
         {{ field.help_text }}
       </p>
       <p v-if="errorMessage" class="mt-2 text-xs text-red-500">{{ errorMessage }}</p>
@@ -216,7 +216,7 @@ const optionsLayoutClass = computed(() => {
         @update:model-value="handleChange"
         @blur="handleBlur"
       />
-      <p v-if="field.help_text && !errorMessage" class="mt-2 text-xs text-slate-400 leading-relaxed">
+      <p v-if="field.help_text && !errorMessage" class="mt-2 text-xs text-slate-400 dark:text-slate-500 leading-relaxed">
         {{ field.help_text }}
       </p>
       <p v-if="errorMessage" class="mt-2 text-xs text-red-500">{{ errorMessage }}</p>
@@ -236,7 +236,7 @@ const optionsLayoutClass = computed(() => {
         @update:model-value="handleChange"
         @blur="handleBlur"
       />
-      <p v-if="field.help_text && !errorMessage" class="mt-2 text-xs text-slate-400 leading-relaxed">
+      <p v-if="field.help_text && !errorMessage" class="mt-2 text-xs text-slate-400 dark:text-slate-500 leading-relaxed">
         {{ field.help_text }}
       </p>
       <p v-if="errorMessage" class="mt-2 text-xs text-red-500">{{ errorMessage }}</p>
@@ -265,7 +265,7 @@ const optionsLayoutClass = computed(() => {
           </SelectItem>
         </SelectContent>
       </Select>
-      <p v-if="field.help_text && !errorMessage" class="mt-2 text-xs text-slate-400 leading-relaxed">
+      <p v-if="field.help_text && !errorMessage" class="mt-2 text-xs text-slate-400 dark:text-slate-500 leading-relaxed">
         {{ field.help_text }}
       </p>
       <p v-if="errorMessage" class="mt-2 text-xs text-red-500">{{ errorMessage }}</p>
@@ -280,11 +280,11 @@ const optionsLayoutClass = computed(() => {
           @update:model-value="handleChange"
         />
         <div class="space-y-1">
-          <Label :for="field.name" class="text-sm font-medium text-slate-700 cursor-pointer">
+          <Label :for="field.name" class="text-sm font-medium text-slate-700 dark:text-slate-200 cursor-pointer">
             {{ field.label }}
             <span v-if="isRequired" class="text-red-500 ml-0.5">*</span>
           </Label>
-          <p v-if="field.help_text" class="text-sm text-slate-500">
+          <p v-if="field.help_text" class="text-sm text-slate-500 dark:text-slate-400">
             {{ field.help_text }}
           </p>
         </div>
@@ -318,12 +318,12 @@ const optionsLayoutClass = computed(() => {
               handleChange(current)
             }"
           />
-          <Label :for="`${field.name}-${option.value}`" class="text-sm text-slate-600 cursor-pointer">
+          <Label :for="`${field.name}-${option.value}`" class="text-sm text-slate-600 dark:text-slate-300 cursor-pointer">
             {{ option.label }}
           </Label>
         </div>
       </div>
-      <p v-if="field.help_text && !errorMessage" class="mt-2 text-xs text-slate-400 leading-relaxed">
+      <p v-if="field.help_text && !errorMessage" class="mt-2 text-xs text-slate-400 dark:text-slate-500 leading-relaxed">
         {{ field.help_text }}
       </p>
       <p v-if="errorMessage" class="mt-2 text-xs text-red-500">{{ errorMessage }}</p>
@@ -346,12 +346,12 @@ const optionsLayoutClass = computed(() => {
           class="flex items-center gap-3"
         >
           <RadioGroupItem :id="`${field.name}-${option.value}`" :value="option.value" />
-          <Label :for="`${field.name}-${option.value}`" class="text-sm text-slate-600 cursor-pointer">
+          <Label :for="`${field.name}-${option.value}`" class="text-sm text-slate-600 dark:text-slate-300 cursor-pointer">
             {{ option.label }}
           </Label>
         </div>
       </RadioGroup>
-      <p v-if="field.help_text && !errorMessage" class="mt-2 text-xs text-slate-400 leading-relaxed">
+      <p v-if="field.help_text && !errorMessage" class="mt-2 text-xs text-slate-400 dark:text-slate-500 leading-relaxed">
         {{ field.help_text }}
       </p>
       <p v-if="errorMessage" class="mt-2 text-xs text-red-500">{{ errorMessage }}</p>

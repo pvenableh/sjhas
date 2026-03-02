@@ -16,7 +16,7 @@ const delegatedProps = computed(() => {
     v-bind="delegatedProps"
     :class="cn(
       'relative flex w-full cursor-default select-none items-center rounded-md py-2 pl-8 pr-2 text-sm outline-none',
-      'focus:bg-slate-100 focus:text-slate-900',
+      'focus:bg-slate-100 dark:focus:bg-secondary-700 focus:text-slate-900 dark:focus:text-slate-100',
       'data-[disabled]:pointer-events-none data-[disabled]:opacity-50',
       props.class
     )"
