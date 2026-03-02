@@ -276,8 +276,8 @@ const optionsLayoutClass = computed(() => {
       <div class="flex items-start gap-3">
         <Checkbox
           :id="field.name"
-          :checked="value as boolean"
-          @update:checked="handleChange"
+          :model-value="value as boolean"
+          @update:model-value="handleChange"
         />
         <div class="space-y-1">
           <Label :for="field.name" class="text-sm font-medium text-slate-700 cursor-pointer">
@@ -306,8 +306,8 @@ const optionsLayoutClass = computed(() => {
         >
           <Checkbox
             :id="`${field.name}-${option.value}`"
-            :checked="Array.isArray(value) && (value as string[]).includes(option.value)"
-            @update:checked="(checked: boolean) => {
+            :model-value="Array.isArray(value) && (value as string[]).includes(option.value)"
+            @update:model-value="(checked: boolean) => {
               const current = Array.isArray(value) ? [...(value as string[])] : []
               if (checked) {
                 current.push(option.value)
