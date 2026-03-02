@@ -8,7 +8,7 @@ export default defineEventHandler(async (event) => {
 
   try {
     const response = await fetch(
-      `${config.directus.url}/items/forms?filter[slug][_eq]=${encodeURIComponent(slug)}&filter[status][_eq]=published&fields=id,title,slug,description,success_message,fields,allow_file_uploads,max_file_size_mb,allowed_file_types&limit=1`,
+      `${config.directus.url}/items/forms?filter[slug][_eq]=${encodeURIComponent(slug)}&filter[status][_eq]=published&fields=id,title,slug,description,success_message,notify_email,notify_on_submission,fields,steps,allow_file_uploads,max_file_size_mb,allowed_file_types&limit=1`,
       {
         headers: {
           Authorization: `Bearer ${config.directus.staticToken}`,
