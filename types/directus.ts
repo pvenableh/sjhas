@@ -19,6 +19,15 @@ export { Schema as Collections } from './directus-schema'
 import type { Form as GeneratedForm } from './directus-schema'
 
 /**
+ * Reusable condition rule used by field visibility, field requirement, and step conditions.
+ */
+export interface ConditionRule {
+	field: string
+	operator: 'equals' | 'not_equals' | 'includes' | 'includes_any'
+	value: string
+}
+
+/**
  * A single field definition inside a Form's `fields` JSON column.
  */
 export interface FormField {
@@ -41,6 +50,7 @@ export interface FormField {
 	name: string
 	placeholder: string | null
 	help_text: string | null
+	/** @deprecated Use `requirement` instead. Kept for backward compatibility. */
 	required: boolean
 	validation_rules: Array<{
 		type: string
@@ -51,9 +61,22 @@ export interface FormField {
 		label: string
 		value: string
 	}> | null
+	/** @deprecated Use `visibility` instead. Kept for backward compatibility. */
 	conditional_logic: Record<string, unknown> | null
 	width: 'full' | 'half' | 'third'
 	sort: number
+	/** Layout for radio and checkbox_group option rendering */
+	layout?: 'stacked' | 'two-columns' | 'three-columns' | 'four-columns' | 'side-by-side'
+	/** Controls when this field is shown: always, conditionally, or never */
+	visibility?: {
+		mode: 'always' | 'when' | 'never'
+		condition?: ConditionRule | null
+	}
+	/** Controls when this field is required: always, conditionally, or never */
+	requirement?: {
+		mode: 'always' | 'when' | 'never'
+		condition?: ConditionRule | null
+	}
 }
 
 /**

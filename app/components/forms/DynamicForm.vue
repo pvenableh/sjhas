@@ -5,7 +5,7 @@ import { toTypedSchema } from '@vee-validate/zod'
 import * as z from 'zod'
 import { gsap } from 'gsap'
 import { toast } from 'vue-sonner'
-import type { Form, FormField } from '~/types/directus'
+import type { Form, FormField, ConditionRule } from '~/types/directus'
 
 export interface FormStepCondition {
   /** The field name to check */
@@ -35,16 +35,77 @@ const emit = defineEmits<{
   'update:currentStep': [step: number]
 }>()
 
+// ──────────────────────────────────────────────
+// Shared condition evaluator (works with raw data or reactive formValues)
+// ──────────────────────────────────────────────
+const evalCondition = (condition: ConditionRule | FormStepCondition, data: Record<string, unknown>): boolean => {
+  if (!condition.field) return true
+  const fieldValue = data[condition.field]
+  switch (condition.operator) {
+    case 'equals':
+      if (typeof fieldValue === 'boolean') return fieldValue === (condition.value === 'true')
+      return fieldValue === condition.value
+    case 'not_equals':
+      if (typeof fieldValue === 'boolean') return fieldValue !== (condition.value === 'true')
+      return fieldValue !== condition.value
+    case 'includes':
+      if (Array.isArray(fieldValue)) return fieldValue.includes(condition.value)
+      if (typeof fieldValue === 'string') return fieldValue.includes(condition.value)
+      return false
+    case 'includes_any': {
+      if (!Array.isArray(fieldValue)) return false
+      const values = condition.value.split(',').map(v => v.trim())
+      return values.some(v => (fieldValue as string[]).includes(v))
+    }
+    default:
+      return true
+  }
+}
+
+// ──────────────────────────────────────────────
+// Resolve field visibility & requirement (backward-compatible)
+// ──────────────────────────────────────────────
+const resolveFieldVisible = (field: FormField, data: Record<string, unknown>): boolean => {
+  const vis = field.visibility
+  if (vis) {
+    if (vis.mode === 'never') return false
+    if (vis.mode === 'always') return true
+    if (vis.mode === 'when' && vis.condition) return evalCondition(vis.condition, data)
+    return true
+  }
+  // Backward compat: use conditional_logic
+  const logic = field.conditional_logic as ConditionRule | null
+  if (!logic || !logic.field) return true
+  return evalCondition(logic, data)
+}
+
+const resolveFieldRequired = (field: FormField, data: Record<string, unknown>): boolean => {
+  const req = field.requirement
+  if (req) {
+    if (req.mode === 'always') return true
+    if (req.mode === 'never') return false
+    if (req.mode === 'when' && req.condition) return evalCondition(req.condition, data)
+    return false
+  }
+  // Backward compat: use required boolean
+  return field.required
+}
+
+// ──────────────────────────────────────────────
 // Build Zod schema from form fields
+// ──────────────────────────────────────────────
 const buildValidationSchema = (fields: FormField[]) => {
   const schemaShape: Record<string, z.ZodTypeAny> = {}
+  // Track fields with conditional requirement for superRefine
+  const conditionallyRequired: FormField[] = []
 
   if (!fields || !Array.isArray(fields)) return z.object(schemaShape)
 
   fields.forEach((field) => {
-    if (field.type === 'heading' || field.type === 'paragraph') {
-      return
-    }
+    if (field.type === 'heading' || field.type === 'paragraph') return
+
+    // Skip fields that are never visible
+    if (field.visibility?.mode === 'never') return
 
     let fieldSchema: z.ZodTypeAny
 
@@ -93,8 +154,16 @@ const buildValidationSchema = (fields: FormField[]) => {
       })
     }
 
-    // Make optional if not required
-    if (!field.required) {
+    // Determine static requirement
+    const reqMode = field.requirement?.mode
+    const isStaticRequired = reqMode === 'always' || (!field.requirement && field.required)
+    const isConditionalRequired = reqMode === 'when'
+
+    if (isConditionalRequired) {
+      // Make optional in schema; superRefine handles dynamic check
+      fieldSchema = fieldSchema.optional()
+      conditionallyRequired.push(field)
+    } else if (!isStaticRequired) {
       fieldSchema = fieldSchema.optional()
     } else if (field.type === 'checkbox_group') {
       if (fieldSchema instanceof z.ZodArray) {
@@ -109,7 +178,35 @@ const buildValidationSchema = (fields: FormField[]) => {
     schemaShape[field.name] = fieldSchema
   })
 
-  return z.object(schemaShape)
+  let schema = z.object(schemaShape)
+
+  // Add dynamic required validation for "when" requirement fields
+  if (conditionallyRequired.length > 0) {
+    schema = schema.superRefine((data, ctx) => {
+      for (const field of conditionallyRequired) {
+        // Only validate if the field is visible
+        if (!resolveFieldVisible(field, data)) continue
+        if (!resolveFieldRequired(field, data)) continue
+
+        const val = data[field.name as keyof typeof data]
+        const isEmpty =
+          val === undefined ||
+          val === null ||
+          val === '' ||
+          (Array.isArray(val) && val.length === 0)
+
+        if (isEmpty) {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            message: `${field.label} is required`,
+            path: [field.name],
+          })
+        }
+      }
+    }) as any
+  }
+
+  return schema
 }
 
 const validationSchema = computed(() => {
@@ -135,62 +232,12 @@ const sortedFields = computed(() => {
 
 // Evaluate whether a step condition is met based on current form values
 const evaluateCondition = (condition: FormStepCondition): boolean => {
-  const fieldValue = (formValues as Record<string, unknown>)[condition.field]
-  switch (condition.operator) {
-    case 'includes':
-      if (Array.isArray(fieldValue)) {
-        return fieldValue.includes(condition.value)
-      }
-      if (typeof fieldValue === 'string') {
-        return fieldValue.includes(condition.value)
-      }
-      return false
-    case 'includes_any': {
-      if (!Array.isArray(fieldValue)) return false
-      const values = condition.value.split(',').map((v) => v.trim())
-      return values.some((v) => (fieldValue as string[]).includes(v))
-    }
-    case 'equals':
-      // Support boolean comparison: condition.value is always a string,
-      // but the field may be a boolean (e.g. checkbox true/false)
-      if (typeof fieldValue === 'boolean') {
-        return fieldValue === (condition.value === 'true')
-      }
-      return fieldValue === condition.value
-    case 'not_equals':
-      if (typeof fieldValue === 'boolean') {
-        return fieldValue !== (condition.value === 'true')
-      }
-      return fieldValue !== condition.value
-    default:
-      return true
-  }
+  return evalCondition(condition, formValues as Record<string, unknown>)
 }
 
-// Evaluate whether a field is visible based on its conditional_logic (mirrors FormField.vue logic)
+// Evaluate whether a field is visible (uses new visibility + backward compat)
 const isFieldVisible = (field: FormField): boolean => {
-  const logic = field.conditional_logic as { field: string; operator: string; value: string } | null
-  if (!logic || !logic.field) return true
-  const sourceValue = (formValues as Record<string, unknown>)[logic.field]
-  switch (logic.operator) {
-    case 'equals':
-      if (typeof sourceValue === 'boolean') return sourceValue === (logic.value === 'true')
-      return sourceValue === logic.value
-    case 'not_equals':
-      if (typeof sourceValue === 'boolean') return sourceValue !== (logic.value === 'true')
-      return sourceValue !== logic.value
-    case 'includes':
-      if (Array.isArray(sourceValue)) return sourceValue.includes(logic.value)
-      if (typeof sourceValue === 'string') return sourceValue.includes(logic.value)
-      return false
-    case 'includes_any': {
-      if (!Array.isArray(sourceValue)) return false
-      const values = logic.value.split(',').map((v: string) => v.trim())
-      return values.some((v: string) => (sourceValue as string[]).includes(v))
-    }
-    default:
-      return true
-  }
+  return resolveFieldVisible(field, formValues as Record<string, unknown>)
 }
 
 // Multi-step support — compute the list of active (visible) steps

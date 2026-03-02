@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, computed, watch, nextTick } from 'vue'
-import type { FormField, FormStepConfig } from '~/types/directus'
+import type { FormField, FormStepConfig, ConditionRule } from '~/types/directus'
 
 // ──────────────────────────────────────────────
 // Props & Emits
@@ -221,6 +221,9 @@ const createField = (type: string): FormField => {
     conditional_logic: null,
     width: 'full',
     sort: allFields.value.length,
+    layout: ['radio', 'checkbox_group'].includes(type) ? 'stacked' : undefined,
+    visibility: { mode: 'always', condition: null },
+    requirement: { mode: 'never', condition: null },
   }
 }
 
@@ -617,7 +620,7 @@ const updateStepCondition = (key: string, value: string) => {
 }
 
 // ──────────────────────────────────────────────
-// Field settings helpers (conditional logic, options)
+// Field settings helpers
 // ──────────────────────────────────────────────
 const otherFields = computed(() =>
   allFields.value.filter(f => f.id !== selectedFieldId.value && f.type !== 'heading' && f.type !== 'paragraph')
@@ -635,20 +638,79 @@ const getFieldValues = (fieldName: string): Array<{ label: string; value: string
   return []
 }
 
-const toggleConditionalLogic = (enabled: boolean) => {
+// ── Visibility helpers ──
+const getVisibilityMode = computed((): 'always' | 'when' | 'never' => {
+  if (!selectedField.value) return 'always'
+  if (selectedField.value.visibility) return selectedField.value.visibility.mode
+  // Backward compat
+  const cl = selectedField.value.conditional_logic as ConditionRule | null
+  if (cl && cl.field) return 'when'
+  return 'always'
+})
+
+const getVisibilityCondition = computed((): ConditionRule | null => {
+  if (!selectedField.value) return null
+  if (selectedField.value.visibility?.condition) return selectedField.value.visibility.condition
+  const cl = selectedField.value.conditional_logic as ConditionRule | null
+  if (cl && cl.field) return cl
+  return null
+})
+
+const setVisibilityMode = (mode: string) => {
   if (!selectedField.value) return
+  const condition: ConditionRule | null = mode === 'when'
+    ? (getVisibilityCondition.value || { field: '', operator: 'equals', value: '' })
+    : null
   updateField(selectedField.value.id, {
-    conditional_logic: enabled ? { field: '', operator: 'equals', value: '' } : null,
+    visibility: { mode: mode as any, condition },
+    conditional_logic: mode === 'when' && condition ? { ...condition } : null,
   })
 }
 
-const updateCondition = (key: string, value: string) => {
-  if (!selectedField.value?.conditional_logic) return
-  const updated = { ...selectedField.value.conditional_logic, [key]: value }
-  if (key === 'field') (updated as any).value = ''
-  updateField(selectedField.value.id, { conditional_logic: updated })
+const updateVisibilityCondition = (key: string, val: string) => {
+  if (!selectedField.value?.visibility?.condition) return
+  const updated = { ...selectedField.value.visibility.condition, [key]: val } as ConditionRule
+  if (key === 'field') updated.value = ''
+  updateField(selectedField.value.id, {
+    visibility: { mode: 'when', condition: updated },
+    conditional_logic: { ...updated },
+  })
 }
 
+// ── Requirement helpers ──
+const getRequirementMode = computed((): 'always' | 'when' | 'never' => {
+  if (!selectedField.value) return 'never'
+  if (selectedField.value.requirement) return selectedField.value.requirement.mode
+  return selectedField.value.required ? 'always' : 'never'
+})
+
+const getRequirementCondition = computed((): ConditionRule | null => {
+  if (!selectedField.value?.requirement?.condition) return null
+  return selectedField.value.requirement.condition
+})
+
+const setRequirementMode = (mode: string) => {
+  if (!selectedField.value) return
+  const condition: ConditionRule | null = mode === 'when'
+    ? (getRequirementCondition.value || { field: '', operator: 'equals', value: '' })
+    : null
+  updateField(selectedField.value.id, {
+    requirement: { mode: mode as any, condition },
+    required: mode === 'always',
+  })
+}
+
+const updateRequirementCondition = (key: string, val: string) => {
+  if (!selectedField.value?.requirement?.condition) return
+  const updated = { ...selectedField.value.requirement.condition, [key]: val } as ConditionRule
+  if (key === 'field') updated.value = ''
+  updateField(selectedField.value.id, {
+    requirement: { mode: 'when', condition: updated },
+    required: false,
+  })
+}
+
+// ── Options helpers ──
 const addOption = () => {
   if (!selectedField.value) return
   if (!selectedField.value.options) selectedField.value.options = []
@@ -671,6 +733,12 @@ const findFieldStep = (fieldId: string): number => {
     if (stepGroups.value[i].fields.some(f => f.id === fieldId)) return i
   }
   return -1
+}
+
+// Resolve whether a field shows as required (for preview indicators)
+const isFieldEffectivelyRequired = (field: FormField): boolean => {
+  if (field.requirement) return field.requirement.mode === 'always' || field.requirement.mode === 'when'
+  return field.required
 }
 </script>
 
@@ -777,7 +845,7 @@ const findFieldStep = (fieldId: string): number => {
                 <template v-else>
                   <label class="block text-sm font-medium text-slate-700 mb-1.5">
                     {{ field.label }}
-                    <span v-if="field.required" class="text-red-500 ml-0.5">*</span>
+                    <span v-if="isFieldEffectivelyRequired(field)" class="text-red-500 ml-0.5">*</span>
                   </label>
                   <input
                     v-if="['text', 'email', 'phone', 'number', 'date'].includes(field.type)"
@@ -997,18 +1065,32 @@ const findFieldStep = (fieldId: string): number => {
                     <span class="text-sm text-slate-700 flex-1 truncate">{{ field.label }}</span>
 
                     <span
-                      v-if="field.required"
+                      v-if="field.requirement?.mode === 'always' || (!field.requirement && field.required)"
                       class="text-[10px] font-medium text-red-500 bg-red-50 px-1.5 py-0.5 rounded flex-shrink-0"
                     >
                       Required
                     </span>
+                    <span
+                      v-else-if="field.requirement?.mode === 'when'"
+                      class="text-[10px] font-medium text-amber-600 bg-amber-50 px-1.5 py-0.5 rounded flex-shrink-0"
+                      title="Conditionally required"
+                    >
+                      Required*
+                    </span>
 
                     <span
-                      v-if="field.conditional_logic"
+                      v-if="field.visibility?.mode === 'when' || (!field.visibility && field.conditional_logic)"
                       class="text-amber-500 flex-shrink-0"
-                      title="Has conditional logic"
+                      title="Conditionally visible"
                     >
                       <Icon name="lucide:eye" class="w-3 h-3" />
+                    </span>
+                    <span
+                      v-else-if="field.visibility?.mode === 'never'"
+                      class="text-slate-400 flex-shrink-0"
+                      title="Always hidden"
+                    >
+                      <Icon name="lucide:eye-off" class="w-3 h-3" />
                     </span>
 
                     <span class="text-[10px] text-slate-400 bg-slate-100 px-1.5 py-0.5 rounded flex-shrink-0">
@@ -1261,15 +1343,6 @@ const findFieldStep = (fieldId: string): number => {
           />
         </div>
 
-        <!-- Required -->
-        <div v-if="!['heading', 'paragraph'].includes(selectedField.type)" class="flex items-center gap-2">
-          <Checkbox
-            :checked="selectedField.required"
-            @update:checked="updateField(selectedField.id, { required: $event })"
-          />
-          <Label class="text-sm text-slate-700">Required field</Label>
-        </div>
-
         <!-- Width -->
         <div>
           <Label class="text-xs text-slate-500 mb-1">Field Width</Label>
@@ -1316,40 +1389,63 @@ const findFieldStep = (fieldId: string): number => {
           </div>
         </div>
 
-        <!-- Conditional Logic -->
-        <div v-if="!['heading', 'paragraph'].includes(selectedField.type)" class="border-t border-slate-200 pt-5">
-          <div class="flex items-center justify-between mb-3">
-            <Label class="text-xs text-slate-500">Conditional Logic</Label>
-            <Switch
-              :checked="!!selectedField.conditional_logic"
-              @update:checked="toggleConditionalLogic"
-            />
-          </div>
+        <!-- Options Layout (radio / checkbox_group only) -->
+        <div v-if="['radio', 'checkbox_group'].includes(selectedField.type)">
+          <Label class="text-xs text-slate-500 mb-1">Options Layout</Label>
+          <Select
+            :model-value="selectedField.layout || 'stacked'"
+            @update:model-value="updateField(selectedField.id, { layout: $event as FormField['layout'] })"
+          >
+            <SelectTrigger>
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="stacked">Stacked (1 Column)</SelectItem>
+              <SelectItem value="two-columns">2 Columns</SelectItem>
+              <SelectItem value="three-columns">3 Columns</SelectItem>
+              <SelectItem value="four-columns">4 Columns</SelectItem>
+              <SelectItem value="side-by-side">Side by Side</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
 
-          <div v-if="selectedField.conditional_logic" class="space-y-3 bg-slate-50 rounded-lg p-3">
+        <!-- ── Show This Field ── -->
+        <div v-if="!['heading', 'paragraph'].includes(selectedField.type)" class="border-t border-slate-200 pt-5">
+          <Label class="text-xs text-slate-500 mb-2">Show This Field</Label>
+          <Select
+            :model-value="getVisibilityMode"
+            @update:model-value="setVisibilityMode($event)"
+          >
+            <SelectTrigger class="text-xs">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="always">Always</SelectItem>
+              <SelectItem value="when">When...</SelectItem>
+              <SelectItem value="never">Never</SelectItem>
+            </SelectContent>
+          </Select>
+
+          <div v-if="getVisibilityMode === 'when'" class="space-y-3 bg-slate-50 rounded-lg p-3 mt-3">
             <p class="text-xs text-slate-500">Show this field when:</p>
 
             <Select
-              :model-value="(selectedField.conditional_logic as any)?.field || ''"
-              @update:model-value="updateCondition('field', $event)"
+              :model-value="getVisibilityCondition?.field || ''"
+              @update:model-value="updateVisibilityCondition('field', $event)"
             >
               <SelectTrigger class="text-xs">
                 <SelectValue placeholder="Select a field..." />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem
-                  v-for="f in otherFields"
-                  :key="f.id"
-                  :value="f.name"
-                >
+                <SelectItem v-for="f in otherFields" :key="f.id" :value="f.name">
                   {{ f.label }}
                 </SelectItem>
               </SelectContent>
             </Select>
 
             <Select
-              :model-value="(selectedField.conditional_logic as any)?.operator || 'equals'"
-              @update:model-value="updateCondition('operator', $event)"
+              :model-value="getVisibilityCondition?.operator || 'equals'"
+              @update:model-value="updateVisibilityCondition('operator', $event)"
             >
               <SelectTrigger class="text-xs">
                 <SelectValue />
@@ -1362,18 +1458,18 @@ const findFieldStep = (fieldId: string): number => {
               </SelectContent>
             </Select>
 
-            <template v-if="(selectedField.conditional_logic as any)?.field">
+            <template v-if="getVisibilityCondition?.field">
               <Select
-                v-if="getFieldValues((selectedField.conditional_logic as any).field).length > 0"
-                :model-value="(selectedField.conditional_logic as any)?.value || ''"
-                @update:model-value="updateCondition('value', $event)"
+                v-if="getFieldValues(getVisibilityCondition.field).length > 0"
+                :model-value="getVisibilityCondition?.value || ''"
+                @update:model-value="updateVisibilityCondition('value', $event)"
               >
                 <SelectTrigger class="text-xs">
                   <SelectValue placeholder="Select a value..." />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem
-                    v-for="opt in getFieldValues((selectedField.conditional_logic as any).field)"
+                    v-for="opt in getFieldValues(getVisibilityCondition!.field)"
                     :key="opt.value"
                     :value="opt.value"
                   >
@@ -1383,8 +1479,87 @@ const findFieldStep = (fieldId: string): number => {
               </Select>
               <Input
                 v-else
-                :model-value="(selectedField.conditional_logic as any)?.value || ''"
-                @update:model-value="updateCondition('value', $event)"
+                :model-value="getVisibilityCondition?.value || ''"
+                @update:model-value="updateVisibilityCondition('value', $event)"
+                placeholder="Enter a value..."
+                class="text-xs"
+              />
+            </template>
+          </div>
+        </div>
+
+        <!-- ── Require This Field ── -->
+        <div v-if="!['heading', 'paragraph'].includes(selectedField.type)" class="border-t border-slate-200 pt-5">
+          <Label class="text-xs text-slate-500 mb-2">Require This Field</Label>
+          <Select
+            :model-value="getRequirementMode"
+            @update:model-value="setRequirementMode($event)"
+          >
+            <SelectTrigger class="text-xs">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="always">Always</SelectItem>
+              <SelectItem value="when">When...</SelectItem>
+              <SelectItem value="never">Never</SelectItem>
+            </SelectContent>
+          </Select>
+
+          <div v-if="getRequirementMode === 'when'" class="space-y-3 bg-slate-50 rounded-lg p-3 mt-3">
+            <p class="text-xs text-slate-500">Require this field when:</p>
+
+            <Select
+              :model-value="getRequirementCondition?.field || ''"
+              @update:model-value="updateRequirementCondition('field', $event)"
+            >
+              <SelectTrigger class="text-xs">
+                <SelectValue placeholder="Select a field..." />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem v-for="f in otherFields" :key="f.id" :value="f.name">
+                  {{ f.label }}
+                </SelectItem>
+              </SelectContent>
+            </Select>
+
+            <Select
+              :model-value="getRequirementCondition?.operator || 'equals'"
+              @update:model-value="updateRequirementCondition('operator', $event)"
+            >
+              <SelectTrigger class="text-xs">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="equals">equals</SelectItem>
+                <SelectItem value="not_equals">does not equal</SelectItem>
+                <SelectItem value="includes">includes</SelectItem>
+                <SelectItem value="includes_any">includes any of</SelectItem>
+              </SelectContent>
+            </Select>
+
+            <template v-if="getRequirementCondition?.field">
+              <Select
+                v-if="getFieldValues(getRequirementCondition.field).length > 0"
+                :model-value="getRequirementCondition?.value || ''"
+                @update:model-value="updateRequirementCondition('value', $event)"
+              >
+                <SelectTrigger class="text-xs">
+                  <SelectValue placeholder="Select a value..." />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem
+                    v-for="opt in getFieldValues(getRequirementCondition!.field)"
+                    :key="opt.value"
+                    :value="opt.value"
+                  >
+                    {{ opt.label }}
+                  </SelectItem>
+                </SelectContent>
+              </Select>
+              <Input
+                v-else
+                :model-value="getRequirementCondition?.value || ''"
+                @update:model-value="updateRequirementCondition('value', $event)"
                 placeholder="Enter a value..."
                 class="text-xs"
               />
