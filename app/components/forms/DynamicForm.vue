@@ -146,8 +146,16 @@ const evaluateCondition = (condition: FormStepCondition): boolean => {
       }
       return false
     case 'equals':
+      // Support boolean comparison: condition.value is always a string,
+      // but the field may be a boolean (e.g. checkbox true/false)
+      if (typeof fieldValue === 'boolean') {
+        return fieldValue === (condition.value === 'true')
+      }
       return fieldValue === condition.value
     case 'not_equals':
+      if (typeof fieldValue === 'boolean') {
+        return fieldValue !== (condition.value === 'true')
+      }
       return fieldValue !== condition.value
     default:
       return true

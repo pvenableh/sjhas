@@ -35,6 +35,7 @@ const field = (
 })
 
 // Tax Services Questionnaire default form
+// Field names match the Directus CMS form for consistency
 const defaultForm = {
   id: 0,
   status: 'published' as const,
@@ -48,38 +49,43 @@ const defaultForm = {
   max_file_size_mb: 10,
   allowed_file_types: '.pdf,.doc,.docx,.xls,.xlsx,.csv,.jpg,.jpeg,.png,.gif,.txt',
   fields: [
-    // ── Step 1: Personal Info & Service Selection (sort 1–19) ──
-    field('section_personal', 'heading', 'Personal Information', 1, {
-      help_text: 'Please provide your contact details.',
+    // ── Step 1: Contact Info & Service Selection (sort 0–19) ──
+    field('heading', 'heading', 'Tax Services Questionnaire', 0, {
+      help_text: 'Help us understand your tax and payroll service needs.',
     }),
-    field('first_name', 'text', 'First Name', 2, {
-      placeholder: 'John', required: true, width: 'half',
+    field('full_name', 'text', 'Full Name', 1, {
+      placeholder: 'Enter your full name', required: true, width: 'half',
     }),
-    field('last_name', 'text', 'Last Name', 3, {
-      placeholder: 'Smith', required: true, width: 'half',
+    field('email', 'email', 'Email Address', 2, {
+      placeholder: 'you@example.com', required: true, width: 'half',
     }),
-    field('email', 'email', 'Email Address', 4, {
-      placeholder: 'john@example.com', required: true, width: 'half',
+    field('phone', 'phone', 'Phone Number', 3, {
+      placeholder: '(555) 555-5555', width: 'half',
     }),
-    field('phone', 'phone', 'Phone Number', 5, {
-      placeholder: '(607) 555-1234', required: true, width: 'half',
-    }),
-    field('section_services', 'heading', 'Service Selection', 10, {
-      help_text: 'Select all tax & payroll services you are interested in.',
-    }),
-    field('service_types', 'checkbox_group', 'What type of tax & payroll services are you interested in?', 11, {
-      required: true,
+    field('text_capability', 'radio', 'Can this phone number send and receive text (SMS) messages?', 4, {
+      width: 'half',
       options: [
-        { label: 'Individual Tax', value: 'individual_tax' },
-        { label: 'Self-Employment', value: 'self_employment' },
-        { label: 'LLC & Partnership', value: 'llc_partnership' },
-        { label: 'S or C Corporation', value: 's_c_corporation' },
-        { label: 'Payroll Services', value: 'payroll_services' },
-        { label: 'Sales Tax Services', value: 'sales_tax' },
-        { label: 'Exempt Organization Returns', value: 'exempt_org' },
-        { label: 'Fiduciary Returns - Trusts & Estates', value: 'fiduciary' },
+        { label: 'Yes', value: 'yes' },
+        { label: 'No', value: 'no' },
       ],
     }),
+    field('sms_consent', 'radio', 'Do you give consent to SJHAS, Inc. to send text (SMS) messages to the mobile number provided?', 5, {
+      options: [
+        { label: 'Yes', value: 'yes' },
+        { label: 'No', value: 'no' },
+      ],
+    }),
+    field('services', 'heading', 'Please select which services you are interested in:', 6, {
+      help_text: 'Please select all that apply.',
+    }),
+    field('individual', 'checkbox', 'Individual Tax', 7, { width: 'third' }),
+    field('self-employment', 'checkbox', 'Self-Employment', 8, { width: 'third' }),
+    field('llc_partnership', 'checkbox', 'LLC & Partnership', 9, { width: 'third' }),
+    field('corporation', 'checkbox', 'S or C Corporation', 10, { width: 'third' }),
+    field('payroll', 'checkbox', 'Payroll Services', 11, { width: 'third' }),
+    field('sales_tax', 'checkbox', 'Sales Tax Services', 12, { width: 'third' }),
+    field('exempt_organization', 'checkbox', 'Exempt Organization Returns', 13, { width: 'third' }),
+    field('fiduciary_returns', 'checkbox', 'Fiduciary Returns - Trusts & Estates', 14, { width: 'third' }),
 
     // ── Step 2: Individual Tax (sort 100–119) ──
     field('section_individual', 'heading', 'Individual Tax Information', 100, {
@@ -274,8 +280,8 @@ const defaultForm = {
     field('documents', 'file', 'Upload Documents (Optional)', 301, {
       help_text: 'Upload W-2s, 1099s, or other relevant tax documents.',
     }),
-    field('additional_notes', 'textarea', 'Additional Information', 310, {
-      placeholder: 'Please share any other information that would be helpful...',
+    field('additional_info', 'textarea', 'Additional Information', 310, {
+      placeholder: 'Any other details about your tax situation...',
     }),
   ],
 }
@@ -283,18 +289,19 @@ const defaultForm = {
 const displayForm = computed(() => form.value || defaultForm)
 
 // Multi-step configuration with conditional steps
+// Conditions reference individual checkbox field names matching the CMS structure
 const formSteps: FormStep[] = [
-  // Step 1: Always shown — personal info + service selection
-  { label: 'Getting Started', icon: 'lucide:user', fieldRange: [1, 19] },
-  // Conditional steps — only shown when the matching service is selected
-  { label: 'Individual Tax', icon: 'lucide:user-check', fieldRange: [100, 119], condition: { field: 'service_types', operator: 'includes', value: 'individual_tax' } },
-  { label: 'Self-Employment', icon: 'lucide:briefcase', fieldRange: [120, 139], condition: { field: 'service_types', operator: 'includes', value: 'self_employment' } },
-  { label: 'LLC & Partnership', icon: 'lucide:users', fieldRange: [140, 159], condition: { field: 'service_types', operator: 'includes', value: 'llc_partnership' } },
-  { label: 'S/C Corporation', icon: 'lucide:building-2', fieldRange: [160, 179], condition: { field: 'service_types', operator: 'includes', value: 's_c_corporation' } },
-  { label: 'Payroll', icon: 'lucide:banknote', fieldRange: [180, 199], condition: { field: 'service_types', operator: 'includes', value: 'payroll_services' } },
-  { label: 'Sales Tax', icon: 'lucide:receipt', fieldRange: [200, 219], condition: { field: 'service_types', operator: 'includes', value: 'sales_tax' } },
-  { label: 'Exempt Org', icon: 'lucide:heart-handshake', fieldRange: [220, 239], condition: { field: 'service_types', operator: 'includes', value: 'exempt_org' } },
-  { label: 'Trusts & Estates', icon: 'lucide:scroll-text', fieldRange: [240, 259], condition: { field: 'service_types', operator: 'includes', value: 'fiduciary' } },
+  // Step 1: Always shown — contact info + service selection checkboxes
+  { label: 'Getting Started', icon: 'lucide:user', fieldRange: [0, 19] },
+  // Conditional steps — shown when the corresponding checkbox is checked (boolean = true)
+  { label: 'Individual Tax', icon: 'lucide:user-check', fieldRange: [100, 119], condition: { field: 'individual', operator: 'equals', value: 'true' } },
+  { label: 'Self-Employment', icon: 'lucide:briefcase', fieldRange: [120, 139], condition: { field: 'self-employment', operator: 'equals', value: 'true' } },
+  { label: 'LLC & Partnership', icon: 'lucide:users', fieldRange: [140, 159], condition: { field: 'llc_partnership', operator: 'equals', value: 'true' } },
+  { label: 'S/C Corporation', icon: 'lucide:building-2', fieldRange: [160, 179], condition: { field: 'corporation', operator: 'equals', value: 'true' } },
+  { label: 'Payroll', icon: 'lucide:banknote', fieldRange: [180, 199], condition: { field: 'payroll', operator: 'equals', value: 'true' } },
+  { label: 'Sales Tax', icon: 'lucide:receipt', fieldRange: [200, 219], condition: { field: 'sales_tax', operator: 'equals', value: 'true' } },
+  { label: 'Exempt Org', icon: 'lucide:heart-handshake', fieldRange: [220, 239], condition: { field: 'exempt_organization', operator: 'equals', value: 'true' } },
+  { label: 'Trusts & Estates', icon: 'lucide:scroll-text', fieldRange: [240, 259], condition: { field: 'fiduciary_returns', operator: 'equals', value: 'true' } },
   // Final step: Always shown — documents & notes
   { label: 'Documents', icon: 'lucide:file-text', fieldRange: [300, 319] },
 ]
