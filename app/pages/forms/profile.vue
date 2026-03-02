@@ -57,35 +57,35 @@ const handleSave = async () => {
 <template>
   <div class="space-y-6 max-w-2xl">
     <div>
-      <h1 class="text-2xl font-semibold text-slate-900">Profile Settings</h1>
-      <p class="text-slate-600 mt-1">Manage your account information.</p>
+      <h1 class="text-2xl font-semibold text-slate-900 dark:text-slate-100">Profile Settings</h1>
+      <p class="text-slate-600 dark:text-slate-400 mt-1">Manage your account information.</p>
     </div>
 
     <Card class="p-6">
       <form class="space-y-5" @submit.prevent="handleSave">
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
-            <label for="first_name" class="block text-sm font-medium text-slate-700 mb-1">First Name</label>
+            <label for="first_name" class="block text-sm font-medium text-slate-700 dark:text-slate-200 mb-1">First Name</label>
             <Input id="first_name" v-model="form.first_name" />
           </div>
           <div>
-            <label for="last_name" class="block text-sm font-medium text-slate-700 mb-1">Last Name</label>
+            <label for="last_name" class="block text-sm font-medium text-slate-700 dark:text-slate-200 mb-1">Last Name</label>
             <Input id="last_name" v-model="form.last_name" />
           </div>
         </div>
 
         <div>
-          <label for="email" class="block text-sm font-medium text-slate-700 mb-1">Email</label>
-          <Input id="email" v-model="form.email" type="email" disabled class="bg-slate-50" />
-          <p class="text-xs text-slate-400 mt-1">Email cannot be changed here.</p>
+          <label for="email" class="block text-sm font-medium text-slate-700 dark:text-slate-200 mb-1">Email</label>
+          <Input id="email" v-model="form.email" type="email" disabled class="bg-slate-50 dark:bg-secondary-900" />
+          <p class="text-xs text-slate-400 dark:text-slate-500 mt-1">Email cannot be changed here.</p>
         </div>
 
         <div>
-          <label for="phone" class="block text-sm font-medium text-slate-700 mb-1">Phone</label>
+          <label for="phone" class="block text-sm font-medium text-slate-700 dark:text-slate-200 mb-1">Phone</label>
           <Input id="phone" v-model="form.phone" type="tel" />
         </div>
 
-        <div v-if="saveMessage" :class="saveMessage.includes('Failed') ? 'text-red-600' : 'text-green-600'" class="text-sm">
+        <div v-if="saveMessage" :class="saveMessage.includes('Failed') ? 'text-red-600 dark:text-red-400' : 'text-green-600 dark:text-green-400'" class="text-sm">
           {{ saveMessage }}
         </div>
 

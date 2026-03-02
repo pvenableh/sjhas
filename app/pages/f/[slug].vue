@@ -98,7 +98,7 @@ const handleSubmitted = () => {
       <!-- Error -->
       <div v-else-if="error === 'error'" class="text-center py-32">
         <div
-          class="w-16 h-16 rounded-2xl bg-red-50 mx-auto mb-6 flex items-center justify-center"
+          class="w-16 h-16 rounded-2xl bg-red-50 dark:bg-red-900/20 mx-auto mb-6 flex items-center justify-center"
         >
           <Icon name="lucide:alert-circle" class="w-7 h-7 text-red-500" />
         </div>
