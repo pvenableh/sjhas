@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, watch } from 'vue'
 import { toast } from 'vue-sonner'
-import type { Form, FormField } from '~/types/directus'
+import type { Form, FormField, FormStepConfig } from '~/types/directus'
 
 const route = useRoute()
 const router = useRouter()
@@ -103,6 +103,87 @@ const saveForm = async (publish = false) => {
 const previewForm = () => {
   activeTab.value = 'preview'
 }
+
+// Steps configuration
+const isMultiStepEnabled = computed({
+  get: () => Array.isArray(formData.value.steps) && formData.value.steps.length > 0,
+  set: (enabled: boolean) => {
+    if (enabled) {
+      const maxSort = (formData.value.fields || []).reduce((max, f) => Math.max(max, f.sort), 0)
+      formData.value.steps = [{
+        label: 'Step 1',
+        fieldRange: [0, maxSort] as [number, number],
+        condition: null,
+      }]
+    } else {
+      formData.value.steps = null
+    }
+  },
+})
+
+const addStep = () => {
+  if (!formData.value.steps) formData.value.steps = []
+  const prevStep = formData.value.steps[formData.value.steps.length - 1]
+  const startSort = prevStep ? prevStep.fieldRange[1] + 1 : 0
+  formData.value.steps.push({
+    label: `Step ${formData.value.steps.length + 1}`,
+    fieldRange: [startSort, startSort + 99] as [number, number],
+    condition: null,
+  })
+}
+
+const removeStep = (index: number) => {
+  if (!formData.value.steps) return
+  formData.value.steps.splice(index, 1)
+  if (formData.value.steps.length === 0) {
+    formData.value.steps = null
+  }
+}
+
+const updateStep = (index: number, updates: Partial<FormStepConfig>) => {
+  if (!formData.value.steps?.[index]) return
+  Object.assign(formData.value.steps[index], updates)
+}
+
+const toggleStepCondition = (index: number, enabled: boolean) => {
+  if (!formData.value.steps?.[index]) return
+  if (enabled) {
+    formData.value.steps[index].condition = { field: '', operator: 'equals', value: '' }
+  } else {
+    formData.value.steps[index].condition = null
+  }
+}
+
+// Available form fields for step conditions (excludes headings/paragraphs)
+const conditionFields = computed(() => {
+  return (formData.value.fields || []).filter(
+    (f) => f.type !== 'heading' && f.type !== 'paragraph'
+  )
+})
+
+// Get available values for condition field
+const getConditionFieldValues = (fieldName: string): Array<{ label: string; value: string }> => {
+  const f = (formData.value.fields || []).find((field) => field.name === fieldName)
+  if (!f) return []
+  if (f.type === 'checkbox') {
+    return [{ label: 'Checked (true)', value: 'true' }, { label: 'Unchecked (false)', value: 'false' }]
+  }
+  if (f.options && f.options.length > 0) {
+    return f.options
+  }
+  return []
+}
+
+// Convert steps to the format DynamicForm expects
+const previewSteps = computed(() => {
+  if (!formData.value.steps || formData.value.steps.length === 0) return undefined
+  return formData.value.steps.map((step) => ({
+    label: step.label,
+    icon: step.icon,
+    fieldRange: step.fieldRange,
+    condition: step.condition && step.condition.field ? step.condition : undefined,
+  }))
+})
 </script>
 
 <template>
@@ -192,7 +273,7 @@ const previewForm = () => {
         <AdminFormBuilder v-model="formData.fields as FormField[]" />
       </div>
 
-      <div v-show="activeTab === 'settings'" class="max-w-2xl">
+      <div v-show="activeTab === 'settings'" class="max-w-2xl space-y-6">
         <Card class="p-6 space-y-6">
           <div>
             <h3 class="text-lg font-semibold text-slate-900 mb-4">Basic Settings</h3>
@@ -296,6 +377,160 @@ const previewForm = () => {
             </div>
           </div>
         </Card>
+
+        <!-- Steps Configuration -->
+        <Card class="p-6 space-y-6">
+          <div>
+            <div class="flex items-center justify-between mb-4">
+              <div>
+                <h3 class="text-lg font-semibold text-slate-900">Multi-Step Form</h3>
+                <p class="text-sm text-slate-500 mt-1">Split the form into multiple steps with optional conditional visibility.</p>
+              </div>
+              <Switch
+                :checked="isMultiStepEnabled"
+                @update:checked="isMultiStepEnabled = $event"
+              />
+            </div>
+
+            <div v-if="isMultiStepEnabled && formData.steps" class="space-y-4">
+              <div
+                v-for="(step, index) in formData.steps"
+                :key="index"
+                class="border border-slate-200 rounded-xl p-4 space-y-4"
+              >
+                <div class="flex items-center justify-between">
+                  <span class="text-xs font-semibold text-slate-400 uppercase tracking-widest">Step {{ index + 1 }}</span>
+                  <button
+                    v-if="formData.steps!.length > 1"
+                    class="p-1.5 rounded hover:bg-red-100 transition-colors"
+                    title="Remove step"
+                    @click="removeStep(index)"
+                  >
+                    <Icon name="lucide:trash-2" class="w-4 h-4 text-red-500" />
+                  </button>
+                </div>
+
+                <!-- Step label -->
+                <div>
+                  <Label class="text-xs text-slate-500 mb-1">Step Label</Label>
+                  <Input
+                    :model-value="step.label"
+                    @update:model-value="updateStep(index, { label: $event })"
+                    placeholder="e.g., Personal Information"
+                  />
+                </div>
+
+                <!-- Field sort range -->
+                <div class="grid grid-cols-2 gap-3">
+                  <div>
+                    <Label class="text-xs text-slate-500 mb-1">Field Sort From</Label>
+                    <Input
+                      :model-value="step.fieldRange[0]"
+                      type="number"
+                      min="0"
+                      @update:model-value="updateStep(index, { fieldRange: [Number($event), step.fieldRange[1]] })"
+                    />
+                  </div>
+                  <div>
+                    <Label class="text-xs text-slate-500 mb-1">Field Sort To</Label>
+                    <Input
+                      :model-value="step.fieldRange[1]"
+                      type="number"
+                      min="0"
+                      @update:model-value="updateStep(index, { fieldRange: [step.fieldRange[0], Number($event)] })"
+                    />
+                  </div>
+                </div>
+                <p class="text-xs text-slate-400">
+                  Fields with sort values {{ step.fieldRange[0] }}–{{ step.fieldRange[1] }} will appear in this step.
+                </p>
+
+                <!-- Step condition -->
+                <div class="border-t border-slate-100 pt-4">
+                  <div class="flex items-center justify-between mb-3">
+                    <Label class="text-xs text-slate-500">Conditional Visibility</Label>
+                    <Switch
+                      :checked="!!step.condition"
+                      @update:checked="toggleStepCondition(index, $event)"
+                    />
+                  </div>
+
+                  <div v-if="step.condition" class="space-y-3 bg-slate-50 rounded-lg p-3">
+                    <p class="text-xs text-slate-500">Show this step when:</p>
+
+                    <!-- Source field -->
+                    <Select
+                      :model-value="step.condition.field"
+                      @update:model-value="step.condition!.field = $event; step.condition!.value = ''"
+                    >
+                      <SelectTrigger class="text-xs">
+                        <SelectValue placeholder="Select a field..." />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem
+                          v-for="f in conditionFields"
+                          :key="f.id"
+                          :value="f.name"
+                        >
+                          {{ f.label }}
+                        </SelectItem>
+                      </SelectContent>
+                    </Select>
+
+                    <!-- Operator -->
+                    <Select
+                      :model-value="step.condition.operator"
+                      @update:model-value="step.condition!.operator = $event as any"
+                    >
+                      <SelectTrigger class="text-xs">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="equals">equals</SelectItem>
+                        <SelectItem value="not_equals">does not equal</SelectItem>
+                        <SelectItem value="includes">includes</SelectItem>
+                      </SelectContent>
+                    </Select>
+
+                    <!-- Value -->
+                    <template v-if="step.condition.field">
+                      <Select
+                        v-if="getConditionFieldValues(step.condition.field).length > 0"
+                        :model-value="step.condition.value"
+                        @update:model-value="step.condition!.value = $event"
+                      >
+                        <SelectTrigger class="text-xs">
+                          <SelectValue placeholder="Select a value..." />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem
+                            v-for="opt in getConditionFieldValues(step.condition.field)"
+                            :key="opt.value"
+                            :value="opt.value"
+                          >
+                            {{ opt.label }}
+                          </SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <Input
+                        v-else
+                        :model-value="step.condition.value"
+                        @update:model-value="step.condition!.value = $event"
+                        placeholder="Enter a value..."
+                        class="text-xs"
+                      />
+                    </template>
+                  </div>
+                </div>
+              </div>
+
+              <Button variant="secondary" size="sm" class="w-full" @click="addStep">
+                <Icon name="lucide:plus" class="w-4 h-4" />
+                Add Step
+              </Button>
+            </div>
+          </div>
+        </Card>
       </div>
 
       <div v-show="activeTab === 'preview'" class="max-w-2xl mx-auto">
@@ -310,6 +545,7 @@ const previewForm = () => {
           <FormsDynamicForm
             v-if="formData.fields && formData.fields.length > 0"
             :form="formData as Form"
+            :steps="previewSteps"
             @submitted="toast.success('Preview: Form would be submitted')"
           />
 

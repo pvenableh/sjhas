@@ -127,7 +127,7 @@ const handleSubmitted = () => {
             </p>
           </div>
 
-          <FormsDynamicForm :form="form" @submitted="handleSubmitted" />
+          <FormsDynamicForm :form="form" :steps="form.steps || undefined" @submitted="handleSubmitted" />
         </div>
 
         <!-- Footer note -->
