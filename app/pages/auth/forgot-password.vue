@@ -58,7 +58,7 @@ const handleSubmit = async () => {
       <!-- Success state -->
       <div v-if="isSubmitted" class="bg-card text-card-foreground rounded-lg border shadow-sm p-6 text-center">
         <CheckCircle2 class="w-12 h-12 mx-auto text-green-500 mb-4" />
-        <h3 cSJHAS, Inc.-lg font-semibold mb-2">Check your email</h3>
+        <h3 class="text-lg font-semibold mb-2">Check your email</h3>
         <p class="text-sm text-muted-foreground mb-6">
           If an account exists for <span class="font-medium">{{ email }}</span>,
           we've sent a password reset link. Please check your inbox and spam folder.

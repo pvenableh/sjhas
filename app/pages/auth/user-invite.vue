@@ -78,7 +78,7 @@ const handleLogin = () => {
           <h3 class="text-lg font-semibold mb-2">Invalid Invitation</h3>
           <p class="text-sm text-muted-foreground mb-6">
             This invitation link is invalid or has expired. Please contact us if you need a new invitation.
-          </pSJHAS, Inc.
+          </p>
           <NuxtLink
             to="/auth/login"
             class="inline-flex items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90"

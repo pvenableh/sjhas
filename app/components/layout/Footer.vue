@@ -134,7 +134,7 @@ const quickLinks = computed(() => {
             >
           </div>
           <p
-            v-iSJHAS, Inc.s?.footer_tagline"
+            v-if="settings?.footer_tagline"
             class="text-sm t-footer-text-secondary leading-[1.8]"
           >
             {{ settings.footer_tagline }}
@@ -292,7 +292,7 @@ const quickLinks = computed(() => {
       </h5>
     </div>
   </footer>
-</template>SJHAS, Inc.
+</template>
 <style>
 h5.web-designer {
   margin-top: 0px;

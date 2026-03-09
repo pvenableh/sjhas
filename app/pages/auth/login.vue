@@ -84,7 +84,7 @@ const handleRegister = () => {
         @register="handleRegister"
       />
 
-      <p clasSJHAS, Inc.xt-center text-sm text-slate-500">
+      <p class="mt-6 text-center text-sm text-slate-500">
         <NuxtLink to="/" class="text-primary-600 hover:text-primary-700">
           ← Back to website
         </NuxtLink>
