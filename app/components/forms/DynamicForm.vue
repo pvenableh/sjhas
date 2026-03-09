@@ -94,12 +94,30 @@ const resolveFieldRequired = (field: FormField, data: Record<string, unknown>): 
 // ──────────────────────────────────────────────
 // Build Zod schema from form fields
 // ──────────────────────────────────────────────
-const buildValidationSchema = (fields: FormField[]) => {
+const buildValidationSchema = (fields: FormField[], steps?: FormStep[]) => {
   const schemaShape: Record<string, z.ZodTypeAny> = {}
-  // Track fields with conditional requirement for superRefine
-  const conditionallyRequired: FormField[] = []
+  // Track fields whose requirement must be evaluated at validation time
+  const dynamicallyRequired: FormField[] = []
 
   if (!fields || !Array.isArray(fields)) return z.object(schemaShape)
+
+  // Build a lookup: does this field live on a conditional step?
+  const isFieldOnConditionalStep = (field: FormField): boolean => {
+    if (!steps) return false
+    const step = steps.find(
+      (s) => field.sort >= s.fieldRange[0] && field.sort <= s.fieldRange[1]
+    )
+    return !!(step?.condition)
+  }
+
+  // Check whether a field could be conditionally hidden (step OR field-level logic)
+  const isFieldConditionallyVisible = (field: FormField): boolean => {
+    if (isFieldOnConditionalStep(field)) return true
+    if (field.visibility?.mode === 'when') return true
+    // Backward compat: field has conditional_logic
+    const logic = field.conditional_logic as ConditionRule | null
+    return !!(logic && logic.field)
+  }
 
   fields.forEach((field) => {
     if (field.type === 'heading' || field.type === 'paragraph') return
@@ -154,15 +172,21 @@ const buildValidationSchema = (fields: FormField[]) => {
       })
     }
 
-    // Determine static requirement
+    // Determine requirement strategy
     const reqMode = field.requirement?.mode
+    const isConditionalReqMode = reqMode === 'when'
     const isStaticRequired = reqMode === 'always' || (!field.requirement && field.required)
-    const isConditionalRequired = reqMode === 'when'
 
-    if (isConditionalRequired) {
-      // Make optional in schema; superRefine handles dynamic check
+    // Any field that is required AND could be hidden (by step condition or
+    // field-level conditional_logic/visibility) must be validated dynamically
+    // via superRefine instead of statically in the Zod schema.
+    const needsDynamicValidation =
+      isConditionalReqMode || (isStaticRequired && isFieldConditionallyVisible(field))
+
+    if (needsDynamicValidation) {
+      // Make optional in base schema; superRefine handles the dynamic check
       fieldSchema = fieldSchema.optional()
-      conditionallyRequired.push(field)
+      dynamicallyRequired.push(field)
     } else if (!isStaticRequired) {
       fieldSchema = fieldSchema.optional()
     } else if (field.type === 'checkbox_group') {
@@ -180,12 +204,22 @@ const buildValidationSchema = (fields: FormField[]) => {
 
   let schema = z.object(schemaShape)
 
-  // Add dynamic required validation for "when" requirement fields
-  if (conditionallyRequired.length > 0) {
+  // Dynamic required validation — runs at validation time so it can
+  // check current form values for field visibility & step visibility
+  if (dynamicallyRequired.length > 0) {
     schema = schema.superRefine((data, ctx) => {
-      for (const field of conditionallyRequired) {
-        // Only validate if the field is visible
+      for (const field of dynamicallyRequired) {
+        // Skip if the field's parent step is currently hidden
+        if (steps) {
+          const step = steps.find(
+            (s) => field.sort >= s.fieldRange[0] && field.sort <= s.fieldRange[1]
+          )
+          if (step?.condition && !evalCondition(step.condition, data)) continue
+        }
+
+        // Skip if the field itself is hidden
         if (!resolveFieldVisible(field, data)) continue
+        // Skip if the field is not currently required
         if (!resolveFieldRequired(field, data)) continue
 
         const val = data[field.name as keyof typeof data]
@@ -210,7 +244,7 @@ const buildValidationSchema = (fields: FormField[]) => {
 }
 
 const validationSchema = computed(() => {
-  return toTypedSchema(buildValidationSchema(props.form.fields || []))
+  return toTypedSchema(buildValidationSchema(props.form.fields || [], props.steps))
 })
 
 // Build initial values from field defaults
@@ -342,6 +376,9 @@ const animateStepTransition = () => {
 
 const onSubmit = handleSubmit(async (values) => {
   submitError.value = null
+  console.log('[DynamicForm] Submit handler invoked — validation passed')
+  console.log('[DynamicForm] Form ID:', props.form.id, '| Title:', props.form.title)
+  console.log('[DynamicForm] Submitted values:', JSON.stringify(values, null, 2))
 
   try {
     // Create FormData for file uploads
@@ -351,10 +388,12 @@ const onSubmit = handleSubmit(async (values) => {
     for (const [key, value] of Object.entries(values)) {
       if (value instanceof File) {
         formData.append(key, value)
+        console.log(`[DynamicForm] File field "${key}":`, value.name, `(${value.size} bytes)`)
       } else if (Array.isArray(value) && value[0] instanceof File) {
         value.forEach((file: File) => {
           formData.append(key, file)
         })
+        console.log(`[DynamicForm] File array field "${key}":`, value.length, 'files')
       } else {
         jsonData[key] = value
       }
@@ -363,11 +402,15 @@ const onSubmit = handleSubmit(async (values) => {
     formData.append('data', JSON.stringify(jsonData))
     formData.append('form_id', String(props.form.id))
 
+    console.log('[DynamicForm] Sending POST /api/forms/submit with form_id:', props.form.id)
+
     // Submit to API
     const response = await $fetch('/api/forms/submit', {
       method: 'POST',
       body: formData,
     })
+
+    console.log('[DynamicForm] API response:', JSON.stringify(response))
 
     if (response.success) {
       isSuccess.value = true
@@ -390,13 +433,36 @@ const onSubmit = handleSubmit(async (values) => {
           },
         })
       }
+    } else {
+      // API returned a response but success was not true
+      console.error('[DynamicForm] API returned non-success response:', response)
+      submitError.value = (response as any).message || 'Submission failed. Please try again.'
+      trackFormError(props.form.title || 'Unknown Form', 'API returned non-success')
+      toast.error(submitError.value!)
     }
-  } catch (error) {
-    submitError.value = 'Something went wrong. Please try again.'
-    trackFormError(props.form.title || 'Unknown Form', 'Submission failed')
-    toast.error('Something went wrong. Please try again.')
-    console.error('Form submission error:', error)
+  } catch (error: any) {
+    // Extract meaningful error details from $fetch errors
+    const statusCode = error?.statusCode || error?.response?.status || 'unknown'
+    const serverMessage = error?.data?.message || error?.message || 'Unknown error'
+    console.error('[DynamicForm] Submission error:', { statusCode, serverMessage, error })
+
+    submitError.value = `Submission failed (${statusCode}): ${serverMessage}`
+    trackFormError(props.form.title || 'Unknown Form', `Submission failed: ${statusCode}`)
+    toast.error(submitError.value)
   }
+}, (errors) => {
+  // Called when vee-validate validation fails — form never reaches the submit handler
+  console.warn('[DynamicForm] Validation failed — form NOT submitted')
+  console.warn('[DynamicForm] Validation errors:', JSON.stringify(errors, null, 2))
+  console.warn('[DynamicForm] Current form values:', JSON.stringify(formValues, null, 2))
+
+  const errorCount = Object.keys(errors).length
+  const fieldNames = Object.keys(errors).join(', ')
+  const message = `Please fix ${errorCount} error${errorCount > 1 ? 's' : ''} before submitting: ${fieldNames}`
+
+  submitError.value = message
+  trackFormError(props.form.title || 'Unknown Form', `Validation failed: ${fieldNames}`)
+  toast.error(message)
 })
 
 const handleReset = () => {

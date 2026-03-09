@@ -5,16 +5,21 @@ import { renderTemplate } from '../../utils/emails/render'
 export default defineEventHandler(async (event) => {
   const config = useRuntimeConfig()
 
+  console.log('[FormSubmit] ---- New form submission request ----')
+
   try {
     // Parse multipart form data
     const formData = await readMultipartFormData(event)
 
     if (!formData) {
+      console.error('[FormSubmit] No multipart form data found in request')
       throw createError({
         statusCode: 400,
         message: 'No form data received',
       })
     }
+
+    console.log('[FormSubmit] Received', formData.length, 'multipart fields')
 
     // Extract data and files
     let jsonData: Record<string, unknown> = {}
@@ -24,8 +29,10 @@ export default defineEventHandler(async (event) => {
     for (const field of formData) {
       if (field.name === 'data' && field.data) {
         jsonData = JSON.parse(field.data.toString())
+        console.log('[FormSubmit] Parsed JSON data keys:', Object.keys(jsonData).join(', '))
       } else if (field.name === 'form_id' && field.data) {
         formId = parseInt(field.data.toString())
+        console.log('[FormSubmit] Form ID:', formId)
       } else if (field.filename && field.data) {
         files.push({
           fieldName: field.name || 'file',
@@ -33,6 +40,9 @@ export default defineEventHandler(async (event) => {
           filename: field.filename,
           type: field.type || 'application/octet-stream',
         })
+        console.log('[FormSubmit] File received:', field.filename, `(${field.data.length} bytes)`)
+      } else {
+        console.log('[FormSubmit] Unhandled field:', field.name, '| has data:', !!field.data, '| has filename:', !!field.filename)
       }
     }
 
@@ -40,6 +50,7 @@ export default defineEventHandler(async (event) => {
     const uploadedFiles: { fieldName: string; fileId: string; filename: string }[] = []
 
     if (files.length > 0 && config.directus.staticToken) {
+      console.log('[FormSubmit] Uploading', files.length, 'file(s) to Directus')
       for (const fileData of files) {
         try {
           const uploadFormData = new FormData()
@@ -61,11 +72,17 @@ export default defineEventHandler(async (event) => {
               fileId: result.data.id,
               filename: fileData.filename,
             })
+            console.log('[FormSubmit] File uploaded:', fileData.filename, '-> ID:', result.data.id)
+          } else {
+            const errorText = await response.text()
+            console.error('[FormSubmit] File upload failed:', response.status, errorText)
           }
         } catch (uploadError) {
-          console.error('File upload error:', uploadError)
+          console.error('[FormSubmit] File upload error:', uploadError)
         }
       }
+    } else if (files.length > 0) {
+      console.warn('[FormSubmit] Files present but no Directus static token configured — skipping upload')
     }
 
     // Prepare submission data
@@ -90,6 +107,7 @@ export default defineEventHandler(async (event) => {
 
     // Save submission to Directus (if we have admin access)
     if (config.directus.staticToken) {
+      console.log('[FormSubmit] Saving submission to Directus for form_id:', formId)
       try {
         const response = await fetch(`${config.directus.url}/items/form_submissions`, {
           method: 'POST',
@@ -101,11 +119,17 @@ export default defineEventHandler(async (event) => {
         })
 
         if (!response.ok) {
-          console.error('Failed to save submission:', await response.text())
+          const errorBody = await response.text()
+          console.error('[FormSubmit] Failed to save submission:', response.status, errorBody)
+        } else {
+          const result = await response.json()
+          console.log('[FormSubmit] Submission saved successfully, ID:', result.data?.id)
         }
       } catch (saveError) {
-        console.error('Submission save error:', saveError)
+        console.error('[FormSubmit] Submission save error:', saveError)
       }
+    } else {
+      console.warn('[FormSubmit] No Directus static token — submission NOT saved to database')
     }
 
     // Fetch form details for per-form notify_email and title
@@ -134,31 +158,42 @@ export default defineEventHandler(async (event) => {
     if (config.sendgridApiKey && config.notificationEmail) {
       try {
         const notifyTo = formNotifyEmail || config.notificationEmail
+        console.log('[FormSubmit] Sending admin notification to:', notifyTo)
         await sendNotificationEmail(config, jsonData, uploadedFiles, formTitle, notifyTo)
+        console.log('[FormSubmit] Admin notification sent successfully')
       } catch (emailError) {
-        console.error('Email notification error:', emailError)
+        console.error('[FormSubmit] Email notification error:', emailError)
       }
+    } else {
+      console.warn('[FormSubmit] Skipping admin email — sendgridApiKey:', !!config.sendgridApiKey, '| notificationEmail:', !!config.notificationEmail)
     }
 
     // Send confirmation email to submitter
     const submitterEmail = (jsonData.email as string) || null
     if (config.sendgridApiKey && submitterEmail) {
       try {
+        console.log('[FormSubmit] Sending confirmation email to:', submitterEmail)
         await sendConfirmationEmail(config, submitterEmail, submissionData.submitter_name, formTitle, formSuccessMessage)
+        console.log('[FormSubmit] Confirmation email sent successfully')
       } catch (emailError) {
-        console.error('Confirmation email error:', emailError)
+        console.error('[FormSubmit] Confirmation email error:', emailError)
       }
+    } else {
+      console.warn('[FormSubmit] Skipping confirmation email — sendgridApiKey:', !!config.sendgridApiKey, '| submitterEmail:', submitterEmail)
     }
 
+    console.log('[FormSubmit] ---- Submission complete — returning success ----')
     return {
       success: true,
       message: 'Form submitted successfully',
     }
-  } catch (error) {
-    console.error('Form submission error:', error)
+  } catch (error: any) {
+    console.error('[FormSubmit] ---- FATAL submission error ----')
+    console.error('[FormSubmit] Error:', error?.message || error)
+    console.error('[FormSubmit] Stack:', error?.stack)
     throw createError({
-      statusCode: 500,
-      message: 'Failed to process form submission',
+      statusCode: error?.statusCode || 500,
+      message: error?.message || 'Failed to process form submission',
     })
   }
 })
