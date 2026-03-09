@@ -342,6 +342,9 @@ const animateStepTransition = () => {
 
 const onSubmit = handleSubmit(async (values) => {
   submitError.value = null
+  console.log('[DynamicForm] Submit handler invoked — validation passed')
+  console.log('[DynamicForm] Form ID:', props.form.id, '| Title:', props.form.title)
+  console.log('[DynamicForm] Submitted values:', JSON.stringify(values, null, 2))
 
   try {
     // Create FormData for file uploads
@@ -351,10 +354,12 @@ const onSubmit = handleSubmit(async (values) => {
     for (const [key, value] of Object.entries(values)) {
       if (value instanceof File) {
         formData.append(key, value)
+        console.log(`[DynamicForm] File field "${key}":`, value.name, `(${value.size} bytes)`)
       } else if (Array.isArray(value) && value[0] instanceof File) {
         value.forEach((file: File) => {
           formData.append(key, file)
         })
+        console.log(`[DynamicForm] File array field "${key}":`, value.length, 'files')
       } else {
         jsonData[key] = value
       }
@@ -363,11 +368,15 @@ const onSubmit = handleSubmit(async (values) => {
     formData.append('data', JSON.stringify(jsonData))
     formData.append('form_id', String(props.form.id))
 
+    console.log('[DynamicForm] Sending POST /api/forms/submit with form_id:', props.form.id)
+
     // Submit to API
     const response = await $fetch('/api/forms/submit', {
       method: 'POST',
       body: formData,
     })
+
+    console.log('[DynamicForm] API response:', JSON.stringify(response))
 
     if (response.success) {
       isSuccess.value = true
@@ -390,13 +399,36 @@ const onSubmit = handleSubmit(async (values) => {
           },
         })
       }
+    } else {
+      // API returned a response but success was not true
+      console.error('[DynamicForm] API returned non-success response:', response)
+      submitError.value = (response as any).message || 'Submission failed. Please try again.'
+      trackFormError(props.form.title || 'Unknown Form', 'API returned non-success')
+      toast.error(submitError.value!)
     }
-  } catch (error) {
-    submitError.value = 'Something went wrong. Please try again.'
-    trackFormError(props.form.title || 'Unknown Form', 'Submission failed')
-    toast.error('Something went wrong. Please try again.')
-    console.error('Form submission error:', error)
+  } catch (error: any) {
+    // Extract meaningful error details from $fetch errors
+    const statusCode = error?.statusCode || error?.response?.status || 'unknown'
+    const serverMessage = error?.data?.message || error?.message || 'Unknown error'
+    console.error('[DynamicForm] Submission error:', { statusCode, serverMessage, error })
+
+    submitError.value = `Submission failed (${statusCode}): ${serverMessage}`
+    trackFormError(props.form.title || 'Unknown Form', `Submission failed: ${statusCode}`)
+    toast.error(submitError.value)
   }
+}, (errors) => {
+  // Called when vee-validate validation fails — form never reaches the submit handler
+  console.warn('[DynamicForm] Validation failed — form NOT submitted')
+  console.warn('[DynamicForm] Validation errors:', JSON.stringify(errors, null, 2))
+  console.warn('[DynamicForm] Current form values:', JSON.stringify(formValues, null, 2))
+
+  const errorCount = Object.keys(errors).length
+  const fieldNames = Object.keys(errors).join(', ')
+  const message = `Please fix ${errorCount} error${errorCount > 1 ? 's' : ''} before submitting: ${fieldNames}`
+
+  submitError.value = message
+  trackFormError(props.form.title || 'Unknown Form', `Validation failed: ${fieldNames}`)
+  toast.error(message)
 })
 
 const handleReset = () => {
