@@ -558,6 +558,7 @@ onMounted(() => {
 defineExpose({
   activeSteps,
   currentStep,
+  isSuccess,
 })
 </script>
 

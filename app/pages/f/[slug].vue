@@ -8,6 +8,9 @@ const slug = route.params.slug as string;
 const form = ref<Form | null>(null);
 const isLoading = ref(true);
 const error = ref<string | null>(null);
+const dynamicFormRef = ref<{ isSuccess: boolean } | null>(null);
+
+const isFormSuccess = computed(() => dynamicFormRef.value?.isSuccess ?? false);
 
 useSeoMeta({
   title: computed(() =>
@@ -116,18 +119,20 @@ const handleSubmitted = () => {
         <div
           class="t-bg-elevated rounded-3xl t-shadow-lg border t-border p-8 md:p-12"
         >
-          <div class="mb-10">
-            <h1
-              class="text-3xl t-heading t-text tracking-tight leading-[1.15] mb-3"
-            >
-              {{ form.title }}
-            </h1>
-            <p v-if="form.description" class="t-text-secondary leading-[1.7]">
-              {{ form.description }}
-            </p>
-          </div>
+          <Transition name="fade-slide">
+            <div v-if="!isFormSuccess" class="mb-10">
+              <h1
+                class="text-3xl t-heading t-text tracking-tight leading-[1.15] mb-3"
+              >
+                {{ form.title }}
+              </h1>
+              <p v-if="form.description" class="t-text-secondary leading-[1.7]">
+                {{ form.description }}
+              </p>
+            </div>
+          </Transition>
 
-          <FormsDynamicForm :form="form" :steps="form.steps || undefined" @submitted="handleSubmitted" />
+          <FormsDynamicForm ref="dynamicFormRef" :form="form" :steps="form.steps || undefined" @submitted="handleSubmitted" />
         </div>
 
         <!-- Footer note -->
