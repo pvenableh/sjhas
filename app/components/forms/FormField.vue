@@ -14,6 +14,11 @@ const { value, errorMessage, handleBlur, handleChange } = useField(
   undefined,
   {
     validateOnValueUpdate: false,
+    // Preserve the field value when the component unmounts (e.g. navigating
+    // between steps in a multi-step form). Without this, vee-validate
+    // destroys field values on unmount, which wipes selections like
+    // "services" and causes conditional steps to disappear.
+    keepValue: true,
   }
 )
 
