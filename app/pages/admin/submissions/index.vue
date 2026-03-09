@@ -122,10 +122,11 @@ const exportCsv = async () => {
     if (selectedStatus.value !== 'all') {
       params.set('status', selectedStatus.value)
     }
-    const response = await $fetch.raw(`/api/forms/export?${params}`, {
-      responseType: 'blob',
-    })
-    const blob = response._data as Blob
+    const response = await fetch(`/api/forms/export?${params}`)
+    if (!response.ok) {
+      throw new Error(`Export failed: ${response.statusText}`)
+    }
+    const blob = await response.blob()
     const contentDisposition = response.headers.get('content-disposition') || ''
     const filenameMatch = contentDisposition.match(/filename="?([^"]+)"?/)
     const filename = filenameMatch?.[1] || 'submissions.csv'
