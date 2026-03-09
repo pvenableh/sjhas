@@ -75,50 +75,54 @@ defineOgImage({
 <template>
   <div class="min-h-screen t-bg">
     <!-- Hero -->
-    <section v-if="!isFormSuccess" class="t-hero py-20 lg:py-28">
-      <div class="container-wide section-padding text-center">
-        <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full t-hero-badge text-sm font-medium mb-6">
-          <Icon name="lucide:clipboard-list" class="w-4 h-4" />
-          <span>Tax Services</span>
+    <Transition name="fade-slide">
+      <section v-if="!isFormSuccess" class="t-hero py-20 lg:py-28">
+        <div class="container-wide section-padding text-center">
+          <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full t-hero-badge text-sm font-medium mb-6">
+            <Icon name="lucide:clipboard-list" class="w-4 h-4" />
+            <span>Tax Services</span>
+          </div>
+          <h1 class="text-3xl sm:text-4xl lg:text-5xl t-heading t-hero-text mb-4">
+            {{ displayForm.title }}
+          </h1>
+          <p class="text-lg t-hero-text-secondary max-w-2xl mx-auto">
+            {{ displayForm.description }}
+          </p>
         </div>
-        <h1 class="text-3xl sm:text-4xl lg:text-5xl t-heading t-hero-text mb-4">
-          {{ displayForm.title }}
-        </h1>
-        <p class="text-lg t-hero-text-secondary max-w-2xl mx-auto">
-          {{ displayForm.description }}
-        </p>
-      </div>
-    </section>
+      </section>
+    </Transition>
 
     <!-- Progress indicator -->
-    <section v-if="!isFormSuccess" class="t-bg-elevated border-b t-border py-4">
-      <div class="container-wide section-padding">
-        <div class="flex items-center justify-center gap-4 sm:gap-8 text-sm flex-wrap">
-          <template v-for="(step, index) in displayedSteps" :key="step.label">
-            <div
-              class="flex items-center gap-2"
-              :class="index <= currentStep ? 't-text-accent' : 't-text-muted'"
-            >
+    <Transition name="fade-slide">
+      <section v-if="!isFormSuccess" class="t-bg-elevated border-b t-border py-4">
+        <div class="container-wide section-padding">
+          <div class="flex items-center justify-center gap-4 sm:gap-8 text-sm flex-wrap">
+            <template v-for="(step, index) in displayedSteps" :key="step.label">
               <div
-                class="w-6 h-6 rounded-full flex items-center justify-center text-xs font-medium"
-                :class="index <= currentStep ? 't-btn' : 't-bg-alt'"
+                class="flex items-center gap-2"
+                :class="index <= currentStep ? 't-text-accent' : 't-text-muted'"
               >
-                <Icon v-if="index < currentStep" name="lucide:check" class="w-3.5 h-3.5" />
-                <span v-else>{{ index + 1 }}</span>
+                <div
+                  class="w-6 h-6 rounded-full flex items-center justify-center text-xs font-medium"
+                  :class="index <= currentStep ? 't-btn' : 't-bg-alt'"
+                >
+                  <Icon v-if="index < currentStep" name="lucide:check" class="w-3.5 h-3.5" />
+                  <span v-else>{{ index + 1 }}</span>
+                </div>
+                <span class="hidden sm:inline" :class="index <= currentStep ? 'font-medium' : ''">
+                  {{ step.label }}
+                </span>
               </div>
-              <span class="hidden sm:inline" :class="index <= currentStep ? 'font-medium' : ''">
-                {{ step.label }}
-              </span>
-            </div>
-            <div
-              v-if="index < displayedSteps.length - 1"
-              class="w-8 h-px hidden sm:block"
-              :style="{ backgroundColor: index < currentStep ? 'var(--theme-accent, var(--theme-primary))' : 'var(--theme-border-secondary)' }"
-            />
-          </template>
+              <div
+                v-if="index < displayedSteps.length - 1"
+                class="w-8 h-px hidden sm:block"
+                :style="{ backgroundColor: index < currentStep ? 'var(--theme-accent, var(--theme-primary))' : 'var(--theme-border-secondary)' }"
+              />
+            </template>
+          </div>
         </div>
-      </div>
-    </section>
+      </section>
+    </Transition>
 
     <!-- Form section -->
     <section class="py-12 lg:py-20">
