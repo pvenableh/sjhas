@@ -94,12 +94,30 @@ const resolveFieldRequired = (field: FormField, data: Record<string, unknown>): 
 // ──────────────────────────────────────────────
 // Build Zod schema from form fields
 // ──────────────────────────────────────────────
-const buildValidationSchema = (fields: FormField[]) => {
+const buildValidationSchema = (fields: FormField[], steps?: FormStep[]) => {
   const schemaShape: Record<string, z.ZodTypeAny> = {}
-  // Track fields with conditional requirement for superRefine
-  const conditionallyRequired: FormField[] = []
+  // Track fields whose requirement must be evaluated at validation time
+  const dynamicallyRequired: FormField[] = []
 
   if (!fields || !Array.isArray(fields)) return z.object(schemaShape)
+
+  // Build a lookup: does this field live on a conditional step?
+  const isFieldOnConditionalStep = (field: FormField): boolean => {
+    if (!steps) return false
+    const step = steps.find(
+      (s) => field.sort >= s.fieldRange[0] && field.sort <= s.fieldRange[1]
+    )
+    return !!(step?.condition)
+  }
+
+  // Check whether a field could be conditionally hidden (step OR field-level logic)
+  const isFieldConditionallyVisible = (field: FormField): boolean => {
+    if (isFieldOnConditionalStep(field)) return true
+    if (field.visibility?.mode === 'when') return true
+    // Backward compat: field has conditional_logic
+    const logic = field.conditional_logic as ConditionRule | null
+    return !!(logic && logic.field)
+  }
 
   fields.forEach((field) => {
     if (field.type === 'heading' || field.type === 'paragraph') return
@@ -154,15 +172,21 @@ const buildValidationSchema = (fields: FormField[]) => {
       })
     }
 
-    // Determine static requirement
+    // Determine requirement strategy
     const reqMode = field.requirement?.mode
+    const isConditionalReqMode = reqMode === 'when'
     const isStaticRequired = reqMode === 'always' || (!field.requirement && field.required)
-    const isConditionalRequired = reqMode === 'when'
 
-    if (isConditionalRequired) {
-      // Make optional in schema; superRefine handles dynamic check
+    // Any field that is required AND could be hidden (by step condition or
+    // field-level conditional_logic/visibility) must be validated dynamically
+    // via superRefine instead of statically in the Zod schema.
+    const needsDynamicValidation =
+      isConditionalReqMode || (isStaticRequired && isFieldConditionallyVisible(field))
+
+    if (needsDynamicValidation) {
+      // Make optional in base schema; superRefine handles the dynamic check
       fieldSchema = fieldSchema.optional()
-      conditionallyRequired.push(field)
+      dynamicallyRequired.push(field)
     } else if (!isStaticRequired) {
       fieldSchema = fieldSchema.optional()
     } else if (field.type === 'checkbox_group') {
@@ -180,12 +204,22 @@ const buildValidationSchema = (fields: FormField[]) => {
 
   let schema = z.object(schemaShape)
 
-  // Add dynamic required validation for "when" requirement fields
-  if (conditionallyRequired.length > 0) {
+  // Dynamic required validation — runs at validation time so it can
+  // check current form values for field visibility & step visibility
+  if (dynamicallyRequired.length > 0) {
     schema = schema.superRefine((data, ctx) => {
-      for (const field of conditionallyRequired) {
-        // Only validate if the field is visible
+      for (const field of dynamicallyRequired) {
+        // Skip if the field's parent step is currently hidden
+        if (steps) {
+          const step = steps.find(
+            (s) => field.sort >= s.fieldRange[0] && field.sort <= s.fieldRange[1]
+          )
+          if (step?.condition && !evalCondition(step.condition, data)) continue
+        }
+
+        // Skip if the field itself is hidden
         if (!resolveFieldVisible(field, data)) continue
+        // Skip if the field is not currently required
         if (!resolveFieldRequired(field, data)) continue
 
         const val = data[field.name as keyof typeof data]
@@ -210,7 +244,7 @@ const buildValidationSchema = (fields: FormField[]) => {
 }
 
 const validationSchema = computed(() => {
-  return toTypedSchema(buildValidationSchema(props.form.fields || []))
+  return toTypedSchema(buildValidationSchema(props.form.fields || [], props.steps))
 })
 
 // Build initial values from field defaults
