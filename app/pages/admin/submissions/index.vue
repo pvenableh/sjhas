@@ -107,6 +107,46 @@ const updateStatus = async (id: number, status: string) => {
   }
 }
 
+const isExporting = ref(false)
+
+const exportCsv = async () => {
+  const formId = selectedForm.value
+  if (formId === 'all') {
+    toast.error('Please select a specific form to export')
+    return
+  }
+
+  isExporting.value = true
+  try {
+    const params = new URLSearchParams({ form_id: formId })
+    if (selectedStatus.value !== 'all') {
+      params.set('status', selectedStatus.value)
+    }
+    const response = await $fetch.raw(`/api/forms/export?${params}`, {
+      responseType: 'blob',
+    })
+    const blob = response._data as Blob
+    const contentDisposition = response.headers.get('content-disposition') || ''
+    const filenameMatch = contentDisposition.match(/filename="?([^"]+)"?/)
+    const filename = filenameMatch?.[1] || 'submissions.csv'
+
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = filename
+    document.body.appendChild(a)
+    a.click()
+    document.body.removeChild(a)
+    URL.revokeObjectURL(url)
+    toast.success('CSV exported successfully')
+  } catch (error) {
+    console.error('Failed to export CSV:', error)
+    toast.error('Failed to export submissions')
+  } finally {
+    isExporting.value = false
+  }
+}
+
 const formatDataKey = (key: string) => {
   return key.replace(/_/g, ' ').replace(/\b\w/g, (l) => l.toUpperCase())
 }
@@ -131,10 +171,20 @@ const getDisplayableData = (data: Record<string, unknown>) => {
         <h1 class="text-2xl font-semibold text-slate-900">Submissions</h1>
         <p class="text-slate-600 mt-1">View and manage form responses</p>
       </div>
-      <Button variant="secondary" @click="fetchData">
-        <Icon name="lucide:refresh-cw" class="w-4 h-4" />
-        Refresh
-      </Button>
+      <div class="flex gap-2">
+        <Button
+          variant="secondary"
+          :disabled="selectedForm === 'all' || isExporting"
+          @click="exportCsv"
+        >
+          <Icon name="lucide:download" class="w-4 h-4" />
+          {{ isExporting ? 'Exporting...' : 'Export CSV' }}
+        </Button>
+        <Button variant="secondary" @click="fetchData">
+          <Icon name="lucide:refresh-cw" class="w-4 h-4" />
+          Refresh
+        </Button>
+      </div>
     </div>
 
     <!-- Status tabs -->
