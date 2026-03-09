@@ -52,13 +52,23 @@ export default defineEventHandler(async (event) => {
       })
     ) as any[]
 
-    // Build a map of field name -> label from the form definition
+    // Build a map of field name -> label and option value -> label from the form definition
     const fieldDefs: Array<{ name: string; label: string; type: string }> = []
+    // Maps field name -> (option value -> option label) for select, radio, checkbox_group
+    const optionLabelMap = new Map<string, Map<string, string>>()
     if (Array.isArray(form.fields)) {
       for (const field of form.fields) {
         // Skip display-only fields
         if (field.type === 'heading' || field.type === 'paragraph') continue
         fieldDefs.push({ name: field.name, label: field.label, type: field.type })
+        // Build option value -> label lookup for fields that have options
+        if (Array.isArray(field.options) && field.options.length > 0) {
+          const valToLabel = new Map<string, string>()
+          for (const opt of field.options) {
+            valToLabel.set(opt.value, opt.label)
+          }
+          optionLabelMap.set(field.name, valToLabel)
+        }
       }
     }
 
@@ -100,7 +110,7 @@ export default defineEventHandler(async (event) => {
         sub.submitter_name || '',
         sub.submitter_email || '',
         sub.date_created || '',
-        ...orderedDynamicKeys.map((key) => formatCellValue(data[key])),
+        ...orderedDynamicKeys.map((key) => formatCellValue(data[key], optionLabelMap.get(key))),
         uploadedFiles,
         sub.notes || '',
       ]
@@ -133,10 +143,15 @@ export default defineEventHandler(async (event) => {
   }
 })
 
-function formatCellValue(value: unknown): string {
+function formatCellValue(value: unknown, optionLabels?: Map<string, string>): string {
   if (value === null || value === undefined) return ''
   if (typeof value === 'boolean') return value ? 'Yes' : 'No'
-  if (Array.isArray(value)) return value.join(', ')
+  if (Array.isArray(value)) {
+    return value.map((v) => optionLabels?.get(String(v)) || String(v)).join(', ')
+  }
+  if (optionLabels) {
+    return optionLabels.get(String(value)) || String(value)
+  }
   return String(value)
 }
 
