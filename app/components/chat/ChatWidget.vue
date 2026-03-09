@@ -399,14 +399,14 @@ const isLiveChat = computed(
       v-if="isOpen"
       class="fixed bottom-24 right-6 z-50 flex w-[360px] max-w-[calc(100vw-2rem)] flex-col overflow-hidden rounded-2xl shadow-2xl border"
       style="
-        height: min(520px, calc(100vh - 8rem));
+        height: min(480px, calc(100vh - 8rem));
         background: var(--theme-bg-primary);
         border-color: var(--theme-border);
       "
     >
       <!-- Header -->
       <div
-        class="flex items-center gap-3 px-5 py-4"
+        class="flex items-center gap-3 px-5 py-3"
         style="background: var(--theme-accent); color: white"
       >
         <div
@@ -536,11 +536,11 @@ const isLiveChat = computed(
         <!-- OFFLINE: Visitor Capture Form (before session created) -->
         <div
           v-else-if="!isLiveChat && !formSubmitted"
-          class="flex-1 overflow-y-auto px-5 py-4"
+          class="flex-1 overflow-y-auto px-5 py-3"
         >
           <!-- Welcome/Offline message -->
           <div
-            class="mb-4 rounded-xl px-4 py-3 text-sm"
+            class="mb-3 rounded-xl px-4 py-2.5 text-sm"
             style="
               background: var(--theme-bg-secondary);
               color: var(--theme-text-secondary);
@@ -550,7 +550,7 @@ const isLiveChat = computed(
           </div>
 
           <!-- Form -->
-          <form class="space-y-3" @submit.prevent="submitVisitorInfo">
+          <form class="space-y-2" @submit.prevent="submitVisitorInfo">
             <div>
               <label
                 class="mb-1 block text-xs font-medium"
@@ -562,7 +562,7 @@ const isLiveChat = computed(
                 v-model="visitorName"
                 type="text"
                 placeholder="Your name"
-                class="t-input w-full rounded-lg px-3 py-2.5 text-sm"
+                class="t-input w-full rounded-lg px-3 py-2 text-sm"
                 required
               />
             </div>
@@ -578,7 +578,7 @@ const isLiveChat = computed(
                 v-model="visitorEmail"
                 type="email"
                 placeholder="you@example.com"
-                class="t-input w-full rounded-lg px-3 py-2.5 text-sm"
+                class="t-input w-full rounded-lg px-3 py-2 text-sm"
                 required
               />
             </div>
@@ -594,7 +594,7 @@ const isLiveChat = computed(
                 v-model="visitorPhone"
                 type="tel"
                 placeholder="(555) 123-4567"
-                class="t-input w-full rounded-lg px-3 py-2.5 text-sm"
+                class="t-input w-full rounded-lg px-3 py-2 text-sm"
               />
             </div>
 
@@ -610,8 +610,8 @@ const isLiveChat = computed(
                 :placeholder="
                   adminOnline ? 'Type your question...' : 'How can we help you?'
                 "
-                rows="3"
-                class="t-input w-full resize-none rounded-lg px-3 py-2.5 text-sm"
+                rows="2"
+                class="t-input w-full resize-none rounded-lg px-3 py-2 text-sm"
               />
             </div>
 
@@ -622,7 +622,7 @@ const isLiveChat = computed(
             <button
               type="submit"
               :disabled="formSubmitting"
-              class="t-btn w-full rounded-lg px-4 py-2.5 text-sm font-medium transition-all duration-200 disabled:opacity-50"
+              class="t-btn w-full rounded-lg px-4 py-2 text-sm font-medium transition-all duration-200 disabled:opacity-50"
             >
               <span
                 v-if="formSubmitting"
