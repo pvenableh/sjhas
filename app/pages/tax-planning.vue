@@ -30,7 +30,9 @@ const formSteps = computed<FormStep[]>(() => {
   return taxServicesDefaultSteps
 })
 
-const dynamicFormRef = ref<{ activeSteps: FormStep[]; currentStep: number } | null>(null)
+const dynamicFormRef = ref<{ activeSteps: FormStep[]; currentStep: number; isSuccess: boolean } | null>(null)
+
+const isFormSuccess = computed(() => dynamicFormRef.value?.isSuccess ?? false)
 
 const currentStep = ref(0)
 
@@ -73,7 +75,7 @@ defineOgImage({
 <template>
   <div class="min-h-screen t-bg">
     <!-- Hero -->
-    <section class="t-hero py-20 lg:py-28">
+    <section v-if="!isFormSuccess" class="t-hero py-20 lg:py-28">
       <div class="container-wide section-padding text-center">
         <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full t-hero-badge text-sm font-medium mb-6">
           <Icon name="lucide:clipboard-list" class="w-4 h-4" />
@@ -89,7 +91,7 @@ defineOgImage({
     </section>
 
     <!-- Progress indicator -->
-    <section class="t-bg-elevated border-b t-border py-4">
+    <section v-if="!isFormSuccess" class="t-bg-elevated border-b t-border py-4">
       <div class="container-wide section-padding">
         <div class="flex items-center justify-center gap-4 sm:gap-8 text-sm flex-wrap">
           <template v-for="(step, index) in displayedSteps" :key="step.label">
