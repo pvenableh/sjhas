@@ -299,20 +299,20 @@ const isMultiStep = computed(() => activeSteps.value.length > 1)
 const totalSteps = computed(() => activeSteps.value.length || 1)
 const isLastStep = computed(() => currentStep.value >= totalSteps.value - 1)
 
-// Fields visible in the current step
-const visibleFields = computed(() => {
-  if (!isMultiStep.value && activeSteps.value.length === 0) return sortedFields.value
-  const step = activeSteps.value[currentStep.value]
-  if (!step) return sortedFields.value
+// Get sorted fields for a specific step
+const getStepFields = (step: FormStep) => {
   return sortedFields.value.filter(
     (f) => f.sort >= step.fieldRange[0] && f.sort <= step.fieldRange[1]
   )
-})
+}
 
 // Field names for the current step (used for validation)
 // Excludes fields hidden by conditional_logic so they don't block step navigation
 const currentStepFieldNames = computed(() => {
-  return visibleFields.value
+  const step = activeSteps.value[currentStep.value]
+  if (!step) return []
+  return sortedFields.value
+    .filter((f) => f.sort >= step.fieldRange[0] && f.sort <= step.fieldRange[1])
     .filter((f) => f.type !== 'heading' && f.type !== 'paragraph' && isFieldVisible(f))
     .map((f) => f.name)
 })
@@ -336,7 +336,7 @@ const goToNextStep = async () => {
     )
     currentStep.value++
     emit('update:currentStep', currentStep.value)
-    animateStepTransition()
+    animateStepTransition('forward')
   }
 }
 
@@ -344,7 +344,7 @@ const goToPrevStep = () => {
   if (currentStep.value > 0) {
     currentStep.value--
     emit('update:currentStep', currentStep.value)
-    animateStepTransition()
+    animateStepTransition('backward')
   }
 }
 
@@ -371,20 +371,24 @@ const findFirstStepWithErrors = (errorFieldNames: string[]): number => {
   return -1
 }
 
-const animateStepTransition = () => {
+const animateStepTransition = (direction: 'forward' | 'backward' = 'forward') => {
   nextTick(() => {
     if (formRef.value) {
-      gsap.fromTo(
-        formRef.value.querySelectorAll('.form-field'),
-        { opacity: 0, y: 15 },
-        {
-          opacity: 1,
-          y: 0,
-          duration: 0.3,
-          stagger: 0.04,
-          ease: 'power2.out',
-        }
-      )
+      const container = formRef.value.querySelector(`.step-panel[data-step="${currentStep.value}"]`)
+      if (container) {
+        const fields = container.querySelectorAll('.form-field')
+        gsap.fromTo(
+          fields,
+          { opacity: 0, x: direction === 'forward' ? 30 : -30 },
+          {
+            opacity: 1,
+            x: 0,
+            duration: 0.35,
+            stagger: 0.04,
+            ease: 'power2.out',
+          }
+        )
+      }
     }
   })
 }
@@ -488,9 +492,10 @@ const onSubmit = handleSubmit(async (values) => {
     const firstErrorStep = findFirstStepWithErrors(errorFieldNames)
     if (firstErrorStep !== -1 && firstErrorStep !== currentStep.value) {
       console.warn(`[DynamicForm] Navigating from step ${currentStep.value} to step ${firstErrorStep} (has errors)`)
+      const dir = firstErrorStep < currentStep.value ? 'backward' : 'forward'
       currentStep.value = firstErrorStep
       emit('update:currentStep', firstErrorStep)
-      animateStepTransition()
+      animateStepTransition(dir)
     }
   }
 
@@ -523,19 +528,23 @@ const handleReset = () => {
 onMounted(() => {
   trackFormView(props.form.title || 'Unknown Form', props.form.id)
 
-  if (formRef.value) {
-    gsap.fromTo(
-      formRef.value.querySelectorAll('.form-field'),
-      { opacity: 0, y: 20 },
-      {
-        opacity: 1,
-        y: 0,
-        duration: 0.4,
-        stagger: 0.05,
-        ease: 'power2.out',
-      }
-    )
-  }
+  nextTick(() => {
+    if (formRef.value) {
+      // For multi-step forms, only animate the first step's fields
+      const container = formRef.value.querySelector('.step-panel[data-step="0"]') || formRef.value
+      gsap.fromTo(
+        container.querySelectorAll('.form-field'),
+        { opacity: 0, y: 20 },
+        {
+          opacity: 1,
+          y: 0,
+          duration: 0.4,
+          stagger: 0.05,
+          ease: 'power2.out',
+        }
+      )
+    }
+  })
 })
 
 defineExpose({
@@ -588,10 +597,30 @@ defineExpose({
         </div>
       </div>
 
-      <!-- Fields -->
-      <div class="grid grid-cols-2 gap-x-8 gap-y-7">
+      <!-- Fields (multi-step: render all active steps, show only current) -->
+      <template v-if="isMultiStep">
+        <div
+          v-for="(step, stepIndex) in activeSteps"
+          :key="step.label"
+          v-show="stepIndex === currentStep"
+          class="step-panel"
+          :data-step="stepIndex"
+        >
+          <div class="grid grid-cols-2 gap-x-8 gap-y-7">
+            <FormsFormField
+              v-for="field in getStepFields(step)"
+              :key="field.id"
+              :field="field"
+              class="form-field"
+            />
+          </div>
+        </div>
+      </template>
+
+      <!-- Fields (single-step) -->
+      <div v-else class="grid grid-cols-2 gap-x-8 gap-y-7">
         <FormsFormField
-          v-for="field in visibleFields"
+          v-for="field in sortedFields"
           :key="field.id"
           :field="field"
           class="form-field"
