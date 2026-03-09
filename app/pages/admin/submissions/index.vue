@@ -173,18 +173,20 @@ const getDisplayableData = (data: Record<string, unknown>) => {
         <p class="text-slate-600 mt-1">View and manage form responses</p>
       </div>
       <div class="flex gap-2">
-        <Button
-          variant="secondary"
-          :disabled="selectedForm === 'all' || isExporting"
-          :title="selectedForm === 'all' ? 'Select a specific form to export' : undefined"
-          @click="exportCsv"
-        >
-          <Icon name="lucide:download" class="w-4 h-4" />
-          {{ isExporting ? 'Exporting...' : 'Export CSV' }}
-        </Button>
-        <p v-if="selectedForm === 'all'" class="text-xs text-slate-500 self-center">
-          Select a form to enable export
-        </p>
+        <div class="relative">
+          <Button
+            variant="secondary"
+            :disabled="selectedForm === 'all' || isExporting"
+            :title="selectedForm === 'all' ? 'Select a specific form to export' : undefined"
+            @click="exportCsv"
+          >
+            <Icon name="lucide:download" class="w-4 h-4" />
+            {{ isExporting ? 'Exporting...' : 'Export CSV' }}
+          </Button>
+          <p v-if="selectedForm === 'all'" class="absolute top-full left-1/2 -translate-x-1/2 mt-1 text-[11px] text-slate-400 whitespace-nowrap">
+            Select a form to export
+          </p>
+        </div>
         <Button variant="secondary" @click="fetchData">
           <Icon name="lucide:refresh-cw" class="w-4 h-4" />
           Refresh
