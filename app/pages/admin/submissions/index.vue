@@ -122,10 +122,11 @@ const exportCsv = async () => {
     if (selectedStatus.value !== 'all') {
       params.set('status', selectedStatus.value)
     }
-    const response = await $fetch.raw(`/api/forms/export?${params}`, {
-      responseType: 'blob',
-    })
-    const blob = response._data as Blob
+    const response = await fetch(`/api/forms/export?${params}`)
+    if (!response.ok) {
+      throw new Error(`Export failed: ${response.statusText}`)
+    }
+    const blob = await response.blob()
     const contentDisposition = response.headers.get('content-disposition') || ''
     const filenameMatch = contentDisposition.match(/filename="?([^"]+)"?/)
     const filename = filenameMatch?.[1] || 'submissions.csv'
@@ -175,11 +176,15 @@ const getDisplayableData = (data: Record<string, unknown>) => {
         <Button
           variant="secondary"
           :disabled="selectedForm === 'all' || isExporting"
+          :title="selectedForm === 'all' ? 'Select a specific form to export' : undefined"
           @click="exportCsv"
         >
           <Icon name="lucide:download" class="w-4 h-4" />
           {{ isExporting ? 'Exporting...' : 'Export CSV' }}
         </Button>
+        <p v-if="selectedForm === 'all'" class="text-xs text-slate-500 self-center">
+          Select a form to enable export
+        </p>
         <Button variant="secondary" @click="fetchData">
           <Icon name="lucide:refresh-cw" class="w-4 h-4" />
           Refresh
