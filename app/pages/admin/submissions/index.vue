@@ -175,11 +175,15 @@ const getDisplayableData = (data: Record<string, unknown>) => {
         <Button
           variant="secondary"
           :disabled="selectedForm === 'all' || isExporting"
+          :title="selectedForm === 'all' ? 'Select a specific form to export' : undefined"
           @click="exportCsv"
         >
           <Icon name="lucide:download" class="w-4 h-4" />
           {{ isExporting ? 'Exporting...' : 'Export CSV' }}
         </Button>
+        <p v-if="selectedForm === 'all'" class="text-xs text-slate-500 self-center">
+          Select a form to enable export
+        </p>
         <Button variant="secondary" @click="fetchData">
           <Icon name="lucide:refresh-cw" class="w-4 h-4" />
           Refresh
