@@ -371,7 +371,15 @@ const findFirstStepWithErrors = (errorFieldNames: string[]): number => {
   return -1
 }
 
+const scrollToForm = () => {
+  const el = formRef.value?.closest('.dynamic-form') || formRef.value
+  if (el) {
+    el.scrollIntoView({ behavior: 'smooth', block: 'start' })
+  }
+}
+
 const animateStepTransition = (direction: 'forward' | 'backward' = 'forward') => {
+  scrollToForm()
   nextTick(() => {
     if (formRef.value) {
       const container = formRef.value.querySelector(`.step-panel[data-step="${currentStep.value}"]`)
