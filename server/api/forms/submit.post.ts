@@ -101,7 +101,9 @@ export default defineEventHandler(async (event) => {
         ? (jsonData.name as string)
         : jsonData.first_name && jsonData.last_name
           ? `${jsonData.first_name} ${jsonData.last_name}`
-          : null,
+          : jsonData.taxpayer_name
+            ? (jsonData.taxpayer_name as string)
+            : null,
       status: 'new' as const,
     }
 
@@ -208,7 +210,7 @@ async function sendNotificationEmail(
   const sgMail = await import('@sendgrid/mail')
   sgMail.default.setApiKey(config.sendgridApiKey)
 
-  const submitterName = data.name || (data.first_name && data.last_name ? `${data.first_name} ${data.last_name}` : 'Unknown')
+  const submitterName = data.name || (data.first_name && data.last_name ? `${data.first_name} ${data.last_name}` : null) || data.taxpayer_name || 'Unknown'
   const submitterEmail = data.email || 'Not provided'
 
   const dataRows = Object.entries(data)
