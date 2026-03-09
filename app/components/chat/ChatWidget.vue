@@ -746,29 +746,59 @@ const isLiveChat = computed(
             </div>
 
             <!-- Admin typing indicator -->
-            <div v-if="adminTyping" class="flex justify-start">
-              <div
-                class="rounded-2xl rounded-bl-md px-4 py-3"
-                style="background: var(--theme-bg-secondary)"
-              >
-                <div class="flex items-center gap-1">
-                  <span class="typing-dot h-2 w-2 rounded-full" style="background: var(--theme-text-secondary)" />
-                  <span class="typing-dot h-2 w-2 rounded-full" style="background: var(--theme-text-secondary); animation-delay: 0.2s" />
-                  <span class="typing-dot h-2 w-2 rounded-full" style="background: var(--theme-text-secondary); animation-delay: 0.4s" />
+            <Transition name="typing-fade" mode="out-in">
+              <div v-if="adminTyping" class="flex justify-start">
+                <div
+                  class="rounded-2xl rounded-bl-md px-4 py-3"
+                  style="background: var(--theme-bg-secondary)"
+                >
+                  <div class="flex items-center gap-1">
+                    <span
+                      class="typing-dot h-2 w-2 rounded-full"
+                      style="background: var(--theme-text-secondary)"
+                    />
+                    <span
+                      class="typing-dot h-2 w-2 rounded-full"
+                      style="
+                        background: var(--theme-text-secondary);
+                        animation-delay: 0.15s;
+                      "
+                    />
+                    <span
+                      class="typing-dot h-2 w-2 rounded-full"
+                      style="
+                        background: var(--theme-text-secondary);
+                        animation-delay: 0.3s;
+                      "
+                    />
+                  </div>
                 </div>
               </div>
-            </div>
+            </Transition>
           </div>
 
           <!-- Session Closed State -->
           <template v-if="sessionClosed">
-            <div class="border-t px-4 py-4 text-center" style="border-color: var(--theme-border)">
+            <div
+              class="border-t px-4 py-4 text-center"
+              style="border-color: var(--theme-border)"
+            >
               <div
                 class="mb-3 flex items-center justify-center gap-2 text-sm"
                 style="color: var(--theme-text-secondary)"
               >
-                <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                  <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                <svg
+                  class="h-4 w-4"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  stroke-width="2"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                  />
                 </svg>
                 This conversation has been closed.
               </div>
@@ -827,10 +857,31 @@ const isLiveChat = computed(
 
 <style scoped>
 @keyframes typing-bounce {
-  0%, 60%, 100% { transform: translateY(0); opacity: 0.4; }
-  30% { transform: translateY(-4px); opacity: 1; }
+  0%,
+  60%,
+  100% {
+    transform: translateY(0);
+    opacity: 0.4;
+  }
+  30% {
+    transform: translateY(-5px);
+    opacity: 1;
+  }
 }
+
 .typing-dot {
-  animation: typing-bounce 1.4s ease-in-out infinite;
+  animation: typing-bounce 1.2s ease-in-out infinite;
+}
+
+.typing-fade-enter-active,
+.typing-fade-leave-active {
+  transition:
+    opacity 0.2s ease,
+    transform 0.2s ease;
+}
+.typing-fade-enter-from,
+.typing-fade-leave-to {
+  opacity: 0;
+  transform: translateY(6px);
 }
 </style>
