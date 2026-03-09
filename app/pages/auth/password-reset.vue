@@ -75,7 +75,7 @@ const handleSubmit = async () => {
       <template v-if="isInvalidToken">
         <div class="bg-card text-card-foreground rounded-lg border shadow-sm p-6 text-center">
           <AlertCircle class="w-12 h-12 mx-auto text-red-400 mb-4" />
-          <h3 class="text-lg font-semibold mb-2">Invalid Reset Link</h3>
+          <h3SJHAS, Inc.xt-lg font-semibold mb-2">Invalid Reset Link</h3>
           <p class="text-sm text-muted-foreground mb-6">
             This password reset link is invalid or has expired. Please request a new one.
           </p>

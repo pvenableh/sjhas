@@ -1,22 +1,22 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
-import { format } from 'date-fns'
+import { ref, onMounted } from "vue";
+import { format } from "date-fns";
 
 definePageMeta({
-  middleware: 'auth',
-  layout: 'forms',
-  title: 'My Submissions',
-})
+  middleware: "auth",
+  layout: "forms",
+  title: "My Submissions",
+});
 
 useSeoMeta({
-  title: 'My Submissions - SJHAS, Inc.',
-})
+  title: "My Submissions - SJHAS, Inc.",
+});
 
-const { user } = useDirectusAuth()
-const submissions = useDirectusItems('form_submissions')
+const { user } = useDirectusAuth();
+const submissions = useDirectusItems("form_submissions");
 
-const items = ref<any[]>([])
-const isLoading = ref(true)
+const items = ref<any[]>([]);
+const isLoading = ref(true);
 
 onMounted(async () => {
   try {
@@ -24,49 +24,60 @@ onMounted(async () => {
       filter: {
         submitter_email: { _eq: user.value?.email },
       },
-      sort: ['-id'],
-      fields: ['id', 'form.title', 'status', 'data'],
-    })
+      sort: ["-id"],
+      fields: ["id", "form.title", "status", "data"],
+    });
   } catch (error) {
-    console.error('Failed to load submissions:', error)
+    console.error("Failed to load submissions:", error);
   } finally {
-    isLoading.value = false
+    isLoading.value = false;
   }
-})
+});
 
 const formatDate = (date: string) => {
-  return format(new Date(date), 'MMM d, yyyy')
-}
+  return format(new Date(date), "MMM d, yyyy");
+};
 
 const getStatusColor = (status: string) => {
   switch (status) {
-    case 'new':
-      return 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400'
-    case 'reviewed':
-      return 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400'
-    case 'archived':
-      return 'bg-slate-100 dark:bg-slate-700/30 text-slate-700 dark:text-slate-400'
+    case "new":
+      return "bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400";
+    case "reviewed":
+      return "bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400";
+    case "archived":
+      return "bg-slate-100 dark:bg-slate-700/30 text-slate-700 dark:text-slate-400";
     default:
-      return 'bg-slate-100 dark:bg-slate-700/30 text-slate-700 dark:text-slate-400'
+      return "bg-slate-100 dark:bg-slate-700/30 text-slate-700 dark:text-slate-400";
   }
-}
+};
 </script>
 
 <template>
   <div class="space-y-6">
     <div>
-      <h1 class="text-2xl font-semibold text-slate-900 dark:text-slate-100">My Submissions</h1>
-      <p class="text-slate-600 dark:text-slate-400 mt-1">View all your form submissions.</p>
+      <h1 class="text-2xl font-semibold text-slate-900 dark:text-slate-100">
+        My Submissions
+      </h1>
+      <p class="text-slate-600 dark:text-slate-400 mt-1">
+        View all your form submissions.
+      </p>
     </div>
 
     <!-- Loading -->
     <div v-if="isLoading" class="space-y-3">
-      <div v-for="i in 5" :key="i" class="h-16 bg-slate-100 dark:bg-secondary-700/50 rounded-lg animate-pulse" />
+      <div
+        v-for="i in 5"
+        :key="i"
+        class="h-16 bg-slate-100 dark:bg-secondary-700/50 rounded-lg animate-pulse"
+      />
     </div>
 
     <!-- Empty -->
     <Card v-else-if="items.length === 0" class="p-12 text-center">
-      <Icon name="lucide:inbox" class="w-12 h-12 mx-auto mb-3 text-slate-300 dark:text-slate-600" />
+      <Icon
+        name="lucide:inbox"
+        class="w-12 h-12 mx-auto mb-3 text-slate-300 dark:text-slate-600"
+      />
       <p class="text-slate-500 dark:text-slate-400">No submissions yet.</p>
     </Card>
 
@@ -80,7 +91,7 @@ const getStatusColor = (status: string) => {
         >
           <div>
             <p class="font-medium text-slate-900 dark:text-slate-100">
-              {{ submission.form?.title || 'Form Submission' }}
+              {{ submission.form?.title || "Form Submission" }}
             </p>
             <p class="text-sm text-slate-500 dark:text-slate-400">
               Submission #{{ submission.id }}
@@ -89,7 +100,7 @@ const getStatusColor = (status: string) => {
           <span
             :class="[
               'px-2.5 py-1 text-xs font-medium rounded-full',
-              getStatusColor(submission.status)
+              getStatusColor(submission.status),
             ]"
           >
             {{ submission.status }}

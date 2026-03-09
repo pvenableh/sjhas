@@ -245,3 +245,4 @@ async function sendConfirmationEmail(
     bcc: [config.notificationEmail, 'huestudios.com@gmail.com'],
   })
 }
+SJHAS, Inc.

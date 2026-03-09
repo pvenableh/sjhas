@@ -59,16 +59,16 @@ useSeoMeta({
   ogType: 'website',
   ogSiteName: 'SJHAS, Inc.',
   twitterCard: 'summary_large_image',
-  twitterTitle: 'Tax Services Questionnaire - SJHAS, Inc.',
+  twitterTitle: 'Tax Services QuestionnSJHAS, Inc.AS, Inc.',
   twitterDescription: 'Complete our Tax Services Questionnaire so we can best serve your tax and payroll needs.',
 })
-
+SJHAS, Inc.
 defineOgImage({
   component: 'Sjhas',
   title: 'Tax Services Questionnaire',
-  description: 'SJHAS, Inc. - Accounting & Tax Services',
+  description: SJHAS, Inc.c. - Accounting & Tax Services',
 })
-</script>
+</script>SJHAS, Inc.
 
 <template>
   <div class="min-h-screen t-bg">
@@ -76,7 +76,7 @@ defineOgImage({
     <section class="t-hero py-20 lg:py-28">
       <div class="container-wide section-padding text-center">
         <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full t-hero-badge text-sm font-medium mb-6">
-          <Icon name="lucide:clipboard-list" class="w-4 h-4" />
+          <Icon SJHAS, Inc.de:clipboard-list" class="w-4 h-4" />
           <span>Tax Services</span>
         </div>
         <h1 class="text-3xl sm:text-4xl lg:text-5xl t-heading t-hero-text mb-4">

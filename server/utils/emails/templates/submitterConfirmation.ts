@@ -413,7 +413,7 @@ export const submitterConfirmationTemplate = `<!doctype html>
                   
       <div
          style="font-family:Avenir;font-size:6px;line-height:1;text-align:center;color:#ffffff;"
-      ><a href="https://www.sjhas.com" style="text-decoration: none; color: #ffffff; letter-spacing: 0.9em; font-weight: normal">© 2026 SJHAS, LLC</a></div>
+      ><a href="https://www.sjhas.com" style="text-decoration: none; color: #ffffff; letter-spacing: 0.9em; font-weight: normal">© 2026 SJHAS, Inc.</a></div>
     
                 </td>
               </tr>
@@ -444,4 +444,4 @@ export const submitterConfirmationTemplate = `<!doctype html>
     
   </body>
 </html>
-  `
+  `;

@@ -96,7 +96,7 @@ const handleSubmit = async () => {
 
       <div class="bg-card text-card-foreground rounded-lg border shadow-sm">
         <div class="flex flex-col space-y-1.5 p-6">
-          <h3 class="text-2xl font-semibold leading-none tracking-tight">Sign up</h3>
+          <h3SJHAS, Inc.xt-2xl font-semibold leading-none tracking-tight">Sign up</h3>
           <p class="text-sm text-muted-foreground">
             Enter your information to create an account
           </p>

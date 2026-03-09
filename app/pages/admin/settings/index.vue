@@ -1,113 +1,126 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
-import { toast } from 'vue-sonner'
+import { ref, onMounted } from "vue";
+import { toast } from "vue-sonner";
 
 definePageMeta({
-  middleware: 'auth',
-  layout: 'admin',
-})
+  middleware: "auth",
+  layout: "admin",
+});
 
 useSeoMeta({
-  title: 'Settings - Admin - SJHAS, Inc.',
-})
+  title: "Settings - Admin - SJHAS, Inc.",
+});
 
-const { user } = useDirectusAuth()
-const { updateProfile } = useDirectusUser()
+const { user } = useDirectusAuth();
+const { updateProfile } = useDirectusUser();
 
-const activeTab = ref<'profile' | 'site' | 'notifications'>('profile')
+const activeTab = ref<"profile" | "site" | "notifications">("profile");
 
 // Profile settings
 const profileForm = ref({
-  first_name: '',
-  last_name: '',
-  email: '',
-  phone: '',
-})
-const isSavingProfile = ref(false)
+  first_name: "",
+  last_name: "",
+  email: "",
+  phone: "",
+});
+const isSavingProfile = ref(false);
 
 // Site settings — site_settings is a Directus singleton (one record, no list/create)
-const siteSettings = useDirectusItems('site_settings', { requireAuth: true })
+const siteSettings = useDirectusItems("site_settings", { requireAuth: true });
 const siteForm = ref({
-  site_name: '',
-  site_description: '',
-  contact_email: '',
-  contact_phone: '',
-  address_line_1: '',
-  address_line_2: '',
-  city: '',
-  state: '',
-  zip_code: '',
-})
-const siteSettingsLoaded = ref(false)
-const isSavingSite = ref(false)
-const isLoadingSite = ref(true)
+  site_name: "",
+  site_description: "",
+  contact_email: "",
+  contact_phone: "",
+  address_line_1: "",
+  address_line_2: "",
+  city: "",
+  state: "",
+  zip_code: "",
+});
+const siteSettingsLoaded = ref(false);
+const isSavingSite = ref(false);
+const isLoadingSite = ref(true);
 
 onMounted(async () => {
   // Load profile
   if (user.value) {
-    profileForm.value.first_name = user.value.first_name || ''
-    profileForm.value.last_name = user.value.last_name || ''
-    profileForm.value.email = user.value.email || ''
-    profileForm.value.phone = (user.value as any).phone || ''
+    profileForm.value.first_name = user.value.first_name || "";
+    profileForm.value.last_name = user.value.last_name || "";
+    profileForm.value.email = user.value.email || "";
+    profileForm.value.phone = (user.value as any).phone || "";
   }
 
   // Load site settings (singleton — returns a single object, not an array)
   try {
-    const s = await siteSettings.readSingleton({
-      fields: ['id', 'site_name', 'site_description', 'contact_email', 'contact_phone', 'address_line_1', 'address_line_2', 'city', 'state', 'zip_code'],
-    }) as any
+    const s = (await siteSettings.readSingleton({
+      fields: [
+        "id",
+        "site_name",
+        "site_description",
+        "contact_email",
+        "contact_phone",
+        "address_line_1",
+        "address_line_2",
+        "city",
+        "state",
+        "zip_code",
+      ],
+    })) as any;
     if (s) {
-      siteSettingsLoaded.value = true
+      siteSettingsLoaded.value = true;
       siteForm.value = {
-        site_name: s.site_name || '',
-        site_description: s.site_description || '',
-        contact_email: s.contact_email || '',
-        contact_phone: s.contact_phone || '',
-        address_line_1: s.address_line_1 || '',
-        address_line_2: s.address_line_2 || '',
-        city: s.city || '',
-        state: s.state || '',
-        zip_code: s.zip_code || '',
-      }
+        site_name: s.site_name || "",
+        site_description: s.site_description || "",
+        contact_email: s.contact_email || "",
+        contact_phone: s.contact_phone || "",
+        address_line_1: s.address_line_1 || "",
+        address_line_2: s.address_line_2 || "",
+        city: s.city || "",
+        state: s.state || "",
+        zip_code: s.zip_code || "",
+      };
     }
   } catch (error) {
-    console.error('Failed to load site settings:', error)
+    console.error("Failed to load site settings:", error);
   } finally {
-    isLoadingSite.value = false
+    isLoadingSite.value = false;
   }
-})
+});
 
 const saveProfile = async () => {
-  isSavingProfile.value = true
+  isSavingProfile.value = true;
   try {
     await updateProfile({
       first_name: profileForm.value.first_name,
       last_name: profileForm.value.last_name,
       phone: profileForm.value.phone,
-    })
-    toast.success('Profile updated successfully')
+    });
+    toast.success("Profile updated successfully");
   } catch (error) {
-    console.error('Failed to update profile:', error)
-    toast.error('Failed to update profile')
+    console.error("Failed to update profile:", error);
+    toast.error("Failed to update profile");
   } finally {
-    isSavingProfile.value = false
+    isSavingProfile.value = false;
   }
-}
+};
 
 const saveSiteSettings = async () => {
-  isSavingSite.value = true
+  isSavingSite.value = true;
   try {
     // site_settings is a singleton — always use updateSingleton (no create needed)
-    const updated = await siteSettings.updateSingleton(siteForm.value as any)
-    if (updated) siteSettingsLoaded.value = true
-    toast.success('Site settings updated successfully')
+    const updated = await siteSettings.updateSingleton(siteForm.value as any);
+    if (updated) siteSettingsLoaded.value = true;
+    toast.success("Site settings updated successfully");
   } catch (error) {
-    console.error('Failed to update site settings:', error)
-    toast.error('Failed to update site settings. Make sure the site_settings collection exists in Directus.')
+    console.error("Failed to update site settings:", error);
+    toast.error(
+      "Failed to update site settings. Make sure the site_settings collection exists in Directus.",
+    );
   } finally {
-    isSavingSite.value = false
+    isSavingSite.value = false;
   }
-}
+};
 </script>
 
 <template>
@@ -115,7 +128,9 @@ const saveSiteSettings = async () => {
     <!-- Header -->
     <div>
       <h1 class="text-2xl font-semibold text-slate-900">Settings</h1>
-      <p class="text-slate-600 mt-1">Manage your profile and site configuration</p>
+      <p class="text-slate-600 mt-1">
+        Manage your profile and site configuration
+      </p>
     </div>
 
     <!-- Tabs -->
@@ -131,7 +146,7 @@ const saveSiteSettings = async () => {
             'py-3 text-sm font-medium border-b-2 transition-colors',
             activeTab === tab.key
               ? 'border-primary-600 text-primary-600'
-              : 'border-transparent text-slate-500 hover:text-slate-700'
+              : 'border-transparent text-slate-500 hover:text-slate-700',
           ]"
           @click="activeTab = tab.key"
         >
@@ -143,7 +158,9 @@ const saveSiteSettings = async () => {
     <!-- Profile Tab -->
     <div v-show="activeTab === 'profile'" class="max-w-2xl">
       <Card class="p-6">
-        <h3 class="text-lg font-semibold text-slate-900 mb-6">Profile Information</h3>
+        <h3 class="text-lg font-semibold text-slate-900 mb-6">
+          Profile Information
+        </h3>
         <form class="space-y-5" @submit.prevent="saveProfile">
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
@@ -158,8 +175,15 @@ const saveSiteSettings = async () => {
 
           <div>
             <Label class="mb-1.5">Email</Label>
-            <Input v-model="profileForm.email" type="email" disabled class="bg-slate-50" />
-            <p class="text-xs text-slate-400 mt-1">Email cannot be changed here.</p>
+            <Input
+              v-model="profileForm.email"
+              type="email"
+              disabled
+              class="bg-slate-50"
+            />
+            <p class="text-xs text-slate-400 mt-1">
+              Email cannot be changed here.
+            </p>
           </div>
 
           <div>
@@ -169,8 +193,12 @@ const saveSiteSettings = async () => {
 
           <div class="pt-2">
             <Button type="submit" :disabled="isSavingProfile">
-              <Icon v-if="isSavingProfile" name="lucide:loader-2" class="w-4 h-4 animate-spin" />
-              {{ isSavingProfile ? 'Saving...' : 'Save Profile' }}
+              <Icon
+                v-if="isSavingProfile"
+                name="lucide:loader-2"
+                class="w-4 h-4 animate-spin"
+              />
+              {{ isSavingProfile ? "Saving..." : "Save Profile" }}
             </Button>
           </div>
         </form>
@@ -180,14 +208,24 @@ const saveSiteSettings = async () => {
     <!-- Site Settings Tab -->
     <div v-show="activeTab === 'site'" class="max-w-2xl">
       <div v-if="isLoadingSite" class="space-y-4">
-        <div v-for="i in 3" :key="i" class="h-20 bg-slate-100 rounded-lg animate-pulse" />
+        <div
+          v-for="i in 3"
+          :key="i"
+          class="h-20 bg-slate-100 rounded-lg animate-pulse"
+        />
       </div>
 
       <Card v-else class="p-6">
-        <div v-if="!siteSettingsLoaded" class="mb-4 rounded-lg bg-amber-50 border border-amber-200 p-3 text-sm text-amber-800">
-          Site settings have not been configured yet. Fill in the fields below and save.
+        <div
+          v-if="!siteSettingsLoaded"
+          class="mb-4 rounded-lg bg-amber-50 border border-amber-200 p-3 text-sm text-amber-800"
+        >
+          Site settings have not been configured yet. Fill in the fields below
+          and save.
         </div>
-        <h3 class="text-lg font-semibold text-slate-900 mb-6">Site Configuration</h3>
+        <h3 class="text-lg font-semibold text-slate-900 mb-6">
+          Site Configuration
+        </h3>
         <form class="space-y-5" @submit.prevent="saveSiteSettings">
           <div>
             <Label class="mb-1.5">Site Name</Label>
@@ -196,12 +234,17 @@ const saveSiteSettings = async () => {
 
           <div>
             <Label class="mb-1.5">Site Description</Label>
-            <Textarea v-model="siteForm.site_description" placeholder="A brief description of your business..." />
+            <Textarea
+              v-model="siteForm.site_description"
+              placeholder="A brief description of your business..."
+            />
           </div>
 
           <hr class="border-slate-200" />
 
-          <h4 class="text-base font-medium text-slate-900">Contact Information</h4>
+          <h4 class="text-base font-medium text-slate-900">
+            Contact Information
+          </h4>
 
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
@@ -230,6 +273,7 @@ const saveSiteSettings = async () => {
 
           <div class="grid grid-cols-2 sm:grid-cols-3 gap-4">
             <div>
+              SJHAS, Inc.
               <Label class="mb-1.5">City</Label>
               <Input v-model="siteForm.city" />
             </div>
@@ -245,8 +289,12 @@ const saveSiteSettings = async () => {
 
           <div class="pt-2">
             <Button type="submit" :disabled="isSavingSite">
-              <Icon v-if="isSavingSite" name="lucide:loader-2" class="w-4 h-4 animate-spin" />
-              {{ isSavingSite ? 'Saving...' : 'Save Site Settings' }}
+              <Icon
+                v-if="isSavingSite"
+                name="lucide:loader-2"
+                class="w-4 h-4 animate-spin"
+              />
+              {{ isSavingSite ? "Saving..." : "Save Site Settings" }}
             </Button>
           </div>
         </form>

@@ -11,7 +11,7 @@ const error = ref<string | null>(null);
 
 useSeoMeta({
   title: computed(() =>
-    form.value ? `${form.value.title} - SJHAS, Inc.` : "Form - SJHAS, Inc.",
+    form.value ? `${form.value.title} - SJHAS, Inc.` : "Form -SJHAS, Inc.c.",
   ),
 });
 
@@ -127,7 +127,11 @@ const handleSubmitted = () => {
             </p>
           </div>
 
-          <FormsDynamicForm :form="form" :steps="form.steps || undefined" @submitted="handleSubmitted" />
+          <FormsDynamicForm
+            :form="form"
+            :steps="form.steps || undefined"
+            @submitted="handleSubmitted"
+          />
         </div>
 
         <!-- Footer note -->
@@ -137,4 +141,5 @@ const handleSubmitted = () => {
       </div>
     </main>
   </div>
+  SJHAS, Inc.
 </template>

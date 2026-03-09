@@ -1,18 +1,18 @@
 <script setup lang="ts">
-import { format, formatDistanceToNow } from 'date-fns'
-import { toast } from 'vue-sonner'
-import type { ChatSession } from '~/types/directus'
+import { format, formatDistanceToNow } from "date-fns";
+import { toast } from "vue-sonner";
+import type { ChatSession } from "~/types/directus";
 
 definePageMeta({
-  middleware: 'auth',
-  layout: 'admin',
-})
+  middleware: "auth",
+  layout: "admin",
+});
 
 useSeoMeta({
-  title: 'Chat Dashboard - Admin - SJHAS, Inc.',
-})
+  title: "Chat Dashboard - Admin - SJHAS, Inc.",
+});
 
-const sessions = useDirectusItems<ChatSession>('chat_sessions')
+const sessions = useDirectusItems<ChatSession>("chat_sessions");
 
 const {
   isConnected,
@@ -21,283 +21,300 @@ const {
   disconnect: rtDisconnect,
   sendTyping,
   onNewMessage,
-} = useAdminChatRealtime()
+} = useAdminChatRealtime();
 
 // State
-const sessionsList = ref<ChatSession[]>([])
-const isLoading = ref(true)
-const selectedSessionId = ref<number | null>(null)
-const adminOnline = ref(false)
-const togglingStatus = ref(false)
-const replyText = ref('')
-const messagesContainer = ref<HTMLElement | null>(null)
-const statusFilter = ref<'active' | 'closed' | 'all'>('active')
-const messages = ref<any[]>([])
+const sessionsList = ref<ChatSession[]>([]);
+const isLoading = ref(true);
+const selectedSessionId = ref<number | null>(null);
+const adminOnline = ref(false);
+const togglingStatus = ref(false);
+const replyText = ref("");
+const messagesContainer = ref<HTMLElement | null>(null);
+const statusFilter = ref<"active" | "closed" | "all">("active");
+const messages = ref<any[]>([]);
 
-let sessionPollInterval: ReturnType<typeof setInterval> | null = null
-let messagePollInterval: ReturnType<typeof setInterval> | null = null
+let sessionPollInterval: ReturnType<typeof setInterval> | null = null;
+let messagePollInterval: ReturnType<typeof setInterval> | null = null;
 
 // Auto-scroll when visitor starts typing so indicator is visible
 watch(visitorTyping, (typing) => {
-  if (typing) scrollToBottom()
-})
+  if (typing) scrollToBottom();
+});
 
 // Append new messages from WebSocket
 onNewMessage((msg) => {
-  const exists = messages.value.some((m: any) => m.id === msg.id)
+  const exists = messages.value.some((m: any) => m.id === msg.id);
   if (!exists) {
-    messages.value = [...messages.value, msg]
-    scrollToBottom()
+    messages.value = [...messages.value, msg];
+    scrollToBottom();
     // Refresh session list to update last_message_at
-    fetchSessions()
+    fetchSessions();
   }
-})
+});
 
 // Selected session object
-const selectedSession = computed(() =>
-  sessionsList.value.find((s) => s.id === selectedSessionId.value) || null
-)
+const selectedSession = computed(
+  () =>
+    sessionsList.value.find((s) => s.id === selectedSessionId.value) || null,
+);
 
 // Filtered sessions
 const filteredSessions = computed(() => {
-  if (statusFilter.value === 'all') return sessionsList.value
-  return sessionsList.value.filter((s) => s.status === statusFilter.value)
-})
+  if (statusFilter.value === "all") return sessionsList.value;
+  return sessionsList.value.filter((s) => s.status === statusFilter.value);
+});
 
 // Fetch sessions
 async function fetchSessions() {
-  const wasLoading = isLoading.value
-  if (!sessionsList.value.length) isLoading.value = true
+  const wasLoading = isLoading.value;
+  if (!sessionsList.value.length) isLoading.value = true;
   try {
     const result = await sessions.list({
-      sort: ['-last_message_at', '-date_created'],
+      sort: ["-last_message_at", "-date_created"],
       fields: [
-        'id', 'visitor_name', 'visitor_email', 'visitor_phone',
-        'status', 'date_created', 'last_message_at',
+        "id",
+        "visitor_name",
+        "visitor_email",
+        "visitor_phone",
+        "status",
+        "date_created",
+        "last_message_at",
       ],
-    })
-    sessionsList.value = result
+    });
+    sessionsList.value = result;
   } catch (error) {
     if (wasLoading) {
-      console.error('Failed to fetch chat sessions:', error)
-      toast.error('Failed to load chat sessions')
+      console.error("Failed to fetch chat sessions:", error);
+      toast.error("Failed to load chat sessions");
     }
   } finally {
-    isLoading.value = false
+    isLoading.value = false;
   }
 }
 
 // Fetch messages for a session via server endpoint
 async function fetchMessages(sessionId: number) {
   try {
-    const result = await $fetch('/api/chat/messages', {
-      method: 'POST',
-      body: { sessionId, operation: 'list' },
-    })
-    messages.value = result as any[]
+    const result = await $fetch("/api/chat/messages", {
+      method: "POST",
+      body: { sessionId, operation: "list" },
+    });
+    messages.value = result as any[];
   } catch (error) {
-    console.error('Failed to fetch messages:', error)
-    toast.error('Failed to load messages')
+    console.error("Failed to fetch messages:", error);
+    toast.error("Failed to load messages");
   }
 }
 
 // Start polling messages as fallback when WS is unavailable
 function startMessagePolling(sessionId: number) {
-  stopMessagePolling()
+  stopMessagePolling();
   messagePollInterval = setInterval(async () => {
     if (selectedSessionId.value === sessionId) {
-      await fetchMessages(sessionId)
+      await fetchMessages(sessionId);
     }
-  }, 5000)
+  }, 5000);
 }
 
 function stopMessagePolling() {
   if (messagePollInterval) {
-    clearInterval(messagePollInterval)
-    messagePollInterval = null
+    clearInterval(messagePollInterval);
+    messagePollInterval = null;
   }
 }
 
 // Fetch chat settings (online status)
 async function fetchChatStatus() {
   try {
-    const status = await $fetch('/api/chat/status')
-    adminOnline.value = status.online
+    const status = await $fetch("/api/chat/status");
+    adminOnline.value = status.online;
   } catch {
-    adminOnline.value = false
+    adminOnline.value = false;
   }
 }
 
 // Toggle online/offline status
 async function toggleOnlineStatus() {
-  togglingStatus.value = true
+  togglingStatus.value = true;
   try {
-    await $fetch('/api/chat/status', {
-      method: 'POST',
+    await $fetch("/api/chat/status", {
+      method: "POST",
       body: { online: !adminOnline.value },
-    })
-    adminOnline.value = !adminOnline.value
-    toast.success(adminOnline.value ? 'You are now online' : 'You are now offline')
+    });
+    adminOnline.value = !adminOnline.value;
+    toast.success(
+      adminOnline.value ? "You are now online" : "You are now offline",
+    );
   } catch (error: any) {
-    const msg = error?.data?.message || error?.message || 'Failed to update status'
-    toast.error(msg)
-    console.error('[chat] Toggle status error:', error)
+    const msg =
+      error?.data?.message || error?.message || "Failed to update status";
+    toast.error(msg);
+    console.error("[chat] Toggle status error:", error);
   } finally {
-    togglingStatus.value = false
+    togglingStatus.value = false;
   }
 }
 
 async function selectSession(sessionId: number) {
-  selectedSessionId.value = sessionId
-  messages.value = []
-  stopMessagePolling()
+  selectedSessionId.value = sessionId;
+  messages.value = [];
+  stopMessagePolling();
 
-  await fetchMessages(sessionId)
-  rtConnect(sessionId)
+  await fetchMessages(sessionId);
+  rtConnect(sessionId);
 
-  nextTick(() => scrollToBottom())
+  nextTick(() => scrollToBottom());
 }
 
 // Send admin reply via server endpoint
 async function sendReply() {
-  if (!replyText.value.trim() || !selectedSessionId.value) return
+  if (!replyText.value.trim() || !selectedSessionId.value) return;
 
-  const messageText = replyText.value.trim()
-  replyText.value = ''
-  sendTyping(false)
+  const messageText = replyText.value.trim();
+  replyText.value = "";
+  sendTyping(false);
 
   try {
-    const newMessage = await $fetch('/api/chat/messages', {
-      method: 'POST',
+    const newMessage = await $fetch("/api/chat/messages", {
+      method: "POST",
       body: {
         sessionId: selectedSessionId.value,
-        sender: 'admin',
+        sender: "admin",
         message: messageText,
-        operation: 'send',
+        operation: "send",
       },
-    })
+    });
     // Add to local list immediately (WS dedup prevents duplicates)
-    const msg = newMessage as any
-    const exists = messages.value.some((m: any) => m.id === msg.id)
+    const msg = newMessage as any;
+    const exists = messages.value.some((m: any) => m.id === msg.id);
     if (!exists) {
-      messages.value = [...messages.value, msg]
+      messages.value = [...messages.value, msg];
     }
-    scrollToBottom()
+    scrollToBottom();
   } catch (error) {
-    toast.error('Failed to send message')
-    replyText.value = messageText
+    toast.error("Failed to send message");
+    replyText.value = messageText;
   }
 }
 
 function handleReplyKeydown(e: KeyboardEvent) {
-  if (e.key === 'Enter' && !e.shiftKey) {
-    e.preventDefault()
-    sendReply()
+  if (e.key === "Enter" && !e.shiftKey) {
+    e.preventDefault();
+    sendReply();
   } else {
     // Send typing indicator
-    sendTyping(true)
+    sendTyping(true);
   }
 }
 
 // Close/archive a session (notifies visitor via WS)
 async function closeSession(sessionId: number) {
   try {
-    await $fetch('/api/chat/close-session', {
-      method: 'POST',
+    await $fetch("/api/chat/close-session", {
+      method: "POST",
       body: { sessionId },
-    })
-    toast.success('Session closed')
-    await fetchSessions()
+    });
+    toast.success("Session closed");
+    await fetchSessions();
     if (selectedSessionId.value === sessionId) {
-      selectedSessionId.value = null
-      messages.value = []
+      selectedSessionId.value = null;
+      messages.value = [];
     }
   } catch {
-    toast.error('Failed to close session')
+    toast.error("Failed to close session");
   }
 }
 
 async function reopenSession(sessionId: number) {
   try {
-    await sessions.update(sessionId, { status: 'active' } as any)
-    toast.success('Session reopened')
-    await fetchSessions()
+    await sessions.update(sessionId, { status: "active" } as any);
+    toast.success("Session reopened");
+    await fetchSessions();
   } catch {
-    toast.error('Failed to reopen session')
+    toast.error("Failed to reopen session");
   }
 }
 
 function scrollToBottom() {
   nextTick(() => {
     if (messagesContainer.value) {
-      messagesContainer.value.scrollTop = messagesContainer.value.scrollHeight
+      messagesContainer.value.scrollTop = messagesContainer.value.scrollHeight;
     }
-  })
+  });
 }
 
 function formatTime(dateStr: string) {
-  return format(new Date(dateStr), 'h:mm a')
+  return format(new Date(dateStr), "h:mm a");
 }
 
 function formatSessionTime(dateStr: string | null) {
-  if (!dateStr) return ''
-  return formatDistanceToNow(new Date(dateStr), { addSuffix: true })
+  if (!dateStr) return "";
+  return formatDistanceToNow(new Date(dateStr), { addSuffix: true });
 }
 
 function getInitials(name: string) {
   return name
-    .split(' ')
+    .split(" ")
     .map((n) => n[0])
-    .join('')
+    .join("")
     .toUpperCase()
-    .slice(0, 2)
+    .slice(0, 2);
 }
 
 // Load data on mount + start session list polling
 onMounted(async () => {
-  await Promise.all([fetchSessions(), fetchChatStatus()])
+  await Promise.all([fetchSessions(), fetchChatStatus()]);
 
   // Poll session list for updates
-  sessionPollInterval = setInterval(fetchSessions, 10000)
-})
+  sessionPollInterval = setInterval(fetchSessions, 10000);
+});
 
 onUnmounted(() => {
-  if (sessionPollInterval) clearInterval(sessionPollInterval)
-  stopMessagePolling()
-  rtDisconnect()
-})
+  if (sessionPollInterval) clearInterval(sessionPollInterval);
+  stopMessagePolling();
+  rtDisconnect();
+});
 </script>
 
 <template>
   <div class="space-y-6">
     <!-- Header -->
-    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+    <div
+      class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4"
+    >
       <div>
         <h1 class="text-2xl font-semibold text-slate-900">Chat Dashboard</h1>
-        <p class="text-slate-600 mt-1">Manage visitor conversations in real time</p>
+        <p class="text-slate-600 mt-1">
+          Manage visitor conversations in real time
+        </p>
       </div>
 
       <!-- Online Toggle -->
       <button
         :disabled="togglingStatus"
         class="inline-flex items-center gap-3 rounded-lg border px-4 py-2.5 text-sm font-medium transition-all"
-        :class="adminOnline
-          ? 'border-green-200 bg-green-50 text-green-700 hover:bg-green-100'
-          : 'border-slate-200 bg-white text-slate-600 hover:bg-slate-50'"
+        :class="
+          adminOnline
+            ? 'border-green-200 bg-green-50 text-green-700 hover:bg-green-100'
+            : 'border-slate-200 bg-white text-slate-600 hover:bg-slate-50'
+        "
         @click="toggleOnlineStatus"
       >
         <span
           class="inline-block h-2.5 w-2.5 rounded-full"
           :class="adminOnline ? 'bg-green-500' : 'bg-slate-400'"
         />
-        {{ adminOnline ? 'Online' : 'Offline' }}
+        {{ adminOnline ? "Online" : "Offline" }}
         <span class="text-xs opacity-60">(click to toggle)</span>
       </button>
     </div>
 
     <!-- Main Chat Layout -->
-    <div class="flex gap-4 rounded-xl border border-slate-200 bg-white overflow-hidden" style="height: calc(100vh - 14rem);">
-
+    <div
+      class="flex gap-4 rounded-xl border border-slate-200 bg-white overflow-hidden"
+      style="height: calc(100vh - 14rem)"
+    >
       <!-- Session List (Left Panel) -->
       <div class="w-80 shrink-0 border-r border-slate-200 flex flex-col">
         <!-- Filter Tabs -->
@@ -310,9 +327,11 @@ onUnmounted(() => {
             ] as const"
             :key="tab.value"
             class="flex-1 px-3 py-2.5 text-xs font-medium transition-colors"
-            :class="statusFilter === tab.value
-              ? 'text-slate-900 border-b-2 border-slate-900'
-              : 'text-slate-500 hover:text-slate-700'"
+            :class="
+              statusFilter === tab.value
+                ? 'text-slate-900 border-b-2 border-slate-900'
+                : 'text-slate-500 hover:text-slate-700'
+            "
             @click="statusFilter = tab.value"
           >
             {{ tab.label }}
@@ -320,7 +339,11 @@ onUnmounted(() => {
               v-if="tab.value !== 'all'"
               class="ml-1 inline-flex h-5 w-5 items-center justify-center rounded-full bg-slate-100 text-[10px]"
             >
-              {{ sessionsList.filter((s) => tab.value === 'all' || s.status === tab.value).length }}
+              {{
+                sessionsList.filter(
+                  (s) => tab.value === "all" || s.status === tab.value,
+                ).length
+              }}
             </span>
           </button>
         </div>
@@ -328,12 +351,24 @@ onUnmounted(() => {
         <!-- Sessions -->
         <div class="flex-1 overflow-y-auto">
           <div v-if="isLoading" class="p-4 space-y-3">
-            <div v-for="i in 4" :key="i" class="h-16 rounded-lg bg-slate-100 animate-pulse" />
+            <div
+              v-for="i in 4"
+              :key="i"
+              class="h-16 rounded-lg bg-slate-100 animate-pulse"
+            />
           </div>
 
-          <div v-else-if="filteredSessions.length === 0" class="flex flex-col items-center justify-center p-8 text-center">
-            <Icon name="lucide:message-square-off" class="w-10 h-10 text-slate-300 mb-3" />
-            <p class="text-sm text-slate-500">No {{ statusFilter === 'all' ? '' : statusFilter }} conversations</p>
+          <div
+            v-else-if="filteredSessions.length === 0"
+            class="flex flex-col items-center justify-center p-8 text-center"
+          >
+            <Icon
+              name="lucide:message-square-off"
+              class="w-10 h-10 text-slate-300 mb-3"
+            />
+            <p class="text-sm text-slate-500">
+              No {{ statusFilter === "all" ? "" : statusFilter }} conversations
+            </p>
           </div>
 
           <div v-else>
@@ -341,17 +376,21 @@ onUnmounted(() => {
               v-for="session in filteredSessions"
               :key="session.id"
               class="flex w-full items-start gap-3 px-4 py-3 text-left transition-colors border-b border-slate-100"
-              :class="selectedSessionId === session.id
-                ? 'bg-slate-100'
-                : 'hover:bg-slate-50'"
+              :class="
+                selectedSessionId === session.id
+                  ? 'bg-slate-100'
+                  : 'hover:bg-slate-50'
+              "
               @click="selectSession(session.id)"
             >
               <!-- Avatar -->
               <div
                 class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-xs font-semibold"
-                :class="session.status === 'active'
-                  ? 'bg-primary-100 text-primary-700'
-                  : 'bg-slate-100 text-slate-500'"
+                :class="
+                  session.status === 'active'
+                    ? 'bg-primary-100 text-primary-700'
+                    : 'bg-slate-100 text-slate-500'
+                "
               >
                 {{ getInitials(session.visitor_name) }}
               </div>
@@ -367,9 +406,15 @@ onUnmounted(() => {
                     class="ml-2 inline-block h-2 w-2 shrink-0 rounded-full bg-green-500"
                   />
                 </div>
-                <p class="text-xs text-slate-500 truncate">{{ session.visitor_email }}</p>
+                <p class="text-xs text-slate-500 truncate">
+                  {{ session.visitor_email }}
+                </p>
                 <p class="text-[10px] text-slate-400 mt-0.5">
-                  {{ formatSessionTime(session.last_message_at || session.date_created) }}
+                  {{
+                    formatSessionTime(
+                      session.last_message_at || session.date_created,
+                    )
+                  }}
                 </p>
               </div>
             </button>
@@ -384,24 +429,40 @@ onUnmounted(() => {
           v-if="!selectedSession"
           class="flex flex-1 flex-col items-center justify-center text-center p-8"
         >
-          <Icon name="lucide:message-square" class="w-16 h-16 text-slate-200 mb-4" />
-          <h3 class="text-lg font-medium text-slate-500">Select a conversation</h3>
-          <p class="text-sm text-slate-400 mt-1">Choose a session from the left to view messages</p>
+          <Icon
+            name="lucide:message-square"
+            class="w-16 h-16 text-slate-200 mb-4"
+          />
+          <h3 class="text-lg font-medium text-slate-500">
+            Select a conversation
+          </h3>
+          <p class="text-sm text-slate-400 mt-1">
+            Choose a session from the left to view messages
+          </p>
         </div>
 
         <!-- Session selected -->
         <template v-else>
           <!-- Conversation Header -->
-          <div class="flex items-center justify-between border-b border-slate-200 px-5 py-3">
+          <div
+            class="flex items-center justify-between border-b border-slate-200 px-5 py-3"
+          >
             <div class="flex items-center gap-3">
-              <div class="flex h-9 w-9 items-center justify-center rounded-full bg-primary-100 text-xs font-semibold text-primary-700">
+              <div
+                class="flex h-9 w-9 items-center justify-center rounded-full bg-primary-100 text-xs font-semibold text-primary-700"
+              >
                 {{ getInitials(selectedSession.visitor_name) }}
               </div>
               <div>
-                <p class="text-sm font-semibold text-slate-900">{{ selectedSession.visitor_name }}</p>
+                <p class="text-sm font-semibold text-slate-900">
+                  {{ selectedSession.visitor_name }}
+                </p>
                 <div class="flex items-center gap-2 text-xs text-slate-500">
                   <span>{{ selectedSession.visitor_email }}</span>
-                  <span v-if="selectedSession.visitor_phone" class="before:content-['·'] before:mr-2">
+                  <span
+                    v-if="selectedSession.visitor_phone"
+                    class="before:content-['·'] before:mr-2"
+                  >
                     {{ selectedSession.visitor_phone }}
                   </span>
                 </div>
@@ -412,7 +473,9 @@ onUnmounted(() => {
               <!-- Connection status -->
               <span
                 class="inline-block h-2 w-2 rounded-full"
-                :class="isConnected ? 'bg-green-500' : 'bg-yellow-500 animate-pulse'"
+                :class="
+                  isConnected ? 'bg-green-500' : 'bg-yellow-500 animate-pulse'
+                "
                 :title="isConnected ? 'Realtime connected' : 'Connecting...'"
               />
 
@@ -441,9 +504,17 @@ onUnmounted(() => {
           >
             <!-- Session started notice -->
             <div class="flex justify-center">
-              <span class="rounded-full bg-slate-100 px-3 py-1 text-[10px] text-slate-500">
-                {{ selectedSession.visitor_name }} started a conversation &middot;
-                {{ format(new Date(selectedSession.date_created), 'MMM d, h:mm a') }}
+              <span
+                class="rounded-full bg-slate-100 px-3 py-1 text-[10px] text-slate-500"
+              >
+                {{ selectedSession.visitor_name }} started a conversation
+                &middot;
+                {{
+                  format(
+                    new Date(selectedSession.date_created),
+                    "MMM d, h:mm a",
+                  )
+                }}
               </span>
             </div>
 
@@ -456,9 +527,11 @@ onUnmounted(() => {
             >
               <div
                 class="max-w-[70%] rounded-2xl px-4 py-2.5 text-sm"
-                :class="msg.sender === 'admin'
-                  ? 'rounded-br-md bg-primary-600 text-white'
-                  : 'rounded-bl-md bg-slate-100 text-slate-900'"
+                :class="
+                  msg.sender === 'admin'
+                    ? 'rounded-br-md bg-primary-600 text-white'
+                    : 'rounded-bl-md bg-slate-100 text-slate-900'
+                "
               >
                 <p class="whitespace-pre-wrap">{{ msg.message }}</p>
                 <p
@@ -475,8 +548,14 @@ onUnmounted(() => {
               <div class="rounded-2xl rounded-bl-md bg-slate-100 px-4 py-3">
                 <div class="flex items-center gap-1">
                   <span class="typing-dot h-2 w-2 rounded-full bg-slate-400" />
-                  <span class="typing-dot h-2 w-2 rounded-full bg-slate-400" style="animation-delay: 0.2s" />
-                  <span class="typing-dot h-2 w-2 rounded-full bg-slate-400" style="animation-delay: 0.4s" />
+                  <span
+                    class="typing-dot h-2 w-2 rounded-full bg-slate-400"
+                    style="animation-delay: 0.2s"
+                  />
+                  <span
+                    class="typing-dot h-2 w-2 rounded-full bg-slate-400"
+                    style="animation-delay: 0.4s"
+                  />
                 </div>
               </div>
             </div>
@@ -510,8 +589,16 @@ onUnmounted(() => {
 
 <style scoped>
 @keyframes typing-bounce {
-  0%, 60%, 100% { transform: translateY(0); opacity: 0.4; }
-  30% { transform: translateY(-4px); opacity: 1; }
+  0%,
+  60%,
+  100% {
+    transform: translateY(0);
+    opacity: 0.4;
+  }
+  30% {
+    transform: translateY(-4px);
+    opacity: 1;
+  }
 }
 .typing-dot {
   animation: typing-bounce 1.4s ease-in-out infinite;

@@ -52,13 +52,13 @@ const aboutImageUrl = computed(() => {
 const seoTitle = settings.value?.site_name
   ? `${settings.value.site_name} - Accounting & Tax Services in Ithaca, NY`
   : 'SJHAS, Inc. - Accounting & Tax Services in Ithaca, NY'
-const seoDescription = settings.value?.site_description
+constSJHAS, Inc.ption = settings.value?.site_description
   || 'SJHAS Inc. provides personalized tax returns, accounting, and payroll services throughout Ithaca, Elmira, and Central New York since 2000.'
 
 // Override title template to prevent @nuxtjs/seo from appending the site name
 // (the seoTitle already starts with "SJHAS, Inc.")
 useHead({ titleTemplate: '%s' })
-
+SJHAS, Inc.
 useSeoMeta({
   title: seoTitle,
   description: seoDescription,
@@ -67,7 +67,7 @@ useSeoMeta({
   ogType: 'website',
   ogSiteName: 'SJHAS, Inc.',
   twitterCard: 'summary_large_image',
-  twitterTitle: seoTitle,
+  twitterTitle:SJHAS, Inc.
   twitterDescription: seoDescription,
 })
 
@@ -75,7 +75,7 @@ defineOgImage({
   component: 'Sjhas',
   title: 'SJHAS, Inc.',
   description: 'Accounting & Tax Services in Ithaca, NY',
-})
+})SJHAS, Inc.
 
 // Structured data - WebPage + services offered
 useSchemaOrg([
@@ -87,7 +87,7 @@ useSchemaOrg([
   defineLocalBusiness({
     name: 'SJHAS, Inc.',
     description: seoDescription,
-    image: '/icon-512x512.png',
+    image: SJHAS, Inc.x512.png',
     email: settings.value?.contact_email || 'sjh@sjhas.com',
     telephone: settings.value?.contact_phone || '(607) 216-8033',
     address: {
