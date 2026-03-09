@@ -85,12 +85,15 @@ export default defineEventHandler(async (event) => {
     // CSV header row
     const staticHeaders = ['Submission ID', 'Status', 'Submitter Name', 'Submitter Email', 'Date Submitted']
     const dynamicHeaders = orderedDynamicKeys.map((key) => labelMap.get(key) || formatKey(key))
-    const headers = [...staticHeaders, ...dynamicHeaders, 'Notes']
+    const headers = [...staticHeaders, ...dynamicHeaders, 'Uploaded Files', 'Admin Notes']
 
     // CSV rows
     const rows: string[][] = [headers]
     for (const sub of submissions) {
       const data = sub.data || {}
+      const uploadedFiles = Array.isArray(data.uploaded_files)
+        ? data.uploaded_files.map((f: any) => f.filename).join(', ')
+        : ''
       const row = [
         String(sub.id),
         sub.status || '',
@@ -98,6 +101,7 @@ export default defineEventHandler(async (event) => {
         sub.submitter_email || '',
         sub.date_created || '',
         ...orderedDynamicKeys.map((key) => formatCellValue(data[key])),
+        uploadedFiles,
         sub.notes || '',
       ]
       rows.push(row)
