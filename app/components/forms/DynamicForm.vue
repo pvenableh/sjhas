@@ -356,6 +356,21 @@ watch(activeSteps, (steps) => {
   }
 })
 
+// Find the first active step index that contains any of the given error field names
+const findFirstStepWithErrors = (errorFieldNames: string[]): number => {
+  const fields = props.form.fields || []
+  for (let i = 0; i < activeSteps.value.length; i++) {
+    const step = activeSteps.value[i]
+    const stepFields = fields.filter(
+      (f) => f.sort >= step.fieldRange[0] && f.sort <= step.fieldRange[1]
+    )
+    if (stepFields.some((f) => errorFieldNames.includes(f.name))) {
+      return i
+    }
+  }
+  return -1
+}
+
 const animateStepTransition = () => {
   nextTick(() => {
     if (formRef.value) {
@@ -450,18 +465,41 @@ const onSubmit = handleSubmit(async (values) => {
     trackFormError(props.form.title || 'Unknown Form', `Submission failed: ${statusCode}`)
     toast.error(submitError.value)
   }
-}, (errors) => {
+}, (ctx) => {
   // Called when vee-validate validation fails — form never reaches the submit handler
+  // ctx shape: { values, evt, errors, results }
+  const errors = ctx.errors || {}
   console.warn('[DynamicForm] Validation failed — form NOT submitted')
   console.warn('[DynamicForm] Validation errors:', JSON.stringify(errors, null, 2))
   console.warn('[DynamicForm] Current form values:', JSON.stringify(formValues, null, 2))
 
-  const errorCount = Object.keys(errors).length
-  const fieldNames = Object.keys(errors).join(', ')
-  const message = `Please fix ${errorCount} error${errorCount > 1 ? 's' : ''} before submitting: ${fieldNames}`
+  // Build field name → label lookup for user-friendly messages
+  const fieldLabelMap: Record<string, string> = {}
+  for (const f of (props.form.fields || [])) {
+    fieldLabelMap[f.name] = f.label
+  }
+
+  const errorFieldNames = Object.keys(errors)
+  const errorCount = errorFieldNames.length
+  const errorLabels = errorFieldNames.map((name) => fieldLabelMap[name] || name)
+
+  // Navigate to the first step that contains an error field
+  if (isMultiStep.value && props.steps) {
+    const firstErrorStep = findFirstStepWithErrors(errorFieldNames)
+    if (firstErrorStep !== -1 && firstErrorStep !== currentStep.value) {
+      console.warn(`[DynamicForm] Navigating from step ${currentStep.value} to step ${firstErrorStep} (has errors)`)
+      currentStep.value = firstErrorStep
+      emit('update:currentStep', firstErrorStep)
+      animateStepTransition()
+    }
+  }
+
+  const stepLabel = activeSteps.value[currentStep.value]?.label
+  const stepHint = stepLabel ? ` in "${stepLabel}"` : ''
+  const message = `Please fix ${errorCount} error${errorCount > 1 ? 's' : ''}${stepHint}: ${errorLabels.join(', ')}`
 
   submitError.value = message
-  trackFormError(props.form.title || 'Unknown Form', `Validation failed: ${fieldNames}`)
+  trackFormError(props.form.title || 'Unknown Form', `Validation failed: ${errorFieldNames.join(', ')}`)
   toast.error(message)
 })
 
