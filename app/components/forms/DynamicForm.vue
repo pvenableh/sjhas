@@ -270,6 +270,21 @@ const isSuccess = ref(false)
 const submitError = ref<string | null>(null)
 const currentStep = ref(0)
 
+// Spam protection: honeypot value (bots fill it, humans never see it) and a
+// server-signed load-time token used to reject instant automated submissions
+const HONEYPOT_FIELD = 'contact_website'
+const honeypotValue = ref('')
+const formToken = ref<string | null>(null)
+
+const fetchFormToken = async () => {
+  try {
+    const { token } = await $fetch<{ token: string }>('/api/forms/token')
+    formToken.value = token
+  } catch (error) {
+    console.error('Failed to fetch form token:', error)
+  }
+}
+
 // Sort fields by sort order
 const sortedFields = computed(() => {
   const fields = props.form.fields || []
@@ -429,6 +444,14 @@ const onSubmit = handleSubmit(async (values) => {
     formData.append('data', JSON.stringify(jsonData))
     formData.append('form_id', String(props.form.id))
 
+    if (!formToken.value) {
+      // Token failed to load on mount; fetch now and wait out the server's minimum fill time
+      await fetchFormToken()
+      await new Promise((resolve) => setTimeout(resolve, 3500))
+    }
+    formData.append('_token', formToken.value || '')
+    formData.append(HONEYPOT_FIELD, honeypotValue.value)
+
     console.log('[DynamicForm] Sending POST /api/forms/submit with form_id:', props.form.id)
 
     // Submit to API
@@ -534,6 +557,8 @@ const handleReset = () => {
 
 // Animate form on mount + track form view
 onMounted(() => {
+  fetchFormToken()
+
   trackFormView(props.form.title || 'Unknown Form', props.form.id)
 
   nextTick(() => {
@@ -604,6 +629,22 @@ defineExpose({
           <Icon name="lucide:alert-circle" class="w-5 h-5 flex-shrink-0" />
           <span>{{ submitError }}</span>
         </div>
+      </div>
+
+      <!-- Honeypot: hidden from people and screen readers, filled in by bots -->
+      <div
+        aria-hidden="true"
+        style="position: absolute; left: -10000px; top: auto; width: 1px; height: 1px; overflow: hidden;"
+      >
+        <label :for="`${HONEYPOT_FIELD}-${form.id}`">Leave this field empty</label>
+        <input
+          :id="`${HONEYPOT_FIELD}-${form.id}`"
+          v-model="honeypotValue"
+          type="text"
+          :name="HONEYPOT_FIELD"
+          tabindex="-1"
+          autocomplete="off"
+        >
       </div>
 
       <!-- Fields (multi-step: render all active steps, show only current) -->

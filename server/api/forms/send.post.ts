@@ -3,6 +3,9 @@ import { renderTemplate } from '../../utils/emails/render'
 
 export default defineEventHandler(async (event) => {
   const config = useRuntimeConfig()
+
+  // Only signed-in staff can send form links (otherwise this is an open email relay)
+  await requireUserSession(event)
   const body = await readBody(event)
 
   const { formId, recipientEmail, recipientName, message } = body
@@ -50,14 +53,14 @@ export default defineEventHandler(async (event) => {
 
     const displayName = recipientName || recipientEmail.split('@')[0] || recipientEmail
     const customMessage = message
-      ? message.replace(/\n/g, '<br>')
+      ? escapeHtml(message).replace(/\n/g, '<br>')
       : ''
     const formDescription = form.description
       ? `<p style="color: #64748b; font-size: 14px; margin: 0;">${form.description}</p>`
       : ''
 
     const htmlContent = renderTemplate(formInvitationTemplate, {
-      displayName,
+      displayName: escapeHtml(displayName),
       customMessage,
       formTitle: form.title,
       formDescription,

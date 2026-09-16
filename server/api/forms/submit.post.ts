@@ -2,12 +2,27 @@ import { adminNotificationTemplate } from '../../utils/emails/templates/adminNot
 import { submitterConfirmationTemplate } from '../../utils/emails/templates/submitterConfirmation'
 import { renderTemplate } from '../../utils/emails/render'
 
+const DEFAULT_MAX_FILE_SIZE_MB = 10
+const DEFAULT_ALLOWED_FILE_TYPES = '.pdf,.doc,.docx,.xls,.xlsx,.csv,.jpg,.jpeg,.png,.gif,.txt'
+const MAX_FILES_PER_SUBMISSION = 20
+
+// Response returned to suspected bots so they can't tell they were blocked
+const FAKE_SUCCESS = { success: true, message: 'Form submitted successfully' }
+
 export default defineEventHandler(async (event) => {
   const config = useRuntimeConfig()
 
   console.log('[FormSubmit] ---- New form submission request ----')
 
   try {
+    if (isRateLimited(event)) {
+      console.warn('Form submission rate limited:', getRequestIP(event, { xForwardedFor: true }))
+      throw createError({
+        statusCode: 429,
+        message: 'Too many submissions. Please wait a few minutes and try again.',
+      })
+    }
+
     // Parse multipart form data
     const formData = await readMultipartFormData(event)
 
@@ -24,15 +39,25 @@ export default defineEventHandler(async (event) => {
     // Extract data and files
     let jsonData: Record<string, unknown> = {}
     let formId: number | null = null
+    let formToken: string | null = null
+    let honeypot = ''
     const files: { fieldName: string; file: Buffer; filename: string; type: string }[] = []
 
     for (const field of formData) {
       if (field.name === 'data' && field.data) {
-        jsonData = JSON.parse(field.data.toString())
+        try {
+          jsonData = JSON.parse(field.data.toString())
+        } catch {
+          throw createError({ statusCode: 400, message: 'Invalid form data' })
+        }
         console.log('[FormSubmit] Parsed JSON data keys:', Object.keys(jsonData).join(', '))
       } else if (field.name === 'form_id' && field.data) {
         formId = parseInt(field.data.toString())
         console.log('[FormSubmit] Form ID:', formId)
+      } else if (field.name === '_token' && field.data) {
+        formToken = field.data.toString()
+      } else if (field.name === HONEYPOT_FIELD && field.data) {
+        honeypot = field.data.toString()
       } else if (field.filename && field.data) {
         files.push({
           fieldName: field.name || 'file',
@@ -43,6 +68,96 @@ export default defineEventHandler(async (event) => {
         console.log('[FormSubmit] File received:', field.filename, `(${field.data.length} bytes)`)
       } else {
         console.log('[FormSubmit] Unhandled field:', field.name, '| has data:', !!field.data, '| has filename:', !!field.filename)
+      }
+    }
+
+    if (!jsonData || typeof jsonData !== 'object' || Array.isArray(jsonData)) {
+      throw createError({ statusCode: 400, message: 'Invalid form data' })
+    }
+    delete jsonData[HONEYPOT_FIELD]
+
+    // --- Spam checks (silently drop anything that looks automated) ---
+    const ip = getRequestIP(event, { xForwardedFor: true })
+
+    if (honeypot.trim()) {
+      console.warn('Form spam blocked (honeypot):', { ip, formId })
+      return FAKE_SUCCESS
+    }
+
+    const tokenCheck = verifyFormToken(formToken)
+    if (tokenCheck === 'expired') {
+      throw createError({
+        statusCode: 400,
+        message: 'This form has expired. Please refresh the page and try again.',
+      })
+    }
+    if (tokenCheck !== 'ok') {
+      console.warn(`Form spam blocked (token ${tokenCheck}):`, { ip, formId })
+      return FAKE_SUCCESS
+    }
+
+    const spamReason = detectSpamContent(jsonData)
+    if (spamReason) {
+      console.warn(`Form spam blocked (${spamReason}):`, { ip, formId })
+      return FAKE_SUCCESS
+    }
+
+    // Fetch form details for file rules, per-form notify_email and title
+    let formTitle = 'Form Submission'
+    let formNotifyEmail: string | null = null
+    let formSuccessMessage: string | null = null
+    let allowFileUploads = true
+    let maxFileSizeMb = DEFAULT_MAX_FILE_SIZE_MB
+    let allowedFileTypes = DEFAULT_ALLOWED_FILE_TYPES
+
+    if (formId && config.directus.staticToken) {
+      try {
+        const formResponse = await fetch(
+          `${config.directus.url}/items/forms/${formId}?fields=title,notify_email,notify_on_submission,success_message,allow_file_uploads,max_file_size_mb,allowed_file_types`,
+          { headers: { Authorization: `Bearer ${config.directus.staticToken}` } }
+        )
+        if (formResponse.ok) {
+          const formResult = await formResponse.json()
+          formTitle = formResult.data?.title || formTitle
+          formNotifyEmail = formResult.data?.notify_email || null
+          formSuccessMessage = formResult.data?.success_message || null
+          if (formResult.data?.allow_file_uploads === false) allowFileUploads = false
+          maxFileSizeMb = formResult.data?.max_file_size_mb || maxFileSizeMb
+          allowedFileTypes = formResult.data?.allowed_file_types || allowedFileTypes
+        }
+      } catch (e) {
+        console.error('Failed to fetch form details:', e)
+      }
+    }
+
+    // --- Server-side file validation ---
+    if (files.length > 0) {
+      if (!allowFileUploads) {
+        throw createError({ statusCode: 400, message: 'This form does not accept file uploads.' })
+      }
+      if (files.length > MAX_FILES_PER_SUBMISSION) {
+        throw createError({
+          statusCode: 400,
+          message: `Please upload no more than ${MAX_FILES_PER_SUBMISSION} files at a time.`,
+        })
+      }
+      const allowedExtensions = allowedFileTypes
+        .split(',')
+        .map((ext) => ext.trim().toLowerCase())
+        .filter(Boolean)
+      for (const fileData of files) {
+        const ext = fileData.filename.includes('.')
+          ? `.${fileData.filename.split('.').pop()!.toLowerCase()}`
+          : ''
+        if (allowedExtensions.length > 0 && !allowedExtensions.includes(ext)) {
+          throw createError({ statusCode: 400, message: `File type not allowed: ${fileData.filename}` })
+        }
+        if (fileData.file.length > maxFileSizeMb * 1024 * 1024) {
+          throw createError({
+            statusCode: 400,
+            message: `${fileData.filename} is larger than ${maxFileSizeMb}MB.`,
+          })
+        }
       }
     }
 
@@ -134,28 +249,6 @@ export default defineEventHandler(async (event) => {
       console.warn('[FormSubmit] No Directus static token — submission NOT saved to database')
     }
 
-    // Fetch form details for per-form notify_email and title
-    let formTitle = 'Form Submission'
-    let formNotifyEmail: string | null = null
-    let formSuccessMessage: string | null = null
-
-    if (formId && config.directus.staticToken) {
-      try {
-        const formResponse = await fetch(
-          `${config.directus.url}/items/forms/${formId}?fields=title,notify_email,notify_on_submission,success_message`,
-          { headers: { Authorization: `Bearer ${config.directus.staticToken}` } }
-        )
-        if (formResponse.ok) {
-          const formResult = await formResponse.json()
-          formTitle = formResult.data?.title || formTitle
-          formNotifyEmail = formResult.data?.notify_email || null
-          formSuccessMessage = formResult.data?.success_message || null
-        }
-      } catch (e) {
-        console.error('Failed to fetch form details:', e)
-      }
-    }
-
     // Send admin notification email
     if (config.sendgridApiKey && config.notificationEmail) {
       try {
@@ -220,7 +313,7 @@ async function sendNotificationEmail(
       const displayValue = typeof value === 'boolean'
         ? (value ? 'Yes' : 'No')
         : (value || 'Not provided')
-      return `<tr><td style="padding: 10px 12px; border-bottom: 1px solid rgba(255,255,255,0.15); font-weight: 500; color: rgba(255,255,255,0.9);">${label}</td><td style="padding: 10px 12px; border-bottom: 1px solid rgba(255,255,255,0.15); color: rgba(255,255,255,0.7);">${displayValue}</td></tr>`
+      return `<tr><td style="padding: 10px 12px; border-bottom: 1px solid rgba(255,255,255,0.15); font-weight: 500; color: rgba(255,255,255,0.9);">${escapeHtml(label)}</td><td style="padding: 10px 12px; border-bottom: 1px solid rgba(255,255,255,0.15); color: rgba(255,255,255,0.7);">${escapeHtml(displayValue)}</td></tr>`
     })
     .join('')
 
@@ -228,14 +321,14 @@ async function sendNotificationEmail(
     ? `
       <h3 style="color: rgba(255,255,255,0.9); margin-top: 24px; margin-bottom: 12px; font-size: 14px; font-weight: 600;">Uploaded Files</h3>
       <ul style="color: rgba(255,255,255,0.7); padding-left: 20px;">
-        ${files.map((f) => `<li style="margin-bottom: 6px;">${f.filename} <a href="${config.directus.url}/assets/${f.fileId}" style="color: rgba(255,255,255,0.8); text-decoration: underline;">View</a></li>`).join('')}
+        ${files.map((f) => `<li style="margin-bottom: 6px;">${escapeHtml(f.filename)} <a href="${config.directus.url}/assets/${f.fileId}" style="color: rgba(255,255,255,0.8); text-decoration: underline;">View</a></li>`).join('')}
       </ul>
     `
     : ''
 
   const htmlContent = renderTemplate(adminNotificationTemplate, {
-    formTitle,
-    submitterName: String(submitterName),
+    formTitle: escapeHtml(formTitle),
+    submitterName: escapeHtml(submitterName),
     dataRows,
     filesSection,
     receivedDate: new Date().toLocaleString('en-US', { dateStyle: 'full', timeStyle: 'short' }),
@@ -267,9 +360,9 @@ async function sendConfirmationEmail(
   const confirmationText = successMessage || 'Thank you for your submission! We have received your information and will be in touch soon.'
 
   const htmlContent = renderTemplate(submitterConfirmationTemplate, {
-    displayName,
+    displayName: escapeHtml(displayName),
     confirmationText,
-    formTitle,
+    formTitle: escapeHtml(formTitle),
     submittedDate: new Date().toLocaleString('en-US', { dateStyle: 'long', timeStyle: 'short' }),
   })
 
