@@ -229,7 +229,7 @@ async function seedContent() {
     hero_subtitle:
       "Personalized tax returns, accounting, and payroll services that make a difference for your business and personal finances.",
     hero_cta_text: "Book a Consultation",
-    hero_cta_link: "https://app.reclaim.ai/m/sjhas/quick-meeting",
+    hero_cta_link: "https://scheduler.zoom.us/sjhas/meeting",
     about_title: "SJHAS, Inc.",
     about_content: `SJHAS Inc. has been providing clients personalized tax returns, accounting, and payroll services throughout Ithaca, Elmira, and the Central New York area since 2000.
 

@@ -176,7 +176,7 @@ const getStatusColor = (status: string) => {
         </NuxtLink>
 
         <a
-          href="https://app.reclaim.ai/m/sjhas/quick-meeting"
+          href="https://scheduler.zoom.us/sjhas/meeting"
           target="_blank"
           class="flex items-center gap-3 p-4 rounded-lg border border-slate-200 dark:border-slate-700 hover:border-primary-200 dark:hover:border-primary-700 hover:bg-primary-50 dark:hover:bg-primary-900/20 transition-colors"
         >
