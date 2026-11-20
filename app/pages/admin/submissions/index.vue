@@ -23,6 +23,8 @@ const searchQuery = ref('')
 const selectedStatus = ref<string>('all')
 const selectedForm = ref<string>('all')
 const expandedId = ref<number | null>(null)
+const notesDraft = ref('')
+const isSavingNotes = ref(false)
 
 const fetchData = async () => {
   isLoading.value = true
@@ -30,7 +32,7 @@ const fetchData = async () => {
     const [subs, forms] = await Promise.all([
       submissions.list({
         sort: ['-id'],
-        fields: ['id', 'form.id', 'form.title', 'form.slug', 'status', 'data', 'submitter_email', 'submitter_name', 'notes'],
+        fields: ['id', 'form.id', 'form.title', 'form.slug', 'status', 'data', 'submitter_email', 'submitter_name', 'notes', 'date_created'],
         limit: 100,
       }),
       formsApi.list({
@@ -94,7 +96,30 @@ const getStatusColor = (status: string) => {
 
 const toggleExpand = (id: number) => {
   expandedId.value = expandedId.value === id ? null : id
+  notesDraft.value = submissionList.value.find((s) => s.id === id)?.notes || ''
 }
+
+const expandedSub = computed(() => submissionList.value.find((s) => s.id === expandedId.value) ?? null)
+
+const notesChanged = computed(() => !!expandedSub.value && notesDraft.value !== (expandedSub.value.notes || ''))
+
+const saveNotes = async () => {
+  const sub = expandedSub.value
+  if (!sub) return
+  isSavingNotes.value = true
+  try {
+    await submissions.update(sub.id, { notes: notesDraft.value } as any)
+    sub.notes = notesDraft.value
+    toast.success('Notes saved')
+  } catch (error) {
+    toast.error('Failed to save notes')
+  } finally {
+    isSavingNotes.value = false
+  }
+}
+
+const getFileCount = (sub: any): number =>
+  Array.isArray(sub.data?.uploaded_files) ? sub.data.uploaded_files.length : 0
 
 const updateStatus = async (id: number, status: string) => {
   try {
@@ -268,11 +293,23 @@ const getDisplayableData = (data: Record<string, unknown>) => {
                     >
                       {{ sub.status }}
                     </span>
+                    <span
+                      v-if="getFileCount(sub) > 0"
+                      class="inline-flex items-center gap-1 px-2 py-0.5 text-xs font-medium rounded-full bg-slate-100 text-slate-700"
+                      :title="`${getFileCount(sub)} uploaded ${getFileCount(sub) === 1 ? 'file' : 'files'}`"
+                    >
+                      <Icon name="lucide:paperclip" class="w-3 h-3" />
+                      {{ getFileCount(sub) }}
+                    </span>
                   </div>
                   <div class="flex items-center gap-3 mt-1 text-sm text-slate-500">
                     <span>{{ sub.form?.title || 'Unknown Form' }}</span>
                     <span>&middot;</span>
                     <span>#{{ sub.id }}</span>
+                    <template v-if="sub.date_created">
+                      <span>&middot;</span>
+                      <span>{{ formatDate(sub.date_created) }}</span>
+                    </template>
                   </div>
                 </div>
               </div>
@@ -341,6 +378,22 @@ const getDisplayableData = (data: Record<string, unknown>) => {
                       Download
                     </a>
                   </div>
+                </div>
+              </div>
+
+              <!-- Internal notes -->
+              <div>
+                <p class="text-xs font-semibold text-slate-400 uppercase tracking-wide mb-2">Internal Notes</p>
+                <textarea
+                  v-model="notesDraft"
+                  rows="3"
+                  placeholder="Add notes for your team (not visible to the submitter)"
+                  class="w-full px-3 py-2 rounded-lg border border-slate-200 text-sm text-slate-900 bg-white focus:outline-none focus:ring-2 focus:ring-primary-500"
+                />
+                <div class="mt-2 flex justify-end">
+                  <Button size="sm" :disabled="!notesChanged || isSavingNotes" @click="saveNotes">
+                    {{ isSavingNotes ? 'Saving...' : 'Save notes' }}
+                  </Button>
                 </div>
               </div>
 
