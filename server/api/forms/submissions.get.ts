@@ -11,21 +11,25 @@
  *
  * Response: { items, total, counts: { all, new, reviewed, archived }, responseSearch }
  * `counts` ignore the status filter (so the tabs stay accurate) but respect
- * form and search. `responseSearch` is "ok", "off" (no q) or "unavailable"
- * when this Directus can't filter inside JSON, in which case only the plain
- * columns were searched.
+ * form and search. `responseSearch` is "ok" (Directus `_json` filter), "scan"
+ * (Directus too old for `_json`; responses scanned in Node) or "off" (no q).
  *
  * How response search works: Directus' `search` param and `_icontains` don't
  * look inside JSON columns, but newer versions support the `_json` filter
  * operator with explicit paths. Paths can't be wildcarded, so we OR one path
  * per field name defined on the relevant form(s). No schema or index change.
  * Answers stored as arrays (checkbox groups) and the uploaded_files list are
- * not matched.
+ * not matched by `_json`. Older Directus versions reject `_json`; for those we
+ * read id+data of the candidate rows and match in Node (searches every text
+ * value, arrays included), which is fine at this volume.
  */
 
 const STATUSES = ["new", "reviewed", "archived"] as const;
 const SAFE_KEY = /^[A-Za-z0-9_-]{1,64}$/;
 const MAX_JSON_KEYS = 150;
+
+// Remembered after the first rejection so we skip the doomed _json attempt.
+let jsonFilterSupported = true;
 
 export default defineEventHandler(async (event) => {
   await requireAdmin(event);
@@ -44,7 +48,7 @@ export default defineEventHandler(async (event) => {
 
   const directus = await getUserDirectus(event);
 
-  const buildFilter = async (includeJson: boolean, includeStatus: boolean) => {
+  const buildFilter = async (includeJson: boolean, includeStatus: boolean, matchedIds: number[] = []) => {
     const and: any[] = [];
     if (formId !== null) and.push({ form: { _eq: formId } });
     if (includeStatus && status !== "all") and.push({ status: { _eq: status } });
@@ -56,6 +60,7 @@ export default defineEventHandler(async (event) => {
         { notes: { _icontains: q } },
         { form: { title: { _icontains: q } } },
       ];
+      if (matchedIds.length) or.push({ id: { _in: matchedIds } });
       if (includeJson) {
         const forms = (await directus.request(
           readItems("forms", {
@@ -79,11 +84,11 @@ export default defineEventHandler(async (event) => {
     return and.length ? { _and: and } : {};
   };
 
-  const run = async (includeJson: boolean) => {
+  const run = async (includeJson: boolean, matchedIds: number[] = []) => {
     const [items, countRows] = await Promise.all([
       directus.request(
         readItems("form_submissions", {
-          filter: await buildFilter(includeJson, true),
+          filter: await buildFilter(includeJson, true, matchedIds),
           sort: ["-id"],
           fields: [
             "id", "form.id", "form.title", "form.slug", "status", "data",
@@ -97,7 +102,7 @@ export default defineEventHandler(async (event) => {
         aggregate("form_submissions", {
           aggregate: { count: "*" },
           groupBy: ["status"],
-          query: { filter: await buildFilter(includeJson, false) },
+          query: { filter: await buildFilter(includeJson, false, matchedIds) },
         } as any)
       ),
     ]);
@@ -106,16 +111,29 @@ export default defineEventHandler(async (event) => {
 
   try {
     let result;
-    let responseSearch: "ok" | "off" | "unavailable" = q ? "ok" : "off";
+    let responseSearch: "ok" | "scan" | "off" = q ? "ok" : "off";
     try {
+      if (q && !jsonFilterSupported) throw Object.assign(new Error("skip"), { skipJson: true });
       result = await run(!!q);
     } catch (error: any) {
-      // Older Directus versions reject `_json`. Retry on plain columns only.
+      // Older Directus versions reject `_json`. Scan responses in Node instead.
       const code = getDirectusHttpStatus(error);
-      if (!q || code !== 400) throw error;
-      console.warn("[/api/forms/submissions] _json filter rejected, searching columns only:", getDirectusErrorMessage(error));
-      result = await run(false);
-      responseSearch = "unavailable";
+      if (!q || (!error.skipJson && code !== 400)) throw error;
+      if (!error.skipJson) jsonFilterSupported = false;
+      if (!error.skipJson) console.warn("[/api/forms/submissions] _json filter rejected, scanning responses in Node:", getDirectusErrorMessage(error));
+      const rows = (await directus.request(
+        readItems("form_submissions", {
+          fields: ["id", "data"],
+          ...(formId !== null ? { filter: { form: { _eq: formId } } } : {}),
+          limit: -1,
+        })
+      )) as any[];
+      const needle = q.toLowerCase();
+      const matchedIds = rows
+        .filter((r) => dataContains(r.data, needle))
+        .map((r) => r.id as number);
+      result = await run(false, matchedIds);
+      responseSearch = "scan";
     }
 
     const counts = { all: 0, new: 0, reviewed: 0, archived: 0 };
@@ -135,3 +153,18 @@ export default defineEventHandler(async (event) => {
     throw createError({ statusCode, message });
   }
 });
+
+// True when any string/number value in the responses contains the needle
+// (lowercase). Skips the uploaded_files list; recurses into arrays/objects.
+function dataContains(data: unknown, needle: string): boolean {
+  if (data === null || data === undefined) return false;
+  if (typeof data === "string") return data.toLowerCase().includes(needle);
+  if (typeof data === "number") return String(data).includes(needle);
+  if (Array.isArray(data)) return data.some((v) => dataContains(v, needle));
+  if (typeof data === "object") {
+    return Object.entries(data as Record<string, unknown>).some(
+      ([k, v]) => k !== "uploaded_files" && dataContains(v, needle)
+    );
+  }
+  return false;
+}

@@ -30,7 +30,7 @@ const isSavingNotes = ref(false)
 const page = ref(1)
 const total = ref(0)
 const statusCounts = ref({ all: 0, new: 0, reviewed: 0, archived: 0 })
-const responseSearch = ref<'ok' | 'off' | 'unavailable'>('off')
+const responseSearch = ref<'ok' | 'scan' | 'off'>('off')
 
 const totalPages = computed(() => Math.max(1, Math.ceil(total.value / PAGE_SIZE)))
 
@@ -276,9 +276,6 @@ const getDisplayableData = (data: Record<string, unknown>) => {
           </option>
         </select>
       </div>
-      <p v-if="responseSearch === 'unavailable'" class="mt-3 text-xs text-amber-700">
-        Searching inside responses isn't supported by this Directus version, so only name, email, notes and form were searched.
-      </p>
     </Card>
 
     <!-- Submissions list -->
