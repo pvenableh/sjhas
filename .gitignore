@@ -37,3 +37,6 @@ coverage
 
 # Node compile cache
 node-compile-cache
+
+# Directus schema snapshots taken by scripts before schema changes
+scripts/.backups/

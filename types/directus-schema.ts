@@ -76,6 +76,16 @@ export interface FormSubmission {
 	status?: 'new' | 'reviewed' | 'archived';
 	notes?: string | null;
 	date_created?: string | null;
+	/** Index of data.uploaded_files (Phase 3b); the JSON stays the source of truth */
+	files?: FormSubmissionFile[] | string[];
+}
+
+export interface FormSubmissionFile {
+	/** @primaryKey */
+	id: number;
+	form_submissions_id?: FormSubmission | number | null;
+	directus_files_id?: DirectusFile | string | null;
+	upload_field?: string | null;
 }
 
 export interface HomePage {
@@ -648,6 +658,7 @@ export interface Schema {
 	chat_settings: ChatSettings;
 	forms: Form[];
 	form_submissions: FormSubmission[];
+	form_submissions_files: FormSubmissionFile[];
 	home_page: HomePage;
 	pages: Page[];
 	services: Service[];
@@ -690,6 +701,7 @@ export enum CollectionNames {
 	chat_settings = 'chat_settings',
 	forms = 'forms',
 	form_submissions = 'form_submissions',
+	form_submissions_files = 'form_submissions_files',
 	home_page = 'home_page',
 	pages = 'pages',
 	services = 'services',

@@ -267,6 +267,9 @@ export default defineEventHandler(async (event) => {
           const result = await response.json()
           submissionId = result.data?.id ?? null
           console.log('[FormSubmit] Submission saved successfully, ID:', submissionId)
+          if (submissionId && uploadedFiles.length > 0) {
+            await linkSubmissionFiles(config, submissionId, uploadedFiles)
+          }
         }
       } catch (saveError) {
         console.error('[FormSubmit] Submission save error:', saveError)
@@ -332,6 +335,37 @@ export default defineEventHandler(async (event) => {
     })
   }
 })
+
+// Write the form_submissions_files junction rows (file -> submission index).
+// data.uploaded_files stays the source of truth, so a failure here is logged and
+// never treated as a save failure; scripts/link-submission-files.ts fills gaps.
+async function linkSubmissionFiles(
+  config: ReturnType<typeof useRuntimeConfig>,
+  submissionId: number,
+  files: { fieldName: string; fileId: string; filename: string }[]
+) {
+  try {
+    const response = await fetch(`${config.directus.url}/items/form_submissions_files`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${config.directus.staticToken}`,
+      },
+      body: JSON.stringify(
+        files.map((f) => ({
+          form_submissions_id: submissionId,
+          directus_files_id: f.fileId,
+          upload_field: f.fieldName,
+        }))
+      ),
+    })
+    if (!response.ok) {
+      console.error('[FormSubmit] Could not link files to submission', submissionId, response.status, (await response.text()).slice(0, 300))
+    }
+  } catch (linkError) {
+    console.error('[FormSubmit] Could not link files to submission', submissionId, linkError)
+  }
+}
 
 async function sendNotificationEmail(
   config: ReturnType<typeof useRuntimeConfig>,

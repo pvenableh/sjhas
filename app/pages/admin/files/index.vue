@@ -36,7 +36,41 @@ const fetchFiles = async () => {
   }
 }
 
-onMounted(fetchFiles)
+// File ID -> the submission it was uploaded with (form_submissions_files junction).
+// Optional: if the junction is missing or unreadable the page still works.
+interface SubmissionLink { id: number; name: string | null; formTitle: string | null }
+const submissionByFile = ref<Record<string, SubmissionLink>>({})
+const submissionLinks = useDirectusItems('form_submissions_files')
+
+const fetchSubmissionLinks = async () => {
+  try {
+    const rows = (await submissionLinks.list({
+      fields: [
+        'directus_files_id',
+        'form_submissions_id.id',
+        'form_submissions_id.submitter_name',
+        'form_submissions_id.form.title',
+      ],
+      limit: -1,
+    })) as any[]
+    const map: Record<string, SubmissionLink> = {}
+    for (const row of rows) {
+      const sub = row.form_submissions_id
+      if (!row.directus_files_id || !sub?.id) continue
+      map[row.directus_files_id] = { id: sub.id, name: sub.submitter_name || null, formTitle: sub.form?.title || null }
+    }
+    submissionByFile.value = map
+  } catch (error) {
+    console.warn('Could not load file-to-submission links:', error)
+    submissionByFile.value = {}
+  }
+}
+
+const refresh = () => Promise.all([fetchFiles(), fetchSubmissionLinks()])
+
+onMounted(refresh)
+
+const submissionFileCount = computed(() => files.value.filter((f) => submissionByFile.value[f.id]).length)
 
 const filteredFiles = computed(() => {
   let result = files.value
@@ -45,6 +79,7 @@ const filteredFiles = computed(() => {
     result = result.filter((f) => {
       if (selectedType.value === 'images') return f.type?.startsWith('image/')
       if (selectedType.value === 'documents') return f.type?.includes('pdf') || f.type?.includes('document') || f.type?.includes('spreadsheet') || f.type?.includes('text/')
+      if (selectedType.value === 'submissions') return !!submissionByFile.value[f.id]
       return true
     })
   }
@@ -56,7 +91,8 @@ const filteredFiles = computed(() => {
         f.filename_download?.toLowerCase().includes(q) ||
         f.uploaded_by?.first_name?.toLowerCase().includes(q) ||
         f.uploaded_by?.last_name?.toLowerCase().includes(q) ||
-        f.uploaded_by?.email?.toLowerCase().includes(q)
+        f.uploaded_by?.email?.toLowerCase().includes(q) ||
+        submissionByFile.value[f.id]?.name?.toLowerCase().includes(q)
     )
   }
 
@@ -105,7 +141,7 @@ const getAssetUrl = (fileId: string) => {
         <h1 class="text-2xl font-semibold text-slate-900">Files</h1>
         <p class="text-slate-600 mt-1">View all uploaded files across clients</p>
       </div>
-      <Button variant="secondary" @click="fetchFiles">
+      <Button variant="secondary" @click="refresh">
         <Icon name="lucide:refresh-cw" class="w-4 h-4" />
         Refresh
       </Button>
@@ -125,6 +161,7 @@ const getAssetUrl = (fileId: string) => {
           <option value="all">All Types</option>
           <option value="documents">Documents</option>
           <option value="images">Images</option>
+          <option v-if="submissionFileCount > 0" value="submissions">From form submissions ({{ submissionFileCount }})</option>
         </select>
       </div>
     </Card>
@@ -182,28 +219,43 @@ const getAssetUrl = (fileId: string) => {
       </div>
 
       <div v-else class="divide-y divide-slate-200">
-        <a
+        <div
           v-for="file in filteredFiles"
           :key="file.id"
-          :href="getAssetUrl(file.id)"
-          target="_blank"
-          class="flex items-center gap-4 p-4 hover:bg-slate-50 transition-colors"
+          class="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 hover:bg-slate-50 transition-colors"
         >
-          <div class="w-10 h-10 rounded-lg bg-slate-100 border border-slate-200 flex items-center justify-center flex-shrink-0">
-            <Icon :name="getFileIcon(file.type)" class="w-5 h-5 text-slate-500" />
-          </div>
-          <div class="flex-1 min-w-0">
-            <p class="font-medium text-slate-900 truncate">{{ file.filename_download }}</p>
-            <div class="flex items-center gap-3 mt-0.5 text-sm text-slate-500">
-              <span>{{ formatFileSize(file.filesize) }}</span>
-              <span>&middot;</span>
-              <span>{{ getUploaderName(file) }}</span>
-              <span>&middot;</span>
-              <span>{{ formatDate(file.uploaded_on) }}</span>
+          <a
+            :href="getAssetUrl(file.id)"
+            target="_blank"
+            class="flex flex-1 min-w-0 items-center gap-4 p-4 sm:pr-0"
+          >
+            <div class="w-10 h-10 rounded-lg bg-slate-100 border border-slate-200 flex items-center justify-center flex-shrink-0">
+              <Icon :name="getFileIcon(file.type)" class="w-5 h-5 text-slate-500" />
             </div>
-          </div>
-          <Icon name="lucide:download" class="w-5 h-5 text-slate-400 flex-shrink-0" />
-        </a>
+            <div class="flex-1 min-w-0">
+              <p class="font-medium text-slate-900 truncate">{{ file.filename_download }}</p>
+              <div class="flex flex-wrap items-center gap-x-3 mt-0.5 text-sm text-slate-500">
+                <span>{{ formatFileSize(file.filesize) }}</span>
+                <span>&middot;</span>
+                <span>{{ getUploaderName(file) }}</span>
+                <span>&middot;</span>
+                <span>{{ formatDate(file.uploaded_on) }}</span>
+              </div>
+            </div>
+            <Icon name="lucide:download" class="w-5 h-5 text-slate-400 flex-shrink-0" />
+          </a>
+          <NuxtLink
+            v-if="submissionByFile[file.id]"
+            :to="`/admin/submissions/${submissionByFile[file.id]!.id}`"
+            class="mx-4 mb-4 sm:m-0 sm:mr-4 inline-flex items-center gap-1.5 self-start sm:self-center max-w-full sm:max-w-[16rem] px-2.5 py-1 rounded-md border border-primary-200 bg-primary-50 text-xs font-medium text-primary-700 hover:bg-primary-100"
+            :title="submissionByFile[file.id]!.formTitle || undefined"
+          >
+            <Icon name="lucide:inbox" class="w-3.5 h-3.5 flex-shrink-0" />
+            <span class="truncate">
+              Submission #{{ submissionByFile[file.id]!.id }}<template v-if="submissionByFile[file.id]!.name"> &middot; {{ submissionByFile[file.id]!.name }}</template>
+            </span>
+          </NuxtLink>
+        </div>
       </div>
     </Card>
   </div>

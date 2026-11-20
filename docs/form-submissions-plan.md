@@ -80,3 +80,14 @@ All in `app/pages/admin/submissions/index.vue`.
 ## Phase 3b: optional files-to-submissions relation (Opus 5.5)
 
 A real many-to-many between `form_submissions` and `directus_files`, plus migrating existing submissions. Schema change and production data migration. Only do this if Steve needs to go from a file in `/admin/files` back to its submission.
+
+### Phase 3b as built
+
+- Junction `form_submissions_files` (`id`, `form_submissions_id` → `form_submissions`, `directus_files_id` → `directus_files`, both ON DELETE CASCADE, plus `upload_field`), with the m2m alias `form_submissions.files`. No reverse alias on `directus_files`.
+- `data.uploaded_files` stays the source of truth. The junction is an index from a file back to its submission. `submit.post.ts` writes it after a successful save; a failed write is only logged.
+- `/admin/files` shows a "Submission #id · name" link and a "From form submissions" filter.
+- Rollout, each step dry-run first, then `--apply`:
+  1. `pnpm tsx scripts/setup-submission-files-relation.ts` (saves a schema snapshot to `scripts/.backups/` before applying)
+  2. `pnpm tsx scripts/link-submission-files.ts` (only creates missing rows; safe to re-run)
+  3. Deploy.
+- Rollback: `pnpm tsx scripts/setup-submission-files-relation.ts --remove` (then `--apply`), and revert the code. Nothing in `form_submissions` or the files changes.
