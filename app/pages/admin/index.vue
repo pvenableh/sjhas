@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import { toast } from 'vue-sonner'
+import { format } from 'date-fns'
 import type { Form, FormSubmission } from '~/types/directus'
 
 definePageMeta({
@@ -27,20 +28,22 @@ const recentSubmissions = ref<any[]>([])
 const fetchDashboardData = async () => {
   isLoading.value = true
   try {
-    const [formsList, submissionsList] = await Promise.all([
+    const [formsList, submissionsList, totalCount, newCount] = await Promise.all([
       forms.list({ fields: ['id', 'status'], limit: -1 }),
       submissions.list({
         sort: ['-id'],
-        fields: ['id', 'form.id', 'form.title', 'status', 'submitter_name', 'submitter_email'],
+        fields: ['id', 'form.id', 'form.title', 'status', 'submitter_name', 'submitter_email', 'date_created', 'data'],
         limit: 5,
       }),
+      submissions.count(),
+      submissions.count({ status: { _eq: 'new' } }),
     ])
 
     stats.value = {
       totalForms: formsList.length,
       publishedForms: formsList.filter((f) => f.status === 'published').length,
-      totalSubmissions: submissionsList.length,
-      newSubmissions: submissionsList.filter((s) => s.status === 'new').length,
+      totalSubmissions: Number(totalCount) || 0,
+      newSubmissions: Number(newCount) || 0,
     }
 
     recentSubmissions.value = submissionsList
@@ -53,6 +56,11 @@ const fetchDashboardData = async () => {
 }
 
 onMounted(fetchDashboardData)
+
+const formatDate = (date: string) => format(new Date(date), 'MMM d, yyyy h:mm a')
+
+const getFileCount = (sub: any): number =>
+  Array.isArray(sub.data?.uploaded_files) ? sub.data.uploaded_files.length : 0
 
 const getStatusColor = (status: string) => {
   switch (status) {
@@ -191,28 +199,47 @@ const getStatusColor = (status: string) => {
           </div>
 
           <div v-else class="space-y-3">
-            <div
+            <NuxtLink
               v-for="sub in recentSubmissions"
               :key="sub.id"
-              class="flex items-center justify-between p-3 rounded-lg bg-slate-50"
+              :to="`/admin/submissions/${sub.id}`"
+              class="flex items-center gap-3 p-3 rounded-lg bg-slate-50 hover:bg-slate-100 transition-colors"
+              :aria-label="`Open submission #${sub.id}`"
             >
-              <div class="flex items-center gap-3 min-w-0">
-                <div class="w-8 h-8 rounded-full bg-primary-100 flex items-center justify-center flex-shrink-0">
-                  <Icon name="lucide:file-text" class="w-4 h-4 text-primary-600" />
-                </div>
-                <div class="min-w-0">
+              <div class="w-8 h-8 rounded-full bg-primary-100 flex items-center justify-center flex-shrink-0">
+                <Icon name="lucide:file-text" class="w-4 h-4 text-primary-600" />
+              </div>
+              <div class="flex-1 min-w-0">
+                <div class="flex items-center gap-2 min-w-0">
                   <p class="text-sm font-medium text-slate-900 truncate">
                     {{ sub.submitter_name || sub.submitter_email || 'Anonymous' }}
                   </p>
-                  <p class="text-xs text-slate-500 truncate">{{ sub.form?.title || 'Unknown Form' }}</p>
+                  <span
+                    :class="['px-2 py-0.5 text-xs font-medium rounded-full flex-shrink-0', getStatusColor(sub.status)]"
+                  >
+                    {{ sub.status }}
+                  </span>
+                  <span
+                    v-if="getFileCount(sub) > 0"
+                    class="inline-flex items-center gap-1 px-2 py-0.5 text-xs font-medium rounded-full bg-white border border-slate-200 text-slate-700 flex-shrink-0"
+                    :title="`${getFileCount(sub)} uploaded ${getFileCount(sub) === 1 ? 'file' : 'files'}`"
+                  >
+                    <Icon name="lucide:paperclip" class="w-3 h-3" />
+                    {{ getFileCount(sub) }}
+                  </span>
+                </div>
+                <div class="flex flex-wrap items-center gap-x-2 mt-0.5 text-xs text-slate-500">
+                  <span class="truncate">{{ sub.form?.title || 'Unknown Form' }}</span>
+                  <span>&middot;</span>
+                  <span>#{{ sub.id }}</span>
+                  <template v-if="sub.date_created">
+                    <span>&middot;</span>
+                    <span>{{ formatDate(sub.date_created) }}</span>
+                  </template>
                 </div>
               </div>
-              <span
-                :class="['px-2 py-0.5 text-xs font-medium rounded-full flex-shrink-0', getStatusColor(sub.status)]"
-              >
-                {{ sub.status }}
-              </span>
-            </div>
+              <Icon name="lucide:chevron-right" class="w-4 h-4 text-slate-400 flex-shrink-0" />
+            </NuxtLink>
           </div>
         </Card>
       </div>
