@@ -244,6 +244,9 @@ export default defineEventHandler(async (event) => {
 
     // Save submission to Directus (if we have admin access)
     let submissionId: number | null = null
+    // Set when the submission could not be saved; flagged loudly in the admin email
+    // because the email is then the only record of it.
+    let saveFailure: string | null = null
     if (config.directus.staticToken) {
       console.log('[FormSubmit] Saving submission to Directus for form_id:', formId)
       try {
@@ -259,6 +262,7 @@ export default defineEventHandler(async (event) => {
         if (!response.ok) {
           const errorBody = await response.text()
           console.error('[FormSubmit] Failed to save submission:', response.status, errorBody)
+          saveFailure = `Directus returned ${response.status}: ${errorBody.slice(0, 300)}`
         } else {
           const result = await response.json()
           submissionId = result.data?.id ?? null
@@ -266,23 +270,37 @@ export default defineEventHandler(async (event) => {
         }
       } catch (saveError) {
         console.error('[FormSubmit] Submission save error:', saveError)
+        saveFailure = `Could not reach Directus: ${(saveError as Error)?.message || saveError}`
       }
     } else {
       console.warn('[FormSubmit] No Directus static token — submission NOT saved to database')
+      saveFailure = 'No Directus token is configured on the server'
     }
 
     // Send admin notification email
+    let adminEmailSent = false
     if (config.sendgridApiKey && config.notificationEmail) {
       try {
         const notifyTo = formNotifyEmail || config.notificationEmail
         console.log('[FormSubmit] Sending admin notification to:', notifyTo)
-        await sendNotificationEmail(config, jsonData, uploadedFiles, formTitle, notifyTo, submissionId)
+        await sendNotificationEmail(config, jsonData, uploadedFiles, formTitle, notifyTo, submissionId, saveFailure)
+        adminEmailSent = true
         console.log('[FormSubmit] Admin notification sent successfully')
       } catch (emailError) {
         console.error('[FormSubmit] Email notification error:', emailError)
       }
     } else {
       console.warn('[FormSubmit] Skipping admin email — sendgridApiKey:', !!config.sendgridApiKey, '| notificationEmail:', !!config.notificationEmail)
+    }
+
+    // Neither saved nor emailed: nothing records this submission, so tell the submitter
+    // (instead of a false success) so they can retry or contact the office.
+    if (saveFailure && !adminEmailSent) {
+      console.error('[FormSubmit] DATA LOSS RISK: not saved and admin email not sent. Reason:', saveFailure)
+      throw createError({
+        statusCode: 500,
+        message: 'We could not process your submission. Please try again in a few minutes or contact us directly.',
+      })
     }
 
     // Send confirmation email to submitter
@@ -321,7 +339,8 @@ async function sendNotificationEmail(
   files: { fieldName: string; fileId: string; filename: string }[],
   formTitle: string,
   notifyTo: string,
-  submissionId: number | null
+  submissionId: number | null,
+  saveFailure: string | null = null
 ) {
   const sgMail = await import('@sendgrid/mail')
   sgMail.default.setApiKey(config.sendgridApiKey)
@@ -329,7 +348,12 @@ async function sendNotificationEmail(
   const submitterName = data.name || (data.first_name && data.last_name ? `${data.first_name} ${data.last_name}` : null) || data.taxpayer_name || 'Unknown'
   const submitterEmail = data.email || 'Not provided'
 
-  const dataRows = Object.entries(data)
+  // Prominent banner (first table row) when the submission was not saved
+  const saveFailureRow = saveFailure
+    ? `<tr><td colspan="2" style="padding: 14px 16px; background: #b42318; color: #ffffff; font-weight: 600; border-radius: 4px;">&#9888; NOT SAVED TO THE ADMIN. This email is the only record of this submission &mdash; it will not appear under Submissions. Please keep this email and tell the developer.<br><span style="font-weight: 400; font-size: 12px;">${escapeHtml(saveFailure)}</span></td></tr>`
+    : ''
+
+  const dataRows = saveFailureRow + Object.entries(data)
     .filter(([key]) => !['uploaded_files'].includes(key))
     .map(([key, value]) => {
       const label = key.replace(/_/g, ' ').replace(/\b\w/g, (l) => l.toUpperCase())
@@ -367,7 +391,7 @@ async function sendNotificationEmail(
   await sgMail.default.send({
     to: notifyTo,
     from: { email: config.sendgridFromEmail, name: 'SJH Accounting' },
-    subject: `New Submission: ${formTitle} — from ${submitterName}`,
+    subject: `${saveFailure ? '[NOT SAVED] ' : ''}New Submission: ${formTitle} — from ${submitterName}`,
     html: htmlContent,
     replyTo: submitterEmail as string,
     bcc: notifyTo.toLowerCase() !== config.notificationEmail.toLowerCase()
