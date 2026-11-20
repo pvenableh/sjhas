@@ -9,10 +9,8 @@
  * Each dynamic field from the form's JSON `data` column becomes its own CSV column.
  */
 export default defineEventHandler(async (event) => {
-  const session = await getUserSession(event)
-  if (!session?.user) {
-    throw createError({ statusCode: 401, message: 'Authentication required' })
-  }
+  // Admin-only: exports contain every submitter's personal data
+  await requireAdmin(event)
 
   const query = getQuery(event)
   const formId = query.form_id as string | undefined

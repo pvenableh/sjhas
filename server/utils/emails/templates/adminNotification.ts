@@ -322,6 +322,86 @@ export const adminNotificationTemplate = `<!doctype html>
           <tbody>
             <tr>
               <td
+                 style="direction:ltr;font-size:0px;padding:0px 10px 20px;text-align:center;"
+              >
+                <!--[if mso | IE]><table role="presentation" border="0" cellpadding="0" cellspacing="0"><tr><td class="" style="vertical-align:top;width:580px;" ><![endif]-->
+            
+      <div
+         class="mj-column-per-100 mj-outlook-group-fix" style="font-size:0px;text-align:left;direction:ltr;display:inline-block;vertical-align:top;width:100%;"
+      >
+        
+      <table
+         border="0" cellpadding="0" cellspacing="0" role="presentation" style="vertical-align:top;" width="100%"
+      >
+        <tbody>
+          
+              <tr>
+                <td
+                   align="center" class="avenir" style="font-size:0px;padding:10px 25px;word-break:break-word;"
+                >
+                  
+      <table
+         border="0" cellpadding="0" cellspacing="0" role="presentation" style="border-collapse:separate;line-height:100%;"
+      >
+        <tbody>
+          <tr>
+            <td
+               align="center" bgcolor="#ffffff" role="presentation" style="border:none;border-radius:4px;cursor:auto;mso-padding-alt:12px 28px;background:#ffffff;" valign="middle"
+            >
+              <a
+                 href="{{submissionUrl}}" style="display:inline-block;background:#ffffff;color:#1c2d44;font-family:Avenir;font-size:13px;font-weight:500;line-height:120%;letter-spacing:0.1em;margin:0;text-decoration:none;text-transform:uppercase;padding:12px 28px;mso-padding-alt:0px;border-radius:4px;" target="_blank"
+              >
+                View submission
+              </a>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    
+                </td>
+              </tr>
+            
+        </tbody>
+      </table>
+    
+      </div>
+    
+          <!--[if mso | IE]></td></tr></table><![endif]-->
+              </td>
+            </tr>
+          </tbody>
+        </table>
+        
+      </div>
+    
+        
+      <!--[if mso | IE]></td></tr></table><![endif]-->
+    
+      
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    
+      <table
+         align="center" border="0" cellpadding="0" cellspacing="0" role="presentation" style="width:100%;"
+      >
+        <tbody>
+          <tr>
+            <td>
+              
+        
+      <!--[if mso | IE]><table align="center" border="0" cellpadding="0" cellspacing="0" class="" role="presentation" style="width:600px;" width="600" ><tr><td style="line-height:0px;font-size:0px;mso-line-height-rule:exactly;"><![endif]-->
+    
+        
+      <div  style="margin:0px auto;max-width:600px;">
+        
+        <table
+           align="center" border="0" cellpadding="0" cellspacing="0" role="presentation" style="width:100%;"
+        >
+          <tbody>
+            <tr>
+              <td
                  style="direction:ltr;font-size:0px;padding:0px 10px 50px;text-align:center;"
               >
                 <!--[if mso | IE]><table role="presentation" border="0" cellpadding="0" cellspacing="0"><tr><td class="" style="vertical-align:top;width:580px;" ><![endif]-->

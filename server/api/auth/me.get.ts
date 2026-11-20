@@ -18,6 +18,8 @@ export default defineEventHandler(async (event) => {
       authenticated: true,
       user: session.user,
       loggedInAt: (session as any).loggedInAt,
+      // Verified server-side against Directus, not read from the cookie
+      isAdmin: await isAdminUser(event),
     };
   } catch (error: any) {
     console.error("Get user error:", error);

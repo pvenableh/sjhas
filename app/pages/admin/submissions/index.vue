@@ -249,37 +249,47 @@ const getDisplayableData = (data: Record<string, unknown>) => {
       <div v-else class="divide-y divide-slate-200">
         <div v-for="sub in filteredSubmissions" :key="sub.id">
           <!-- Row header -->
-          <button
-            class="w-full flex items-center justify-between p-4 hover:bg-slate-50 transition-colors text-left"
-            @click="toggleExpand(sub.id)"
-          >
-            <div class="flex items-center gap-4 flex-1 min-w-0">
-              <div class="w-10 h-10 rounded-lg bg-primary-100 flex items-center justify-center flex-shrink-0">
-                <Icon name="lucide:file-text" class="w-5 h-5 text-primary-600" />
-              </div>
-              <div class="flex-1 min-w-0">
-                <div class="flex items-center gap-3">
-                  <p class="font-medium text-slate-900 truncate">
-                    {{ sub.submitter_name || sub.submitter_email || 'Anonymous' }}
-                  </p>
-                  <span
-                    :class="['px-2 py-0.5 text-xs font-medium rounded-full', getStatusColor(sub.status)]"
-                  >
-                    {{ sub.status }}
-                  </span>
+          <div class="flex items-center hover:bg-slate-50 transition-colors">
+            <button
+              class="flex-1 min-w-0 flex items-center justify-between p-4 text-left"
+              @click="toggleExpand(sub.id)"
+            >
+              <div class="flex items-center gap-4 flex-1 min-w-0">
+                <div class="w-10 h-10 rounded-lg bg-primary-100 flex items-center justify-center flex-shrink-0">
+                  <Icon name="lucide:file-text" class="w-5 h-5 text-primary-600" />
                 </div>
-                <div class="flex items-center gap-3 mt-1 text-sm text-slate-500">
-                  <span>{{ sub.form?.title || 'Unknown Form' }}</span>
-                  <span>&middot;</span>
-                  <span>#{{ sub.id }}</span>
+                <div class="flex-1 min-w-0">
+                  <div class="flex items-center gap-3">
+                    <p class="font-medium text-slate-900 truncate">
+                      {{ sub.submitter_name || sub.submitter_email || 'Anonymous' }}
+                    </p>
+                    <span
+                      :class="['px-2 py-0.5 text-xs font-medium rounded-full', getStatusColor(sub.status)]"
+                    >
+                      {{ sub.status }}
+                    </span>
+                  </div>
+                  <div class="flex items-center gap-3 mt-1 text-sm text-slate-500">
+                    <span>{{ sub.form?.title || 'Unknown Form' }}</span>
+                    <span>&middot;</span>
+                    <span>#{{ sub.id }}</span>
+                  </div>
                 </div>
               </div>
-            </div>
-            <Icon
-              name="lucide:chevron-down"
-              :class="['w-5 h-5 text-slate-400 transition-transform', expandedId === sub.id ? 'rotate-180' : '']"
-            />
-          </button>
+              <Icon
+                name="lucide:chevron-down"
+                :class="['w-5 h-5 text-slate-400 transition-transform', expandedId === sub.id ? 'rotate-180' : '']"
+              />
+            </button>
+            <NuxtLink
+              :to="`/admin/submissions/${sub.id}`"
+              class="flex-shrink-0 mr-4 inline-flex items-center gap-1 px-3 py-1.5 text-sm text-primary-600 hover:text-primary-700 rounded-lg hover:bg-white"
+              :aria-label="`Open submission #${sub.id}`"
+            >
+              Open
+              <Icon name="lucide:arrow-right" class="w-4 h-4" />
+            </NuxtLink>
+          </div>
 
           <!-- Expanded details -->
           <div v-if="expandedId === sub.id" class="px-4 pb-4">
@@ -325,8 +335,7 @@ const getDisplayableData = (data: Record<string, unknown>) => {
                     <Icon name="lucide:file" class="w-5 h-5 text-slate-400" />
                     <span class="text-sm text-slate-700 flex-1">{{ file.filename }}</span>
                     <a
-                      :href="`${$config.public.directus.url}/assets/${file.file_id}`"
-                      target="_blank"
+                      :href="`/api/files/${file.file_id}?download=1`"
                       class="text-sm text-primary-600 hover:text-primary-700"
                     >
                       Download

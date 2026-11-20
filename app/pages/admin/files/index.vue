@@ -12,7 +12,6 @@ useSeoMeta({
   title: 'Files - Admin - SJHAS, Inc.',
 })
 
-const config = useRuntimeConfig()
 const { list: listFiles } = useDirectusFiles()
 
 const files = ref<any[]>([])
@@ -92,8 +91,9 @@ const getUploaderName = (file: any) => {
   return name || file.uploaded_by.email || 'Unknown'
 }
 
+// Served through the authenticated proxy so no Directus login is needed
 const getAssetUrl = (fileId: string) => {
-  return `${config.public.directus.url}/assets/${fileId}`
+  return `/api/files/${fileId}`
 }
 </script>
 

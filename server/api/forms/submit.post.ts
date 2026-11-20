@@ -161,14 +161,40 @@ export default defineEventHandler(async (event) => {
       }
     }
 
+    // Submitter name (used for the saved submission and as the uploaded files' title)
+    const submitterName: string | null = jsonData.name
+      ? (jsonData.name as string)
+      : jsonData.first_name && jsonData.last_name
+        ? `${jsonData.first_name} ${jsonData.last_name}`
+        : jsonData.taxpayer_name
+          ? (jsonData.taxpayer_name as string)
+          : null
+
     // Upload files to Directus if any
     const uploadedFiles: { fieldName: string; fileId: string; filename: string }[] = []
 
     if (files.length > 0 && config.directus.staticToken) {
       console.log('[FormSubmit] Uploading', files.length, 'file(s) to Directus')
+
+      // Keep submitted files out of the folder Public can read: they go in
+      // "Form Submissions/<form title>". If the folder can't be resolved we still
+      // upload (the file must not be lost), just without a folder.
+      let folderId: string | null = null
+      try {
+        folderId = await getSubmissionFolderId(
+          { url: config.directus.url, token: config.directus.staticToken },
+          formTitle
+        )
+      } catch (folderError) {
+        console.error('[FormSubmit] Could not resolve submissions folder:', folderError)
+      }
+
       for (const fileData of files) {
         try {
           const uploadFormData = new FormData()
+          // Directus only reads metadata fields that come before the file part
+          if (folderId) uploadFormData.append('folder', folderId)
+          uploadFormData.append('title', submitterName || fileData.filename)
           const blob = new Blob([fileData.file], { type: fileData.type })
           uploadFormData.append('file', blob, fileData.filename)
 
@@ -212,17 +238,12 @@ export default defineEventHandler(async (event) => {
         })),
       },
       submitter_email: (jsonData.email as string) || null,
-      submitter_name: jsonData.name
-        ? (jsonData.name as string)
-        : jsonData.first_name && jsonData.last_name
-          ? `${jsonData.first_name} ${jsonData.last_name}`
-          : jsonData.taxpayer_name
-            ? (jsonData.taxpayer_name as string)
-            : null,
+      submitter_name: submitterName,
       status: 'new' as const,
     }
 
     // Save submission to Directus (if we have admin access)
+    let submissionId: number | null = null
     if (config.directus.staticToken) {
       console.log('[FormSubmit] Saving submission to Directus for form_id:', formId)
       try {
@@ -240,7 +261,8 @@ export default defineEventHandler(async (event) => {
           console.error('[FormSubmit] Failed to save submission:', response.status, errorBody)
         } else {
           const result = await response.json()
-          console.log('[FormSubmit] Submission saved successfully, ID:', result.data?.id)
+          submissionId = result.data?.id ?? null
+          console.log('[FormSubmit] Submission saved successfully, ID:', submissionId)
         }
       } catch (saveError) {
         console.error('[FormSubmit] Submission save error:', saveError)
@@ -254,7 +276,7 @@ export default defineEventHandler(async (event) => {
       try {
         const notifyTo = formNotifyEmail || config.notificationEmail
         console.log('[FormSubmit] Sending admin notification to:', notifyTo)
-        await sendNotificationEmail(config, jsonData, uploadedFiles, formTitle, notifyTo)
+        await sendNotificationEmail(config, jsonData, uploadedFiles, formTitle, notifyTo, submissionId)
         console.log('[FormSubmit] Admin notification sent successfully')
       } catch (emailError) {
         console.error('[FormSubmit] Email notification error:', emailError)
@@ -298,7 +320,8 @@ async function sendNotificationEmail(
   data: Record<string, unknown>,
   files: { fieldName: string; fileId: string; filename: string }[],
   formTitle: string,
-  notifyTo: string
+  notifyTo: string,
+  submissionId: number | null
 ) {
   const sgMail = await import('@sendgrid/mail')
   sgMail.default.setApiKey(config.sendgridApiKey)
@@ -321,12 +344,19 @@ async function sendNotificationEmail(
     ? `
       <h3 style="color: rgba(255,255,255,0.9); margin-top: 24px; margin-bottom: 12px; font-size: 14px; font-weight: 600;">Uploaded Files</h3>
       <ul style="color: rgba(255,255,255,0.7); padding-left: 20px;">
-        ${files.map((f) => `<li style="margin-bottom: 6px;">${escapeHtml(f.filename)} <a href="${config.directus.url}/assets/${f.fileId}" style="color: rgba(255,255,255,0.8); text-decoration: underline;">View</a></li>`).join('')}
+        ${files.map((f) => `<li style="margin-bottom: 6px;">${escapeHtml(f.filename)}</li>`).join('')}
       </ul>
     `
     : ''
 
+  // Link to the submission in the admin (falls back to the list if saving failed)
+  const siteUrl = String(config.public.siteUrl || '').replace(/\/+$/, '')
+  const submissionUrl = submissionId
+    ? `${siteUrl}/admin/submissions/${submissionId}`
+    : `${siteUrl}/admin/submissions`
+
   const htmlContent = renderTemplate(adminNotificationTemplate, {
+    submissionUrl: escapeHtml(submissionUrl),
     formTitle: escapeHtml(formTitle),
     submitterName: escapeHtml(submitterName),
     dataRows,

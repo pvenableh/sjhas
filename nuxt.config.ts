@@ -225,6 +225,9 @@ export default defineNuxtConfig({
     sendgridFromEmail:
       process.env.SENDGRID_FROM_EMAIL || "noreply@sjhaccounting.com",
     notificationEmail: process.env.NOTIFICATION_EMAIL || "sjh@sjhas.com",
+    // Comma-separated Directus role IDs treated as site admins; if unset, nobody
+    // can use /admin (see server/utils/admin.ts)
+    adminRoleIds: process.env.ADMIN_ROLE_ID || "",
     public: {
       directus: {
         url: process.env.DIRECTUS_URL || "http://localhost:8055",

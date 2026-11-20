@@ -30,10 +30,12 @@ Run each phase in a fresh session on the listed model. Do not use Fable.
 
 Not verifiable from the codebase. Record the answers here before starting Phase 1.
 
-- [ ] Can the **Public** role read `directus_files`? If yes, every emailed asset link opens a client's tax document for anyone holding the link, and Phase 1b is required.
-- [ ] Can the **client** role (accounts created by public registration) read `form_submissions` rows that are not their own?
-- [ ] Which Directus folder(s) hold website images (home page, about image, etc.)? Needed for Phase 1b.
-- [ ] What is the admin role's name or ID? Needed for the Phase 1 role guard.
+Answered 2026-11-20:
+
+- [x] Can the **Public** role read `directus_files`? **Yes.** Every emailed asset link opens a client's tax document for anyone holding the link, so Phase 1b is required.
+- [x] Can the **client** role (accounts created by public registration) read `form_submissions` rows that are not their own? **No**, only their own.
+- [x] Which Directus folder(s) hold website images (home page, about image, etc.)? **All of this project's files are in the `SJHAS` folder (`a9dc8d10-5e90-4e4b-8b8a-616b6c4e8c1d`), with no nested folders.** Phase 1b must therefore move submitted files out of that folder (or into a separate folder) before limiting Public read to it.
+- [x] What is the admin role's name or ID? **Administrator**, `a665acc8-7350-453a-a678-4ac731109e26`. Set `ADMIN_ROLE_ID` to this ID in Vercel (and `.env` locally); the Phase 1 guard allows only roles listed there, and nobody is admin if it is unset.
 
 ## Phase 1: the email lands in the admin (Sonnet 5.5)
 

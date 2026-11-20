@@ -33,6 +33,13 @@
         </mj-text>
       </mj-column>
     </mj-section>
+    <mj-section padding="0px 10px 20px" full-width="full-width">
+      <mj-column width="100%">
+        <mj-button href="{{submissionUrl}}" background-color="#ffffff" color="#1c2d44" font-size="13px" font-weight="500" letter-spacing="0.1em" text-transform="uppercase" border-radius="4px" inner-padding="12px 28px" css-class="avenir">
+          View submission
+        </mj-button>
+      </mj-column>
+    </mj-section>
     <mj-section padding="0px 10px 50px" full-width="full-width">
       <mj-column width="100%">
         <mj-divider border-color="rgba(255,255,255,0.2)" border-width="1px" padding="10px 0 20px 0" />
