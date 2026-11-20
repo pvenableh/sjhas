@@ -16,6 +16,8 @@ useSeoMeta({
 const submissions = useDirectusItems<FormSubmission>('form_submissions')
 const formsApi = useDirectusItems<Form>('forms')
 
+const PAGE_SIZE = 25
+
 const submissionList = ref<any[]>([])
 const formsList = ref<Form[]>([])
 const isLoading = ref(true)
@@ -25,63 +27,83 @@ const selectedForm = ref<string>('all')
 const expandedId = ref<number | null>(null)
 const notesDraft = ref('')
 const isSavingNotes = ref(false)
+const page = ref(1)
+const total = ref(0)
+const statusCounts = ref({ all: 0, new: 0, reviewed: 0, archived: 0 })
+const responseSearch = ref<'ok' | 'off' | 'unavailable'>('off')
 
-const fetchData = async () => {
+const totalPages = computed(() => Math.max(1, Math.ceil(total.value / PAGE_SIZE)))
+
+// Guards against out-of-order responses when filters change quickly.
+let requestSeq = 0
+
+const fetchSubmissions = async () => {
+  const seq = ++requestSeq
   isLoading.value = true
   try {
-    const [subs, forms] = await Promise.all([
-      submissions.list({
-        sort: ['-id'],
-        fields: ['id', 'form.id', 'form.title', 'form.slug', 'status', 'data', 'submitter_email', 'submitter_name', 'notes', 'date_created'],
-        limit: 100,
-      }),
-      formsApi.list({
-        fields: ['id', 'title', 'slug'],
-        sort: ['title'],
-      }),
-    ])
-    submissionList.value = subs
-    formsList.value = forms
+    const result = await $fetch<any>('/api/forms/submissions', {
+      query: {
+        page: page.value,
+        limit: PAGE_SIZE,
+        status: selectedStatus.value,
+        form_id: selectedForm.value === 'all' ? undefined : selectedForm.value,
+        q: searchQuery.value.trim() || undefined,
+      },
+    })
+    if (seq !== requestSeq) return
+    // Deleted rows can leave us past the last page; step back.
+    if (result.items.length === 0 && page.value > 1 && result.total > 0) {
+      page.value = Math.max(1, Math.ceil(result.total / PAGE_SIZE))
+      return fetchSubmissions()
+    }
+    submissionList.value = result.items
+    total.value = result.total
+    statusCounts.value = result.counts
+    responseSearch.value = result.responseSearch
   } catch (error) {
+    if (seq !== requestSeq) return
     console.error('Failed to fetch submissions:', error)
     toast.error('Failed to load submissions')
   } finally {
-    isLoading.value = false
+    if (seq === requestSeq) isLoading.value = false
   }
 }
 
+const fetchForms = async () => {
+  try {
+    formsList.value = await formsApi.list({ fields: ['id', 'title', 'slug'], sort: ['title'] })
+  } catch (error) {
+    console.error('Failed to fetch forms:', error)
+  }
+}
+
+const fetchData = () => Promise.all([fetchForms(), fetchSubmissions()])
+
 onMounted(fetchData)
 
-const filteredSubmissions = computed(() => {
-  let result = submissionList.value
-
-  if (selectedStatus.value !== 'all') {
-    result = result.filter((s) => s.status === selectedStatus.value)
-  }
-
-  if (selectedForm.value !== 'all') {
-    result = result.filter((s) => String(s.form?.id) === selectedForm.value)
-  }
-
-  if (searchQuery.value) {
-    const q = searchQuery.value.toLowerCase()
-    result = result.filter(
-      (s) =>
-        (s.submitter_name?.toLowerCase().includes(q)) ||
-        (s.submitter_email?.toLowerCase().includes(q)) ||
-        (s.form?.title?.toLowerCase().includes(q))
-    )
-  }
-
-  return result
+// Filters reset to page 1; search is debounced. Page changes refetch directly.
+let searchTimer: ReturnType<typeof setTimeout> | undefined
+watch(searchQuery, () => {
+  clearTimeout(searchTimer)
+  searchTimer = setTimeout(() => {
+    page.value = 1
+    expandedId.value = null
+    fetchSubmissions()
+  }, 300)
 })
+watch([selectedStatus, selectedForm], () => {
+  page.value = 1
+  expandedId.value = null
+  fetchSubmissions()
+})
+const goToPage = (n: number) => {
+  page.value = Math.min(Math.max(1, n), totalPages.value)
+  expandedId.value = null
+  fetchSubmissions()
+}
+onBeforeUnmount(() => clearTimeout(searchTimer))
 
-const statusCounts = computed(() => ({
-  all: submissionList.value.length,
-  new: submissionList.value.filter((s) => s.status === 'new').length,
-  reviewed: submissionList.value.filter((s) => s.status === 'reviewed').length,
-  archived: submissionList.value.filter((s) => s.status === 'archived').length,
-}))
+const filteredSubmissions = computed(() => submissionList.value)
 
 const formatDate = (date: string) => format(new Date(date), 'MMM d, yyyy h:mm a')
 
@@ -212,7 +234,7 @@ const getDisplayableData = (data: Record<string, unknown>) => {
             Select a form to export
           </p>
         </div>
-        <Button variant="secondary" @click="fetchData">
+        <Button variant="secondary" @click="fetchSubmissions">
           <Icon name="lucide:refresh-cw" class="w-4 h-4" />
           Refresh
         </Button>
@@ -242,7 +264,7 @@ const getDisplayableData = (data: Record<string, unknown>) => {
       <div class="flex flex-col sm:flex-row gap-4">
         <div class="relative flex-1">
           <Icon name="lucide:search" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-          <Input v-model="searchQuery" placeholder="Search by name, email, or form..." class="pl-10" />
+          <Input v-model="searchQuery" placeholder="Search name, email, form, notes, or responses..." class="pl-10" />
         </div>
         <select
           v-model="selectedForm"
@@ -254,6 +276,9 @@ const getDisplayableData = (data: Record<string, unknown>) => {
           </option>
         </select>
       </div>
+      <p v-if="responseSearch === 'unavailable'" class="mt-3 text-xs text-amber-700">
+        Searching inside responses isn't supported by this Directus version, so only name, email, notes and form were searched.
+      </p>
     </Card>
 
     <!-- Submissions list -->
@@ -362,22 +387,23 @@ const getDisplayableData = (data: Record<string, unknown>) => {
 
               <!-- Files -->
               <div v-if="sub.data?.uploaded_files?.length">
-                <p class="text-xs font-semibold text-slate-400 uppercase tracking-wide mb-3">Uploaded Files</p>
+                <div class="flex items-center justify-between mb-3">
+                  <p class="text-xs font-semibold text-slate-400 uppercase tracking-wide">Uploaded Files</p>
+                  <a
+                    v-if="sub.data.uploaded_files.length > 1"
+                    :href="`/api/forms/submissions/${sub.id}/files.zip`"
+                    class="inline-flex items-center gap-1 text-sm text-primary-600 hover:text-primary-700"
+                  >
+                    <Icon name="lucide:download" class="w-4 h-4" />
+                    Download all (.zip)
+                  </a>
+                </div>
                 <div class="space-y-2">
-                  <div
+                  <AdminSubmissionFile
                     v-for="file in (sub.data.uploaded_files as any[])"
                     :key="file.file_id"
-                    class="flex items-center gap-3 p-3 bg-white rounded-lg border border-slate-200"
-                  >
-                    <Icon name="lucide:file" class="w-5 h-5 text-slate-400" />
-                    <span class="text-sm text-slate-700 flex-1">{{ file.filename }}</span>
-                    <a
-                      :href="`/api/files/${file.file_id}?download=1`"
-                      class="text-sm text-primary-600 hover:text-primary-700"
-                    >
-                      Download
-                    </a>
-                  </div>
+                    :file="file"
+                  />
                 </div>
               </div>
 
@@ -428,6 +454,20 @@ const getDisplayableData = (data: Record<string, unknown>) => {
               </div>
             </div>
           </div>
+        </div>
+      </div>
+
+      <div
+        v-if="!isLoading && total > PAGE_SIZE"
+        class="flex items-center justify-between gap-4 p-4 border-t border-slate-200 text-sm text-slate-600"
+      >
+        <span>
+          {{ (page - 1) * PAGE_SIZE + 1 }}&ndash;{{ Math.min(page * PAGE_SIZE, total) }} of {{ total }}
+        </span>
+        <div class="flex items-center gap-2">
+          <Button variant="secondary" size="sm" :disabled="page <= 1" @click="goToPage(page - 1)">Previous</Button>
+          <span>Page {{ page }} of {{ totalPages }}</span>
+          <Button variant="secondary" size="sm" :disabled="page >= totalPages" @click="goToPage(page + 1)">Next</Button>
         </div>
       </div>
     </Card>

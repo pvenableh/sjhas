@@ -205,29 +205,23 @@ const getDisplayableData = (data: Record<string, unknown>) => {
 
         <!-- Files -->
         <div v-if="submission.data?.uploaded_files?.length">
-          <p class="text-xs font-semibold text-slate-400 uppercase tracking-wide mb-3">Uploaded Files</p>
+          <div class="flex items-center justify-between mb-3">
+            <p class="text-xs font-semibold text-slate-400 uppercase tracking-wide">Uploaded Files</p>
+            <a
+              v-if="submission.data.uploaded_files.length > 1"
+              :href="`/api/forms/submissions/${submission.id}/files.zip`"
+              class="inline-flex items-center gap-1 text-sm text-primary-600 hover:text-primary-700"
+            >
+              <Icon name="lucide:download" class="w-4 h-4" />
+              Download all (.zip)
+            </a>
+          </div>
           <div class="space-y-2">
-            <div
+            <AdminSubmissionFile
               v-for="file in (submission.data.uploaded_files as any[])"
               :key="file.file_id"
-              class="flex items-center gap-3 p-3 bg-white rounded-lg border border-slate-200"
-            >
-              <Icon name="lucide:file" class="w-5 h-5 text-slate-400" />
-              <span class="text-sm text-slate-700 flex-1 break-all">{{ file.filename }}</span>
-              <a
-                :href="`/api/files/${file.file_id}`"
-                target="_blank"
-                class="text-sm text-primary-600 hover:text-primary-700"
-              >
-                View
-              </a>
-              <a
-                :href="`/api/files/${file.file_id}?download=1`"
-                class="text-sm text-primary-600 hover:text-primary-700"
-              >
-                Download
-              </a>
-            </div>
+              :file="file"
+            />
           </div>
         </div>
 
